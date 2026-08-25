@@ -1,0 +1,2 @@
+transformers version: 5.15.1
+tokenizers version: 0.22.2

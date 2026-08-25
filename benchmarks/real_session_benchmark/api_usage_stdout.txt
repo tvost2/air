@@ -1,0 +1,11 @@
+{
+  "source": "Anthropic API 'usage' field, as logged per assistant record in this transcript",
+  "tokenizer": "Claude's own server-side tokenizer (not SmolLM2, not comparable 1:1 to the rest of this report)",
+  "n_api_calls": 5736,
+  "total_input_tokens": 11460,
+  "total_cache_read_input_tokens": 2722408252,
+  "total_cache_creation_input_tokens": 27069510,
+  "total_output_tokens": 5355031,
+  "total_thinking_tokens": 2569667,
+  "note": "input_tokens here is tiny per call because of prompt caching (cache_read_input_tokens dominates) -- this number reflects what Claude Code's own harness actually sent over the wire per API call, which already benefits from Anthropic's server-side prompt caching. It is NOT a baseline 'resend everything raw' measurement and is not directly comparable to the SmolLM2 cumulative-tokenization figures in this report."
+}

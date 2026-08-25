@@ -1,0 +1,1314 @@
+[
+  {
+    "turn": 1,
+    "baseline_cumulative_tokens": 22693,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 3691,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 28.557
+  },
+  {
+    "turn": 2,
+    "baseline_cumulative_tokens": 23790,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 4816,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 0.183
+  },
+  {
+    "turn": 3,
+    "baseline_cumulative_tokens": 48145,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 29002,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 7.163
+  },
+  {
+    "turn": 4,
+    "baseline_cumulative_tokens": 62726,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 43402,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 2.369
+  },
+  {
+    "turn": 5,
+    "baseline_cumulative_tokens": 63907,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 44583,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 1.024
+  },
+  {
+    "turn": 6,
+    "baseline_cumulative_tokens": 63914,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 44590,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 1.348
+  },
+  {
+    "turn": 7,
+    "baseline_cumulative_tokens": 64195,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 44871,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 0.937
+  },
+  {
+    "turn": 8,
+    "baseline_cumulative_tokens": 146601,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 106581,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 5.636
+  },
+  {
+    "turn": 9,
+    "baseline_cumulative_tokens": 271562,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 181712,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 23.434
+  },
+  {
+    "turn": 10,
+    "baseline_cumulative_tokens": 335424,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 215110,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 6.45
+  },
+  {
+    "turn": 11,
+    "baseline_cumulative_tokens": 362076,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 232536,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 5.919
+  },
+  {
+    "turn": 12,
+    "baseline_cumulative_tokens": 377222,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 243120,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 5.086
+  },
+  {
+    "turn": 13,
+    "baseline_cumulative_tokens": 419941,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 274344,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 6.407
+  },
+  {
+    "turn": 14,
+    "baseline_cumulative_tokens": 421114,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 275495,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 6.115
+  },
+  {
+    "turn": 15,
+    "baseline_cumulative_tokens": 456097,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 299206,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 6.335
+  },
+  {
+    "turn": 16,
+    "baseline_cumulative_tokens": 485941,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 318719,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 7.057
+  },
+  {
+    "turn": 17,
+    "baseline_cumulative_tokens": 593758,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 363780,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 8.548
+  },
+  {
+    "turn": 18,
+    "baseline_cumulative_tokens": 620479,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 378735,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 8.502
+  },
+  {
+    "turn": 19,
+    "baseline_cumulative_tokens": 649701,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 396247,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 9.119
+  },
+  {
+    "turn": 20,
+    "baseline_cumulative_tokens": 669132,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 405850,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 9.113
+  },
+  {
+    "turn": 21,
+    "baseline_cumulative_tokens": 716087,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 435884,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 10.189
+  },
+  {
+    "turn": 22,
+    "baseline_cumulative_tokens": 716100,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 435897,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 9.722
+  },
+  {
+    "turn": 23,
+    "baseline_cumulative_tokens": 766076,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 440415,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 10.115
+  },
+  {
+    "turn": 24,
+    "baseline_cumulative_tokens": 773434,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 445711,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 10.037
+  },
+  {
+    "turn": 25,
+    "baseline_cumulative_tokens": 773615,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 445892,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 10.155
+  },
+  {
+    "turn": 26,
+    "baseline_cumulative_tokens": 773830,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 446107,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 10.173
+  },
+  {
+    "turn": 27,
+    "baseline_cumulative_tokens": 773939,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 446216,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 10.698
+  },
+  {
+    "turn": 28,
+    "baseline_cumulative_tokens": 864791,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 500244,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 11.925
+  },
+  {
+    "turn": 29,
+    "baseline_cumulative_tokens": 915922,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 540077,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.858
+  },
+  {
+    "turn": 30,
+    "baseline_cumulative_tokens": 916649,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 540804,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.111
+  },
+  {
+    "turn": 31,
+    "baseline_cumulative_tokens": 920347,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 544768,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.855
+  },
+  {
+    "turn": 32,
+    "baseline_cumulative_tokens": 921153,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 545574,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.135
+  },
+  {
+    "turn": 33,
+    "baseline_cumulative_tokens": 923824,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 546813,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.95
+  },
+  {
+    "turn": 34,
+    "baseline_cumulative_tokens": 924527,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 547516,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.311
+  },
+  {
+    "turn": 35,
+    "baseline_cumulative_tokens": 925342,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 548331,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.993
+  },
+  {
+    "turn": 36,
+    "baseline_cumulative_tokens": 926375,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 549364,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.036
+  },
+  {
+    "turn": 37,
+    "baseline_cumulative_tokens": 932307,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 551449,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.229
+  },
+  {
+    "turn": 38,
+    "baseline_cumulative_tokens": 933432,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 551993,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.545
+  },
+  {
+    "turn": 39,
+    "baseline_cumulative_tokens": 935326,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 553153,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.923
+  },
+  {
+    "turn": 40,
+    "baseline_cumulative_tokens": 936012,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 553661,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.008
+  },
+  {
+    "turn": 41,
+    "baseline_cumulative_tokens": 937113,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 554761,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.287
+  },
+  {
+    "turn": 42,
+    "baseline_cumulative_tokens": 937516,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 555200,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.126
+  },
+  {
+    "turn": 43,
+    "baseline_cumulative_tokens": 937526,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 555210,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.534
+  },
+  {
+    "turn": 44,
+    "baseline_cumulative_tokens": 938259,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 555943,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.438
+  },
+  {
+    "turn": 45,
+    "baseline_cumulative_tokens": 940218,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 556970,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.046
+  },
+  {
+    "turn": 46,
+    "baseline_cumulative_tokens": 941230,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 557982,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.111
+  },
+  {
+    "turn": 47,
+    "baseline_cumulative_tokens": 941857,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 558609,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.874
+  },
+  {
+    "turn": 48,
+    "baseline_cumulative_tokens": 944789,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 559955,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.148
+  },
+  {
+    "turn": 49,
+    "baseline_cumulative_tokens": 945906,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 561072,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.95
+  },
+  {
+    "turn": 50,
+    "baseline_cumulative_tokens": 946696,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 561862,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.702
+  },
+  {
+    "turn": 51,
+    "baseline_cumulative_tokens": 947533,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 562699,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.986
+  },
+  {
+    "turn": 52,
+    "baseline_cumulative_tokens": 948540,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 563706,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.731
+  },
+  {
+    "turn": 53,
+    "baseline_cumulative_tokens": 949455,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 564621,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.401
+  },
+  {
+    "turn": 54,
+    "baseline_cumulative_tokens": 950208,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 565374,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.535
+  },
+  {
+    "turn": 55,
+    "baseline_cumulative_tokens": 951085,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 566251,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.726
+  },
+  {
+    "turn": 56,
+    "baseline_cumulative_tokens": 951944,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 567110,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 15.666
+  },
+  {
+    "turn": 57,
+    "baseline_cumulative_tokens": 952265,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 567431,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.362
+  },
+  {
+    "turn": 58,
+    "baseline_cumulative_tokens": 952536,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 567702,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.577
+  },
+  {
+    "turn": 59,
+    "baseline_cumulative_tokens": 953264,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 568430,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.099
+  },
+  {
+    "turn": 60,
+    "baseline_cumulative_tokens": 954041,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 569207,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.751
+  },
+  {
+    "turn": 61,
+    "baseline_cumulative_tokens": 956903,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 570380,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.599
+  },
+  {
+    "turn": 62,
+    "baseline_cumulative_tokens": 959563,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 571499,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.969
+  },
+  {
+    "turn": 63,
+    "baseline_cumulative_tokens": 962286,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 572596,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.695
+  },
+  {
+    "turn": 64,
+    "baseline_cumulative_tokens": 963174,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 573484,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.933
+  },
+  {
+    "turn": 65,
+    "baseline_cumulative_tokens": 963968,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 574278,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.679
+  },
+  {
+    "turn": 66,
+    "baseline_cumulative_tokens": 964477,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 574787,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.317
+  },
+  {
+    "turn": 67,
+    "baseline_cumulative_tokens": 965188,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 575498,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.737
+  },
+  {
+    "turn": 68,
+    "baseline_cumulative_tokens": 965980,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 576290,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.599
+  },
+  {
+    "turn": 69,
+    "baseline_cumulative_tokens": 966403,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 576713,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.984
+  },
+  {
+    "turn": 70,
+    "baseline_cumulative_tokens": 967005,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 577315,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.465
+  },
+  {
+    "turn": 71,
+    "baseline_cumulative_tokens": 967861,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 578171,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.509
+  },
+  {
+    "turn": 72,
+    "baseline_cumulative_tokens": 968581,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 578891,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.606
+  },
+  {
+    "turn": 73,
+    "baseline_cumulative_tokens": 969391,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 579701,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.839
+  },
+  {
+    "turn": 74,
+    "baseline_cumulative_tokens": 971948,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 580809,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.917
+  },
+  {
+    "turn": 75,
+    "baseline_cumulative_tokens": 973958,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 581658,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.048
+  },
+  {
+    "turn": 76,
+    "baseline_cumulative_tokens": 975974,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 582519,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.799
+  },
+  {
+    "turn": 77,
+    "baseline_cumulative_tokens": 978241,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 583580,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.888
+  },
+  {
+    "turn": 78,
+    "baseline_cumulative_tokens": 981630,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 584734,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.523
+  },
+  {
+    "turn": 79,
+    "baseline_cumulative_tokens": 982324,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 585428,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.059
+  },
+  {
+    "turn": 80,
+    "baseline_cumulative_tokens": 984006,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 587096,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.912
+  },
+  {
+    "turn": 81,
+    "baseline_cumulative_tokens": 984547,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 587637,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.403
+  },
+  {
+    "turn": 82,
+    "baseline_cumulative_tokens": 985314,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 588404,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.159
+  },
+  {
+    "turn": 83,
+    "baseline_cumulative_tokens": 986392,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 588700,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.038
+  },
+  {
+    "turn": 84,
+    "baseline_cumulative_tokens": 986399,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 588707,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.551
+  },
+  {
+    "turn": 85,
+    "baseline_cumulative_tokens": 986503,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 588811,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.676
+  },
+  {
+    "turn": 86,
+    "baseline_cumulative_tokens": 986671,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 588979,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.885
+  },
+  {
+    "turn": 87,
+    "baseline_cumulative_tokens": 986876,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 589184,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 12.46
+  },
+  {
+    "turn": 88,
+    "baseline_cumulative_tokens": 987338,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 589646,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.428
+  },
+  {
+    "turn": 89,
+    "baseline_cumulative_tokens": 987635,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 589943,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.555
+  },
+  {
+    "turn": 90,
+    "baseline_cumulative_tokens": 1014301,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 607539,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.02
+  },
+  {
+    "turn": 91,
+    "baseline_cumulative_tokens": 1014348,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 607586,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.651
+  },
+  {
+    "turn": 92,
+    "baseline_cumulative_tokens": 1014361,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 607599,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.543
+  },
+  {
+    "turn": 93,
+    "baseline_cumulative_tokens": 1015494,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 608732,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.536
+  },
+  {
+    "turn": 94,
+    "baseline_cumulative_tokens": 1015597,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 608835,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 13.561
+  },
+  {
+    "turn": 95,
+    "baseline_cumulative_tokens": 1016349,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 609587,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.266
+  },
+  {
+    "turn": 96,
+    "baseline_cumulative_tokens": 1036892,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 621021,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.303
+  },
+  {
+    "turn": 97,
+    "baseline_cumulative_tokens": 1090958,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 634663,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.727
+  },
+  {
+    "turn": 98,
+    "baseline_cumulative_tokens": 1115886,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 643600,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.254
+  },
+  {
+    "turn": 99,
+    "baseline_cumulative_tokens": 1118495,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 644650,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.006
+  },
+  {
+    "turn": 100,
+    "baseline_cumulative_tokens": 1119622,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 645825,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 15.22
+  },
+  {
+    "turn": 101,
+    "baseline_cumulative_tokens": 1120245,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 646448,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.757
+  },
+  {
+    "turn": 102,
+    "baseline_cumulative_tokens": 1132203,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 650508,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 15.429
+  },
+  {
+    "turn": 103,
+    "baseline_cumulative_tokens": 1138518,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 654150,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 14.846
+  },
+  {
+    "turn": 104,
+    "baseline_cumulative_tokens": 1139188,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 654820,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 15.348
+  },
+  {
+    "turn": 105,
+    "baseline_cumulative_tokens": 1156941,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 656737,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 16.206
+  },
+  {
+    "turn": 106,
+    "baseline_cumulative_tokens": 1170429,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 668989,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 16.229
+  },
+  {
+    "turn": 107,
+    "baseline_cumulative_tokens": 1183160,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 676438,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 15.125
+  },
+  {
+    "turn": 108,
+    "baseline_cumulative_tokens": 1189590,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 680447,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 15.683
+  },
+  {
+    "turn": 109,
+    "baseline_cumulative_tokens": 1228174,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 713574,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 16.283
+  },
+  {
+    "turn": 110,
+    "baseline_cumulative_tokens": 1232629,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 715432,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 15.885
+  },
+  {
+    "turn": 111,
+    "baseline_cumulative_tokens": 1234462,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 716212,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 16.524
+  },
+  {
+    "turn": 112,
+    "baseline_cumulative_tokens": 1237674,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 717024,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 16.278
+  },
+  {
+    "turn": 113,
+    "baseline_cumulative_tokens": 1241278,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 720433,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 16.499
+  },
+  {
+    "turn": 114,
+    "baseline_cumulative_tokens": 1241288,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 720443,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 16.091
+  },
+  {
+    "turn": 115,
+    "baseline_cumulative_tokens": 1332648,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 777496,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 18.48
+  },
+  {
+    "turn": 116,
+    "baseline_cumulative_tokens": 1411348,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 840729,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 18.893
+  },
+  {
+    "turn": 117,
+    "baseline_cumulative_tokens": 1417952,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 844793,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 19.061
+  },
+  {
+    "turn": 118,
+    "baseline_cumulative_tokens": 1419989,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 846540,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 19.127
+  },
+  {
+    "turn": 119,
+    "baseline_cumulative_tokens": 1420407,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 846958,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 19.744
+  },
+  {
+    "turn": 120,
+    "baseline_cumulative_tokens": 1426721,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 851359,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 19.979
+  },
+  {
+    "turn": 121,
+    "baseline_cumulative_tokens": 1446703,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 860704,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 19.74
+  },
+  {
+    "turn": 122,
+    "baseline_cumulative_tokens": 1452025,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 865059,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 19.841
+  },
+  {
+    "turn": 123,
+    "baseline_cumulative_tokens": 1463831,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 873259,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 19.727
+  },
+  {
+    "turn": 124,
+    "baseline_cumulative_tokens": 1501284,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 908489,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 25.567
+  },
+  {
+    "turn": 125,
+    "baseline_cumulative_tokens": 1502172,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 909404,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 23.288
+  },
+  {
+    "turn": 126,
+    "baseline_cumulative_tokens": 1572702,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 969107,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 23.793
+  },
+  {
+    "turn": 127,
+    "baseline_cumulative_tokens": 1573151,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 969556,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 25.278
+  },
+  {
+    "turn": 128,
+    "baseline_cumulative_tokens": 1595778,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 989005,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 24.79
+  },
+  {
+    "turn": 129,
+    "baseline_cumulative_tokens": 1696858,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1066921,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 25.675
+  },
+  {
+    "turn": 130,
+    "baseline_cumulative_tokens": 1761536,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1111804,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 25.931
+  },
+  {
+    "turn": 131,
+    "baseline_cumulative_tokens": 1793694,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1133866,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 26.651
+  },
+  {
+    "turn": 132,
+    "baseline_cumulative_tokens": 1811251,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1145548,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 26.57
+  },
+  {
+    "turn": 133,
+    "baseline_cumulative_tokens": 1811261,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1145558,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 26.64
+  },
+  {
+    "turn": 134,
+    "baseline_cumulative_tokens": 1814320,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1147563,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 28.729
+  },
+  {
+    "turn": 135,
+    "baseline_cumulative_tokens": 1819792,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1149575,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 28.435
+  },
+  {
+    "turn": 136,
+    "baseline_cumulative_tokens": 1820114,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1149928,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 30.936
+  },
+  {
+    "turn": 137,
+    "baseline_cumulative_tokens": 1820689,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1150453,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 27.344
+  },
+  {
+    "turn": 138,
+    "baseline_cumulative_tokens": 1825967,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1154511,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 27.692
+  },
+  {
+    "turn": 139,
+    "baseline_cumulative_tokens": 1871630,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1186720,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 28.36
+  },
+  {
+    "turn": 140,
+    "baseline_cumulative_tokens": 1878440,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1193060,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 27.855
+  },
+  {
+    "turn": 141,
+    "baseline_cumulative_tokens": 1900428,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1211316,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 29.043
+  },
+  {
+    "turn": 142,
+    "baseline_cumulative_tokens": 1918029,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1223613,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 29.261
+  },
+  {
+    "turn": 143,
+    "baseline_cumulative_tokens": 1942637,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1241227,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 29.819
+  },
+  {
+    "turn": 144,
+    "baseline_cumulative_tokens": 1947522,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1243573,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 29.924
+  },
+  {
+    "turn": 145,
+    "baseline_cumulative_tokens": 1954561,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1247279,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 31.673
+  },
+  {
+    "turn": 146,
+    "baseline_cumulative_tokens": 1954890,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1247608,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 28.893
+  },
+  {
+    "turn": 147,
+    "baseline_cumulative_tokens": 1958450,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1249840,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 29.292
+  },
+  {
+    "turn": 148,
+    "baseline_cumulative_tokens": 1981967,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1271558,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 32.354
+  },
+  {
+    "turn": 149,
+    "baseline_cumulative_tokens": 1985948,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1273797,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 32.576
+  },
+  {
+    "turn": 150,
+    "baseline_cumulative_tokens": 1987319,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1275168,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 29.085
+  },
+  {
+    "turn": 151,
+    "baseline_cumulative_tokens": 2010708,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1284909,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 32.155
+  },
+  {
+    "turn": 152,
+    "baseline_cumulative_tokens": 2010718,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1284919,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 31.688
+  },
+  {
+    "turn": 153,
+    "baseline_cumulative_tokens": 2011318,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1285533,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 30.336
+  },
+  {
+    "turn": 154,
+    "baseline_cumulative_tokens": 2024748,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1292043,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 30.894
+  },
+  {
+    "turn": 155,
+    "baseline_cumulative_tokens": 2053982,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1312734,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 32.111
+  },
+  {
+    "turn": 156,
+    "baseline_cumulative_tokens": 2107969,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1353141,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 32.209
+  },
+  {
+    "turn": 157,
+    "baseline_cumulative_tokens": 2112983,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1357594,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 31.391
+  },
+  {
+    "turn": 158,
+    "baseline_cumulative_tokens": 2116425,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1361337,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 30.926
+  },
+  {
+    "turn": 159,
+    "baseline_cumulative_tokens": 2118579,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1362032,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 34.818
+  },
+  {
+    "turn": 160,
+    "baseline_cumulative_tokens": 2119062,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1362515,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 33.225
+  },
+  {
+    "turn": 161,
+    "baseline_cumulative_tokens": 2119549,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1363002,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 35.62
+  },
+  {
+    "turn": 162,
+    "baseline_cumulative_tokens": 2120542,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1363564,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 31.36
+  },
+  {
+    "turn": 163,
+    "baseline_cumulative_tokens": 2121667,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1364689,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 33.514
+  },
+  {
+    "turn": 164,
+    "baseline_cumulative_tokens": 2132691,
+    "baseline_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "air_cumulative_tokens": 1370954,
+    "air_method": "tokenizer:HuggingFaceTB/SmolLM2-360M-Instruct",
+    "tokenize_time_s": 40.148
+  }
+]
