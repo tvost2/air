@@ -1,0 +1,27 @@
+[OK] world.dependents_of retorna quem depende da entidade
+[OK] world.events_of registra evento
+[OK] world.find_entity_by_name acha por nome
+[OK] memory.recall retorna so' o fato ATIVO mais recente
+[OK] memory novo fato aponta supersedes pro antigo
+[OK] memory.history mostra as duas versoes
+[OK] context: item pequeno entra inteiro no render
+[OK] context: item grande NAO entra inteiro no render (so' referencia)
+[OK] context: item grande ainda pode ser recuperado por get()
+[OK] context: render do item grande e' bem menor que o conteudo original
+[OK] permissions: nega por padrao (sem grant)
+[OK] permissions: permite dentro do escopo concedido
+[OK] permissions: nega fora do escopo concedido
+[OK] permissions.require levanta PermissionDenied quando falta capacidade
+[OK] tools: output grande vira dict com handle, nao string crua
+[OK] tools: conteudo completo ainda acessivel via context.get
+[OK] verification: erro reportado -> FAILED
+[OK] verification: sem erro e com output -> OK
+[OK] verification: sem erro e sem output -> UNKNOWN
+[OK] planner: tarefa 1 falhou
+[OK] planner: tarefa 2 nunca rodou (dependencia falhou antes)
+[OK] agent: world state acessivel via fachada
+[OK] agent: memory acessivel via fachada
+[OK] agent: tool registrada e chamada via fachada, sem erro
+
+Todos os testes passaram.
+test_air exit: 0

@@ -1,0 +1,1276 @@
+[
+  {
+    "id": "factual_simple_00",
+    "category": "factual_simple",
+    "difficulty": "easy",
+    "context": "O time revisou o backlog do sprint na reuniao de quinta-feira. A documentacao do modulo de logging foi atualizada recentemente. A sala de reunioes B foi reservada para o workshop de arquitetura. O servico reporting-service e' mantido pela equipe de Fabio Lacerda. Foi feita uma limpeza de branches antigas no repositorio principal.",
+    "question": "Quem mantem o servico reporting-service?",
+    "expected_answer": "Fabio Lacerda",
+    "relevant_information": [
+      "O servico reporting-service e' mantido pela equipe de Fabio Lacerda."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico reporting-service e' mantido pela equipe de Fabio Lacerda.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "factual_simple_01",
+    "category": "factual_simple",
+    "difficulty": "easy",
+    "context": "Foi feita uma limpeza de branches antigas no repositorio principal. O servico reporting-service e' mantido pela equipe de Diego Prado. A sala de reunioes B foi reservada para o workshop de arquitetura.",
+    "question": "Quem mantem o servico reporting-service?",
+    "expected_answer": "Diego Prado",
+    "relevant_information": [
+      "O servico reporting-service e' mantido pela equipe de Diego Prado."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico reporting-service e' mantido pela equipe de Diego Prado.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "factual_simple_02",
+    "category": "factual_simple",
+    "difficulty": "easy",
+    "context": "O servico notifications-service e' mantido pela equipe de Iris Bonfim. O relatorio mensal de metricas foi enviado para a lideranca. A politica de backup foi revisada e aprovada pelo comite tecnico. A documentacao do modulo de logging foi atualizada recentemente.",
+    "question": "Quem mantem o servico notifications-service?",
+    "expected_answer": "Iris Bonfim",
+    "relevant_information": [
+      "O servico notifications-service e' mantido pela equipe de Iris Bonfim."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico notifications-service e' mantido pela equipe de Iris Bonfim.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "factual_simple_03",
+    "category": "factual_simple",
+    "difficulty": "easy",
+    "context": "A politica de backup foi revisada e aprovada pelo comite tecnico. O servico reporting-service e' mantido pela equipe de Diego Prado. O certificado SSL do ambiente de staging foi renovado sem incidentes.",
+    "question": "Quem mantem o servico reporting-service?",
+    "expected_answer": "Diego Prado",
+    "relevant_information": [
+      "O servico reporting-service e' mantido pela equipe de Diego Prado."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico reporting-service e' mantido pela equipe de Diego Prado.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "factual_simple_04",
+    "category": "factual_simple",
+    "difficulty": "easy",
+    "context": "O time de QA reportou zero bugs criticos na ultima rodada de testes. O servico shipping-service e' mantido pela equipe de Gabriela Tavares. A sala de reunioes B foi reservada para o workshop de arquitetura. O relatorio mensal de metricas foi enviado para a lideranca.",
+    "question": "Quem mantem o servico shipping-service?",
+    "expected_answer": "Gabriela Tavares",
+    "relevant_information": [
+      "O servico shipping-service e' mantido pela equipe de Gabriela Tavares."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico shipping-service e' mantido pela equipe de Gabriela Tavares.",
+        "subject": "service:shipping-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "factual_simple_05",
+    "category": "factual_simple",
+    "difficulty": "easy",
+    "context": "Houve uma pausa para cafe as 15h durante a sessao de planejamento. A equipe de design entregou os novos mockups da tela de login. O servico notifications-service e' mantido pela equipe de Joao Peixoto.",
+    "question": "Quem mantem o servico notifications-service?",
+    "expected_answer": "Joao Peixoto",
+    "relevant_information": [
+      "O servico notifications-service e' mantido pela equipe de Joao Peixoto."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico notifications-service e' mantido pela equipe de Joao Peixoto.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "factual_simple_06",
+    "category": "factual_simple",
+    "difficulty": "easy",
+    "context": "A sala de reunioes B foi reservada para o workshop de arquitetura. A equipe de design entregou os novos mockups da tela de login. O servico billing-service e' mantido pela equipe de Elena Cardoso. O time de QA reportou zero bugs criticos na ultima rodada de testes. A documentacao do modulo de logging foi atualizada recentemente.",
+    "question": "Quem mantem o servico billing-service?",
+    "expected_answer": "Elena Cardoso",
+    "relevant_information": [
+      "O servico billing-service e' mantido pela equipe de Elena Cardoso."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico billing-service e' mantido pela equipe de Elena Cardoso.",
+        "subject": "service:billing-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "factual_simple_07",
+    "category": "factual_simple",
+    "difficulty": "easy",
+    "context": "O pipeline de CI levou em media 8 minutos para concluir os testes. A sala de reunioes B foi reservada para o workshop de arquitetura. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O servico billing-service e' mantido pela equipe de Carla Nunes.",
+    "question": "Quem mantem o servico billing-service?",
+    "expected_answer": "Carla Nunes",
+    "relevant_information": [
+      "O servico billing-service e' mantido pela equipe de Carla Nunes."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico billing-service e' mantido pela equipe de Carla Nunes.",
+        "subject": "service:billing-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "multi_hop_00",
+    "category": "multi_hop",
+    "difficulty": "medium",
+    "context": "Foi feita uma limpeza de branches antigas no repositorio principal. Iris Bonfim prefere ser contatado(a) por Slack. O projeto phoenix e' de responsabilidade de Iris Bonfim. Foi feita uma limpeza de branches antigas no repositorio principal.",
+    "question": "Qual o canal de contato preferido do responsavel pelo projeto phoenix?",
+    "expected_answer": "Slack",
+    "relevant_information": [
+      "O projeto phoenix e' de responsabilidade de Iris Bonfim.",
+      "Iris Bonfim prefere ser contatado(a) por Slack."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O projeto phoenix e' de responsabilidade de Iris Bonfim.",
+        "subject": "project:phoenix",
+        "predicate": "owner"
+      },
+      {
+        "text": "Iris Bonfim prefere ser contatado(a) por Slack.",
+        "subject": "person:Iris Bonfim",
+        "predicate": "preferred_channel"
+      }
+    ]
+  },
+  {
+    "id": "multi_hop_01",
+    "category": "multi_hop",
+    "difficulty": "medium",
+    "context": "Diego Prado prefere ser contatado(a) por email. O pipeline de CI levou em media 8 minutos para concluir os testes. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O projeto phoenix e' de responsabilidade de Diego Prado. O time revisou o backlog do sprint na reuniao de segunda-feira.",
+    "question": "Qual o canal de contato preferido do responsavel pelo projeto phoenix?",
+    "expected_answer": "email",
+    "relevant_information": [
+      "O projeto phoenix e' de responsabilidade de Diego Prado.",
+      "Diego Prado prefere ser contatado(a) por email."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O projeto phoenix e' de responsabilidade de Diego Prado.",
+        "subject": "project:phoenix",
+        "predicate": "owner"
+      },
+      {
+        "text": "Diego Prado prefere ser contatado(a) por email.",
+        "subject": "person:Diego Prado",
+        "predicate": "preferred_channel"
+      }
+    ]
+  },
+  {
+    "id": "multi_hop_02",
+    "category": "multi_hop",
+    "difficulty": "medium",
+    "context": "A documentacao do modulo de logging foi atualizada recentemente. O projeto helix e' de responsabilidade de Luis Amorim. O pipeline de CI levou em media 8 minutos para concluir os testes. Luis Amorim prefere ser contatado(a) por Slack.",
+    "question": "Qual o canal de contato preferido do responsavel pelo projeto helix?",
+    "expected_answer": "Slack",
+    "relevant_information": [
+      "O projeto helix e' de responsabilidade de Luis Amorim.",
+      "Luis Amorim prefere ser contatado(a) por Slack."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O projeto helix e' de responsabilidade de Luis Amorim.",
+        "subject": "project:helix",
+        "predicate": "owner"
+      },
+      {
+        "text": "Luis Amorim prefere ser contatado(a) por Slack.",
+        "subject": "person:Luis Amorim",
+        "predicate": "preferred_channel"
+      }
+    ]
+  },
+  {
+    "id": "multi_hop_03",
+    "category": "multi_hop",
+    "difficulty": "medium",
+    "context": "Ana Ferreira prefere ser contatado(a) por Slack. A documentacao do modulo de logging foi atualizada recentemente. O time de QA reportou zero bugs criticos na ultima rodada de testes. O projeto orion e' de responsabilidade de Ana Ferreira.",
+    "question": "Qual o canal de contato preferido do responsavel pelo projeto orion?",
+    "expected_answer": "Slack",
+    "relevant_information": [
+      "O projeto orion e' de responsabilidade de Ana Ferreira.",
+      "Ana Ferreira prefere ser contatado(a) por Slack."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O projeto orion e' de responsabilidade de Ana Ferreira.",
+        "subject": "project:orion",
+        "predicate": "owner"
+      },
+      {
+        "text": "Ana Ferreira prefere ser contatado(a) por Slack.",
+        "subject": "person:Ana Ferreira",
+        "predicate": "preferred_channel"
+      }
+    ]
+  },
+  {
+    "id": "multi_hop_04",
+    "category": "multi_hop",
+    "difficulty": "medium",
+    "context": "Gabriela Tavares prefere ser contatado(a) por Teams. Um novo membro se juntou ao time de infraestrutura este mes. O time revisou o backlog do sprint na reuniao de terca-feira. A sala de reunioes B foi reservada para o workshop de arquitetura. O projeto helix e' de responsabilidade de Gabriela Tavares. O time de QA reportou zero bugs criticos na ultima rodada de testes.",
+    "question": "Qual o canal de contato preferido do responsavel pelo projeto helix?",
+    "expected_answer": "Teams",
+    "relevant_information": [
+      "O projeto helix e' de responsabilidade de Gabriela Tavares.",
+      "Gabriela Tavares prefere ser contatado(a) por Teams."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O projeto helix e' de responsabilidade de Gabriela Tavares.",
+        "subject": "project:helix",
+        "predicate": "owner"
+      },
+      {
+        "text": "Gabriela Tavares prefere ser contatado(a) por Teams.",
+        "subject": "person:Gabriela Tavares",
+        "predicate": "preferred_channel"
+      }
+    ]
+  },
+  {
+    "id": "multi_hop_05",
+    "category": "multi_hop",
+    "difficulty": "medium",
+    "context": "Houve uma pausa para cafe as 15h durante a sessao de planejamento. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O projeto nebula e' de responsabilidade de Bruno Salles. Bruno Salles prefere ser contatado(a) por Slack. A sala de reunioes B foi reservada para o workshop de arquitetura. O pipeline de CI levou em media 8 minutos para concluir os testes.",
+    "question": "Qual o canal de contato preferido do responsavel pelo projeto nebula?",
+    "expected_answer": "Slack",
+    "relevant_information": [
+      "O projeto nebula e' de responsabilidade de Bruno Salles.",
+      "Bruno Salles prefere ser contatado(a) por Slack."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O projeto nebula e' de responsabilidade de Bruno Salles.",
+        "subject": "project:nebula",
+        "predicate": "owner"
+      },
+      {
+        "text": "Bruno Salles prefere ser contatado(a) por Slack.",
+        "subject": "person:Bruno Salles",
+        "predicate": "preferred_channel"
+      }
+    ]
+  },
+  {
+    "id": "multi_hop_06",
+    "category": "multi_hop",
+    "difficulty": "medium",
+    "context": "A sala de reunioes B foi reservada para o workshop de arquitetura. O time revisou o backlog do sprint na reuniao de segunda-feira. O projeto orion e' de responsabilidade de Luis Amorim. O time revisou o backlog do sprint na reuniao de terca-feira. O time revisou o backlog do sprint na reuniao de terca-feira. Luis Amorim prefere ser contatado(a) por email.",
+    "question": "Qual o canal de contato preferido do responsavel pelo projeto orion?",
+    "expected_answer": "email",
+    "relevant_information": [
+      "O projeto orion e' de responsabilidade de Luis Amorim.",
+      "Luis Amorim prefere ser contatado(a) por email."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O projeto orion e' de responsabilidade de Luis Amorim.",
+        "subject": "project:orion",
+        "predicate": "owner"
+      },
+      {
+        "text": "Luis Amorim prefere ser contatado(a) por email.",
+        "subject": "person:Luis Amorim",
+        "predicate": "preferred_channel"
+      }
+    ]
+  },
+  {
+    "id": "multi_hop_07",
+    "category": "multi_hop",
+    "difficulty": "medium",
+    "context": "O projeto zephyr e' de responsabilidade de Hugo Marchetti. A politica de backup foi revisada e aprovada pelo comite tecnico. A sala de reunioes B foi reservada para o workshop de arquitetura. A documentacao do modulo de logging foi atualizada recentemente. Hugo Marchetti prefere ser contatado(a) por Slack.",
+    "question": "Qual o canal de contato preferido do responsavel pelo projeto zephyr?",
+    "expected_answer": "Slack",
+    "relevant_information": [
+      "O projeto zephyr e' de responsabilidade de Hugo Marchetti.",
+      "Hugo Marchetti prefere ser contatado(a) por Slack."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O projeto zephyr e' de responsabilidade de Hugo Marchetti.",
+        "subject": "project:zephyr",
+        "predicate": "owner"
+      },
+      {
+        "text": "Hugo Marchetti prefere ser contatado(a) por Slack.",
+        "subject": "person:Hugo Marchetti",
+        "predicate": "preferred_channel"
+      }
+    ]
+  },
+  {
+    "id": "recency_conflict_00",
+    "category": "recency_conflict",
+    "difficulty": "hard",
+    "context": "Em janeiro/2024, o time decidiu usar DynamoDB para o projeto vertex. O relatorio mensal de metricas foi enviado para a lideranca. Em junho/2026 (mais recente), o projeto vertex foi migrado para PostgreSQL.",
+    "question": "Qual banco de dados o projeto vertex usa atualmente?",
+    "expected_answer": "PostgreSQL",
+    "relevant_information": [
+      "Em junho/2026 (mais recente), o projeto vertex foi migrado para PostgreSQL."
+    ],
+    "sentence_keys": [
+      {
+        "text": "Em janeiro/2024, o time decidiu usar DynamoDB para o projeto vertex.",
+        "subject": "project:vertex",
+        "predicate": "database"
+      },
+      {
+        "text": "Em junho/2026 (mais recente), o projeto vertex foi migrado para PostgreSQL.",
+        "subject": "project:vertex",
+        "predicate": "database"
+      }
+    ]
+  },
+  {
+    "id": "recency_conflict_01",
+    "category": "recency_conflict",
+    "difficulty": "hard",
+    "context": "Em julho/2024, o time decidiu usar MongoDB para o projeto phoenix. A politica de backup foi revisada e aprovada pelo comite tecnico. O relatorio mensal de metricas foi enviado para a lideranca. A equipe de design entregou os novos mockups da tela de login. Em fevereiro/2026 (mais recente), o projeto phoenix foi migrado para Cassandra.",
+    "question": "Qual banco de dados o projeto phoenix usa atualmente?",
+    "expected_answer": "Cassandra",
+    "relevant_information": [
+      "Em fevereiro/2026 (mais recente), o projeto phoenix foi migrado para Cassandra."
+    ],
+    "sentence_keys": [
+      {
+        "text": "Em julho/2024, o time decidiu usar MongoDB para o projeto phoenix.",
+        "subject": "project:phoenix",
+        "predicate": "database"
+      },
+      {
+        "text": "Em fevereiro/2026 (mais recente), o projeto phoenix foi migrado para Cassandra.",
+        "subject": "project:phoenix",
+        "predicate": "database"
+      }
+    ]
+  },
+  {
+    "id": "recency_conflict_02",
+    "category": "recency_conflict",
+    "difficulty": "hard",
+    "context": "Em julho/2024, o time decidiu usar Cassandra para o projeto helix. Foi feita uma limpeza de branches antigas no repositorio principal. A sala de reunioes B foi reservada para o workshop de arquitetura. A politica de backup foi revisada e aprovada pelo comite tecnico. Em agosto/2026 (mais recente), o projeto helix foi migrado para MySQL.",
+    "question": "Qual banco de dados o projeto helix usa atualmente?",
+    "expected_answer": "MySQL",
+    "relevant_information": [
+      "Em agosto/2026 (mais recente), o projeto helix foi migrado para MySQL."
+    ],
+    "sentence_keys": [
+      {
+        "text": "Em julho/2024, o time decidiu usar Cassandra para o projeto helix.",
+        "subject": "project:helix",
+        "predicate": "database"
+      },
+      {
+        "text": "Em agosto/2026 (mais recente), o projeto helix foi migrado para MySQL.",
+        "subject": "project:helix",
+        "predicate": "database"
+      }
+    ]
+  },
+  {
+    "id": "recency_conflict_03",
+    "category": "recency_conflict",
+    "difficulty": "hard",
+    "context": "Em marco/2024, o time decidiu usar MySQL para o projeto zephyr. Um novo membro se juntou ao time de infraestrutura este mes. Em junho/2026 (mais recente), o projeto zephyr foi migrado para DynamoDB.",
+    "question": "Qual banco de dados o projeto zephyr usa atualmente?",
+    "expected_answer": "DynamoDB",
+    "relevant_information": [
+      "Em junho/2026 (mais recente), o projeto zephyr foi migrado para DynamoDB."
+    ],
+    "sentence_keys": [
+      {
+        "text": "Em marco/2024, o time decidiu usar MySQL para o projeto zephyr.",
+        "subject": "project:zephyr",
+        "predicate": "database"
+      },
+      {
+        "text": "Em junho/2026 (mais recente), o projeto zephyr foi migrado para DynamoDB.",
+        "subject": "project:zephyr",
+        "predicate": "database"
+      }
+    ]
+  },
+  {
+    "id": "recency_conflict_04",
+    "category": "recency_conflict",
+    "difficulty": "hard",
+    "context": "Em marco/2024, o time decidiu usar Cassandra para o projeto helix. A equipe de design entregou os novos mockups da tela de login. Em junho/2026 (mais recente), o projeto helix foi migrado para DynamoDB.",
+    "question": "Qual banco de dados o projeto helix usa atualmente?",
+    "expected_answer": "DynamoDB",
+    "relevant_information": [
+      "Em junho/2026 (mais recente), o projeto helix foi migrado para DynamoDB."
+    ],
+    "sentence_keys": [
+      {
+        "text": "Em marco/2024, o time decidiu usar Cassandra para o projeto helix.",
+        "subject": "project:helix",
+        "predicate": "database"
+      },
+      {
+        "text": "Em junho/2026 (mais recente), o projeto helix foi migrado para DynamoDB.",
+        "subject": "project:helix",
+        "predicate": "database"
+      }
+    ]
+  },
+  {
+    "id": "recency_conflict_05",
+    "category": "recency_conflict",
+    "difficulty": "hard",
+    "context": "Em marco/2024, o time decidiu usar PostgreSQL para o projeto vertex. Foi feita uma limpeza de branches antigas no repositorio principal. O pipeline de CI levou em media 8 minutos para concluir os testes. Em fevereiro/2026 (mais recente), o projeto vertex foi migrado para DynamoDB.",
+    "question": "Qual banco de dados o projeto vertex usa atualmente?",
+    "expected_answer": "DynamoDB",
+    "relevant_information": [
+      "Em fevereiro/2026 (mais recente), o projeto vertex foi migrado para DynamoDB."
+    ],
+    "sentence_keys": [
+      {
+        "text": "Em marco/2024, o time decidiu usar PostgreSQL para o projeto vertex.",
+        "subject": "project:vertex",
+        "predicate": "database"
+      },
+      {
+        "text": "Em fevereiro/2026 (mais recente), o projeto vertex foi migrado para DynamoDB.",
+        "subject": "project:vertex",
+        "predicate": "database"
+      }
+    ]
+  },
+  {
+    "id": "recency_conflict_06",
+    "category": "recency_conflict",
+    "difficulty": "hard",
+    "context": "Em janeiro/2024, o time decidiu usar MySQL para o projeto quasar. A politica de backup foi revisada e aprovada pelo comite tecnico. O pipeline de CI levou em media 8 minutos para concluir os testes. Em junho/2026 (mais recente), o projeto quasar foi migrado para MongoDB.",
+    "question": "Qual banco de dados o projeto quasar usa atualmente?",
+    "expected_answer": "MongoDB",
+    "relevant_information": [
+      "Em junho/2026 (mais recente), o projeto quasar foi migrado para MongoDB."
+    ],
+    "sentence_keys": [
+      {
+        "text": "Em janeiro/2024, o time decidiu usar MySQL para o projeto quasar.",
+        "subject": "project:quasar",
+        "predicate": "database"
+      },
+      {
+        "text": "Em junho/2026 (mais recente), o projeto quasar foi migrado para MongoDB.",
+        "subject": "project:quasar",
+        "predicate": "database"
+      }
+    ]
+  },
+  {
+    "id": "recency_conflict_07",
+    "category": "recency_conflict",
+    "difficulty": "hard",
+    "context": "Em maio/2024, o time decidiu usar MySQL para o projeto phoenix. O relatorio mensal de metricas foi enviado para a lideranca. Em agosto/2026 (mais recente), o projeto phoenix foi migrado para MongoDB.",
+    "question": "Qual banco de dados o projeto phoenix usa atualmente?",
+    "expected_answer": "MongoDB",
+    "relevant_information": [
+      "Em agosto/2026 (mais recente), o projeto phoenix foi migrado para MongoDB."
+    ],
+    "sentence_keys": [
+      {
+        "text": "Em maio/2024, o time decidiu usar MySQL para o projeto phoenix.",
+        "subject": "project:phoenix",
+        "predicate": "database"
+      },
+      {
+        "text": "Em agosto/2026 (mais recente), o projeto phoenix foi migrado para MongoDB.",
+        "subject": "project:phoenix",
+        "predicate": "database"
+      }
+    ]
+  },
+  {
+    "id": "long_distance_00",
+    "category": "long_distance",
+    "difficulty": "medium",
+    "context": "O time revisou o backlog do sprint na reuniao de quarta-feira. A equipe de design entregou os novos mockups da tela de login. O servico shipping-service e' mantido pela equipe de Diego Prado. O time revisou o backlog do sprint na reuniao de quarta-feira. Foi feita uma limpeza de branches antigas no repositorio principal. O pipeline de CI levou em media 8 minutos para concluir os testes. O relatorio mensal de metricas foi enviado para a lideranca. O time de QA reportou zero bugs criticos na ultima rodada de testes. Um novo membro se juntou ao time de infraestrutura este mes. O time revisou o backlog do sprint na reuniao de quinta-feira. Houve uma pausa para cafe as 15h durante a sessao de planejamento. A equipe de design entregou os novos mockups da tela de login. O relatorio mensal de metricas foi enviado para a lideranca. O certificado SSL do ambiente de staging foi renovado sem incidentes. Foi feita uma limpeza de branches antigas no repositorio principal. O time revisou o backlog do sprint na reuniao de terca-feira. O relatorio mensal de metricas foi enviado para a lideranca. A sala de reunioes B foi reservada para o workshop de arquitetura. O time de QA reportou zero bugs criticos na ultima rodada de testes. O certificado SSL do ambiente de staging foi renovado sem incidentes. A equipe de design entregou os novos mockups da tela de login. O relatorio mensal de metricas foi enviado para a lideranca. Foi feita uma limpeza de branches antigas no repositorio principal. O time revisou o backlog do sprint na reuniao de segunda-feira. A equipe de design entregou os novos mockups da tela de login. O time revisou o backlog do sprint na reuniao de segunda-feira. A sala de reunioes B foi reservada para o workshop de arquitetura. O time de QA reportou zero bugs criticos na ultima rodada de testes. O time de QA reportou zero bugs criticos na ultima rodada de testes. Houve uma pausa para cafe as 15h durante a sessao de planejamento. Houve uma pausa para cafe as 15h durante a sessao de planejamento. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O time revisou o backlog do sprint na reuniao de sexta-feira. O relatorio mensal de metricas foi enviado para a lideranca. O time revisou o backlog do sprint na reuniao de segunda-feira. Foi feita uma limpeza de branches antigas no repositorio principal. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O relatorio mensal de metricas foi enviado para a lideranca. A equipe de design entregou os novos mockups da tela de login. O time de QA reportou zero bugs criticos na ultima rodada de testes. O pipeline de CI levou em media 8 minutos para concluir os testes. Houve uma pausa para cafe as 15h durante a sessao de planejamento. Um novo membro se juntou ao time de infraestrutura este mes. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O time revisou o backlog do sprint na reuniao de quinta-feira. A documentacao do modulo de logging foi atualizada recentemente. Um novo membro se juntou ao time de infraestrutura este mes. Foi feita uma limpeza de branches antigas no repositorio principal. O time de QA reportou zero bugs criticos na ultima rodada de testes. A documentacao do modulo de logging foi atualizada recentemente. Foi feita uma limpeza de branches antigas no repositorio principal.",
+    "question": "Quem mantem o servico shipping-service?",
+    "expected_answer": "Diego Prado",
+    "relevant_information": [
+      "O servico shipping-service e' mantido pela equipe de Diego Prado."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico shipping-service e' mantido pela equipe de Diego Prado.",
+        "subject": "service:shipping-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "long_distance_01",
+    "category": "long_distance",
+    "difficulty": "hard",
+    "context": "A politica de backup foi revisada e aprovada pelo comite tecnico. A sala de reunioes B foi reservada para o workshop de arquitetura. A documentacao do modulo de logging foi atualizada recentemente. O pipeline de CI levou em media 8 minutos para concluir os testes. O time revisou o backlog do sprint na reuniao de sexta-feira. O certificado SSL do ambiente de staging foi renovado sem incidentes. Um novo membro se juntou ao time de infraestrutura este mes. O time de QA reportou zero bugs criticos na ultima rodada de testes. O time de QA reportou zero bugs criticos na ultima rodada de testes. O time de QA reportou zero bugs criticos na ultima rodada de testes. A documentacao do modulo de logging foi atualizada recentemente. O time revisou o backlog do sprint na reuniao de quarta-feira. Um novo membro se juntou ao time de infraestrutura este mes. O relatorio mensal de metricas foi enviado para a lideranca. A politica de backup foi revisada e aprovada pelo comite tecnico. O pipeline de CI levou em media 8 minutos para concluir os testes. O servico billing-service e' mantido pela equipe de Hugo Marchetti. Houve uma pausa para cafe as 15h durante a sessao de planejamento. Houve uma pausa para cafe as 15h durante a sessao de planejamento. Foi feita uma limpeza de branches antigas no repositorio principal. O time revisou o backlog do sprint na reuniao de terca-feira. O relatorio mensal de metricas foi enviado para a lideranca. O certificado SSL do ambiente de staging foi renovado sem incidentes. A documentacao do modulo de logging foi atualizada recentemente. O relatorio mensal de metricas foi enviado para a lideranca. O pipeline de CI levou em media 8 minutos para concluir os testes. A documentacao do modulo de logging foi atualizada recentemente. A equipe de design entregou os novos mockups da tela de login. A equipe de design entregou os novos mockups da tela de login. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O relatorio mensal de metricas foi enviado para a lideranca. O relatorio mensal de metricas foi enviado para a lideranca. A equipe de design entregou os novos mockups da tela de login. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O relatorio mensal de metricas foi enviado para a lideranca. A equipe de design entregou os novos mockups da tela de login. O time revisou o backlog do sprint na reuniao de quinta-feira. O certificado SSL do ambiente de staging foi renovado sem incidentes. Houve uma pausa para cafe as 15h durante a sessao de planejamento.",
+    "question": "Quem mantem o servico billing-service?",
+    "expected_answer": "Hugo Marchetti",
+    "relevant_information": [
+      "O servico billing-service e' mantido pela equipe de Hugo Marchetti."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico billing-service e' mantido pela equipe de Hugo Marchetti.",
+        "subject": "service:billing-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "long_distance_02",
+    "category": "long_distance",
+    "difficulty": "medium",
+    "context": "Houve uma pausa para cafe as 15h durante a sessao de planejamento. O servico notifications-service e' mantido pela equipe de Luis Amorim. O pipeline de CI levou em media 8 minutos para concluir os testes. O certificado SSL do ambiente de staging foi renovado sem incidentes. O time de QA reportou zero bugs criticos na ultima rodada de testes. A equipe de design entregou os novos mockups da tela de login. A politica de backup foi revisada e aprovada pelo comite tecnico. O relatorio mensal de metricas foi enviado para a lideranca. Um novo membro se juntou ao time de infraestrutura este mes. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O time revisou o backlog do sprint na reuniao de terca-feira. Houve uma pausa para cafe as 15h durante a sessao de planejamento. A documentacao do modulo de logging foi atualizada recentemente. A equipe de design entregou os novos mockups da tela de login. A equipe de design entregou os novos mockups da tela de login. O time revisou o backlog do sprint na reuniao de segunda-feira. A sala de reunioes B foi reservada para o workshop de arquitetura. O time de QA reportou zero bugs criticos na ultima rodada de testes. A documentacao do modulo de logging foi atualizada recentemente. A politica de backup foi revisada e aprovada pelo comite tecnico. O time de QA reportou zero bugs criticos na ultima rodada de testes. O time revisou o backlog do sprint na reuniao de quarta-feira. O pipeline de CI levou em media 8 minutos para concluir os testes. O time revisou o backlog do sprint na reuniao de segunda-feira. A equipe de design entregou os novos mockups da tela de login. O pipeline de CI levou em media 8 minutos para concluir os testes. Houve uma pausa para cafe as 15h durante a sessao de planejamento. A equipe de design entregou os novos mockups da tela de login. O time revisou o backlog do sprint na reuniao de quinta-feira. A documentacao do modulo de logging foi atualizada recentemente. O time de QA reportou zero bugs criticos na ultima rodada de testes. A politica de backup foi revisada e aprovada pelo comite tecnico. Um novo membro se juntou ao time de infraestrutura este mes. Foi feita uma limpeza de branches antigas no repositorio principal. O relatorio mensal de metricas foi enviado para a lideranca. O certificado SSL do ambiente de staging foi renovado sem incidentes. A equipe de design entregou os novos mockups da tela de login. O time de QA reportou zero bugs criticos na ultima rodada de testes. O pipeline de CI levou em media 8 minutos para concluir os testes. A sala de reunioes B foi reservada para o workshop de arquitetura. O certificado SSL do ambiente de staging foi renovado sem incidentes. A equipe de design entregou os novos mockups da tela de login. O time revisou o backlog do sprint na reuniao de quarta-feira. Foi feita uma limpeza de branches antigas no repositorio principal. A equipe de design entregou os novos mockups da tela de login. O pipeline de CI levou em media 8 minutos para concluir os testes. Houve uma pausa para cafe as 15h durante a sessao de planejamento. Foi feita uma limpeza de branches antigas no repositorio principal. O certificado SSL do ambiente de staging foi renovado sem incidentes.",
+    "question": "Quem mantem o servico notifications-service?",
+    "expected_answer": "Luis Amorim",
+    "relevant_information": [
+      "O servico notifications-service e' mantido pela equipe de Luis Amorim."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico notifications-service e' mantido pela equipe de Luis Amorim.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "long_distance_03",
+    "category": "long_distance",
+    "difficulty": "hard",
+    "context": "O certificado SSL do ambiente de staging foi renovado sem incidentes. O certificado SSL do ambiente de staging foi renovado sem incidentes. A politica de backup foi revisada e aprovada pelo comite tecnico. O time de QA reportou zero bugs criticos na ultima rodada de testes. O relatorio mensal de metricas foi enviado para a lideranca. Foi feita uma limpeza de branches antigas no repositorio principal. Um novo membro se juntou ao time de infraestrutura este mes. O time de QA reportou zero bugs criticos na ultima rodada de testes. A equipe de design entregou os novos mockups da tela de login. A documentacao do modulo de logging foi atualizada recentemente. A politica de backup foi revisada e aprovada pelo comite tecnico. O pipeline de CI levou em media 8 minutos para concluir os testes. O certificado SSL do ambiente de staging foi renovado sem incidentes. O relatorio mensal de metricas foi enviado para a lideranca. Houve uma pausa para cafe as 15h durante a sessao de planejamento. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O pipeline de CI levou em media 8 minutos para concluir os testes. O certificado SSL do ambiente de staging foi renovado sem incidentes. A sala de reunioes B foi reservada para o workshop de arquitetura. A sala de reunioes B foi reservada para o workshop de arquitetura. O time revisou o backlog do sprint na reuniao de sexta-feira. O servico search-service e' mantido pela equipe de Iris Bonfim. A equipe de design entregou os novos mockups da tela de login. O relatorio mensal de metricas foi enviado para a lideranca. Foi feita uma limpeza de branches antigas no repositorio principal. Houve uma pausa para cafe as 15h durante a sessao de planejamento. A politica de backup foi revisada e aprovada pelo comite tecnico. O certificado SSL do ambiente de staging foi renovado sem incidentes. A equipe de design entregou os novos mockups da tela de login. A documentacao do modulo de logging foi atualizada recentemente. O pipeline de CI levou em media 8 minutos para concluir os testes. O certificado SSL do ambiente de staging foi renovado sem incidentes. A equipe de design entregou os novos mockups da tela de login. A documentacao do modulo de logging foi atualizada recentemente. Foi feita uma limpeza de branches antigas no repositorio principal. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O pipeline de CI levou em media 8 minutos para concluir os testes. A sala de reunioes B foi reservada para o workshop de arquitetura. O certificado SSL do ambiente de staging foi renovado sem incidentes. A politica de backup foi revisada e aprovada pelo comite tecnico. O time revisou o backlog do sprint na reuniao de segunda-feira. O relatorio mensal de metricas foi enviado para a lideranca. Um novo membro se juntou ao time de infraestrutura este mes. A documentacao do modulo de logging foi atualizada recentemente. A equipe de design entregou os novos mockups da tela de login.",
+    "question": "Quem mantem o servico search-service?",
+    "expected_answer": "Iris Bonfim",
+    "relevant_information": [
+      "O servico search-service e' mantido pela equipe de Iris Bonfim."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico search-service e' mantido pela equipe de Iris Bonfim.",
+        "subject": "service:search-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "long_distance_04",
+    "category": "long_distance",
+    "difficulty": "medium",
+    "context": "O servico notifications-service e' mantido pela equipe de Diego Prado. O pipeline de CI levou em media 8 minutos para concluir os testes. Foi feita uma limpeza de branches antigas no repositorio principal. O certificado SSL do ambiente de staging foi renovado sem incidentes. Foi feita uma limpeza de branches antigas no repositorio principal. A politica de backup foi revisada e aprovada pelo comite tecnico. O relatorio mensal de metricas foi enviado para a lideranca. O certificado SSL do ambiente de staging foi renovado sem incidentes. O certificado SSL do ambiente de staging foi renovado sem incidentes. O time revisou o backlog do sprint na reuniao de terca-feira. O certificado SSL do ambiente de staging foi renovado sem incidentes. O relatorio mensal de metricas foi enviado para a lideranca. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O pipeline de CI levou em media 8 minutos para concluir os testes. O pipeline de CI levou em media 8 minutos para concluir os testes. Um novo membro se juntou ao time de infraestrutura este mes. O time de QA reportou zero bugs criticos na ultima rodada de testes. O certificado SSL do ambiente de staging foi renovado sem incidentes. O pipeline de CI levou em media 8 minutos para concluir os testes. A equipe de design entregou os novos mockups da tela de login. Um novo membro se juntou ao time de infraestrutura este mes. O pipeline de CI levou em media 8 minutos para concluir os testes. Um novo membro se juntou ao time de infraestrutura este mes. A equipe de design entregou os novos mockups da tela de login. O relatorio mensal de metricas foi enviado para a lideranca. Foi feita uma limpeza de branches antigas no repositorio principal. O pipeline de CI levou em media 8 minutos para concluir os testes. A politica de backup foi revisada e aprovada pelo comite tecnico. A politica de backup foi revisada e aprovada pelo comite tecnico. O time revisou o backlog do sprint na reuniao de quarta-feira. O time de QA reportou zero bugs criticos na ultima rodada de testes. Um novo membro se juntou ao time de infraestrutura este mes. O time de QA reportou zero bugs criticos na ultima rodada de testes. A sala de reunioes B foi reservada para o workshop de arquitetura. Houve uma pausa para cafe as 15h durante a sessao de planejamento. Houve uma pausa para cafe as 15h durante a sessao de planejamento. A politica de backup foi revisada e aprovada pelo comite tecnico. O relatorio mensal de metricas foi enviado para a lideranca. Foi feita uma limpeza de branches antigas no repositorio principal. Foi feita uma limpeza de branches antigas no repositorio principal. O pipeline de CI levou em media 8 minutos para concluir os testes. A documentacao do modulo de logging foi atualizada recentemente. A equipe de design entregou os novos mockups da tela de login. A politica de backup foi revisada e aprovada pelo comite tecnico. A sala de reunioes B foi reservada para o workshop de arquitetura. Um novo membro se juntou ao time de infraestrutura este mes.",
+    "question": "Quem mantem o servico notifications-service?",
+    "expected_answer": "Diego Prado",
+    "relevant_information": [
+      "O servico notifications-service e' mantido pela equipe de Diego Prado."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico notifications-service e' mantido pela equipe de Diego Prado.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "long_distance_05",
+    "category": "long_distance",
+    "difficulty": "hard",
+    "context": "A equipe de design entregou os novos mockups da tela de login. Foi feita uma limpeza de branches antigas no repositorio principal. Foi feita uma limpeza de branches antigas no repositorio principal. O pipeline de CI levou em media 8 minutos para concluir os testes. Um novo membro se juntou ao time de infraestrutura este mes. O time de QA reportou zero bugs criticos na ultima rodada de testes. O pipeline de CI levou em media 8 minutos para concluir os testes. A politica de backup foi revisada e aprovada pelo comite tecnico. Foi feita uma limpeza de branches antigas no repositorio principal. A equipe de design entregou os novos mockups da tela de login. O relatorio mensal de metricas foi enviado para a lideranca. A politica de backup foi revisada e aprovada pelo comite tecnico. O pipeline de CI levou em media 8 minutos para concluir os testes. O time revisou o backlog do sprint na reuniao de quinta-feira. O time revisou o backlog do sprint na reuniao de terca-feira. O certificado SSL do ambiente de staging foi renovado sem incidentes. O certificado SSL do ambiente de staging foi renovado sem incidentes. O time de QA reportou zero bugs criticos na ultima rodada de testes. A politica de backup foi revisada e aprovada pelo comite tecnico. A equipe de design entregou os novos mockups da tela de login. A politica de backup foi revisada e aprovada pelo comite tecnico. O time de QA reportou zero bugs criticos na ultima rodada de testes. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O relatorio mensal de metricas foi enviado para a lideranca. O certificado SSL do ambiente de staging foi renovado sem incidentes. O servico billing-service e' mantido pela equipe de Ana Ferreira. O certificado SSL do ambiente de staging foi renovado sem incidentes. A equipe de design entregou os novos mockups da tela de login. O relatorio mensal de metricas foi enviado para a lideranca. O certificado SSL do ambiente de staging foi renovado sem incidentes. Um novo membro se juntou ao time de infraestrutura este mes. Houve uma pausa para cafe as 15h durante a sessao de planejamento. Foi feita uma limpeza de branches antigas no repositorio principal. A politica de backup foi revisada e aprovada pelo comite tecnico. O certificado SSL do ambiente de staging foi renovado sem incidentes. O relatorio mensal de metricas foi enviado para a lideranca. A sala de reunioes B foi reservada para o workshop de arquitetura. O time revisou o backlog do sprint na reuniao de quarta-feira. O pipeline de CI levou em media 8 minutos para concluir os testes. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O certificado SSL do ambiente de staging foi renovado sem incidentes. O pipeline de CI levou em media 8 minutos para concluir os testes. O pipeline de CI levou em media 8 minutos para concluir os testes. O certificado SSL do ambiente de staging foi renovado sem incidentes. A politica de backup foi revisada e aprovada pelo comite tecnico. A sala de reunioes B foi reservada para o workshop de arquitetura. O time revisou o backlog do sprint na reuniao de quarta-feira. A equipe de design entregou os novos mockups da tela de login. A politica de backup foi revisada e aprovada pelo comite tecnico. Houve uma pausa para cafe as 15h durante a sessao de planejamento.",
+    "question": "Quem mantem o servico billing-service?",
+    "expected_answer": "Ana Ferreira",
+    "relevant_information": [
+      "O servico billing-service e' mantido pela equipe de Ana Ferreira."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico billing-service e' mantido pela equipe de Ana Ferreira.",
+        "subject": "service:billing-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "long_distance_06",
+    "category": "long_distance",
+    "difficulty": "medium",
+    "context": "Houve uma pausa para cafe as 15h durante a sessao de planejamento. Um novo membro se juntou ao time de infraestrutura este mes. O time revisou o backlog do sprint na reuniao de sexta-feira. O servico auth-service e' mantido pela equipe de Luis Amorim. O time revisou o backlog do sprint na reuniao de terca-feira. A politica de backup foi revisada e aprovada pelo comite tecnico. A equipe de design entregou os novos mockups da tela de login. Um novo membro se juntou ao time de infraestrutura este mes. A politica de backup foi revisada e aprovada pelo comite tecnico. Um novo membro se juntou ao time de infraestrutura este mes. Houve uma pausa para cafe as 15h durante a sessao de planejamento. A sala de reunioes B foi reservada para o workshop de arquitetura. O pipeline de CI levou em media 8 minutos para concluir os testes. A equipe de design entregou os novos mockups da tela de login. O certificado SSL do ambiente de staging foi renovado sem incidentes. O relatorio mensal de metricas foi enviado para a lideranca. Um novo membro se juntou ao time de infraestrutura este mes. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O pipeline de CI levou em media 8 minutos para concluir os testes. A politica de backup foi revisada e aprovada pelo comite tecnico. O certificado SSL do ambiente de staging foi renovado sem incidentes. Foi feita uma limpeza de branches antigas no repositorio principal. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O time de QA reportou zero bugs criticos na ultima rodada de testes. A politica de backup foi revisada e aprovada pelo comite tecnico. A documentacao do modulo de logging foi atualizada recentemente. A equipe de design entregou os novos mockups da tela de login. Foi feita uma limpeza de branches antigas no repositorio principal. O time de QA reportou zero bugs criticos na ultima rodada de testes. A sala de reunioes B foi reservada para o workshop de arquitetura. Foi feita uma limpeza de branches antigas no repositorio principal. O time de QA reportou zero bugs criticos na ultima rodada de testes. O certificado SSL do ambiente de staging foi renovado sem incidentes. A equipe de design entregou os novos mockups da tela de login. A equipe de design entregou os novos mockups da tela de login. O time revisou o backlog do sprint na reuniao de sexta-feira. O certificado SSL do ambiente de staging foi renovado sem incidentes.",
+    "question": "Quem mantem o servico auth-service?",
+    "expected_answer": "Luis Amorim",
+    "relevant_information": [
+      "O servico auth-service e' mantido pela equipe de Luis Amorim."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico auth-service e' mantido pela equipe de Luis Amorim.",
+        "subject": "service:auth-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "long_distance_07",
+    "category": "long_distance",
+    "difficulty": "hard",
+    "context": "A politica de backup foi revisada e aprovada pelo comite tecnico. Um novo membro se juntou ao time de infraestrutura este mes. O time revisou o backlog do sprint na reuniao de sexta-feira. O time de QA reportou zero bugs criticos na ultima rodada de testes. O certificado SSL do ambiente de staging foi renovado sem incidentes. A politica de backup foi revisada e aprovada pelo comite tecnico. O certificado SSL do ambiente de staging foi renovado sem incidentes. A politica de backup foi revisada e aprovada pelo comite tecnico. Um novo membro se juntou ao time de infraestrutura este mes. A sala de reunioes B foi reservada para o workshop de arquitetura. O pipeline de CI levou em media 8 minutos para concluir os testes. O pipeline de CI levou em media 8 minutos para concluir os testes. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O certificado SSL do ambiente de staging foi renovado sem incidentes. O pipeline de CI levou em media 8 minutos para concluir os testes. A politica de backup foi revisada e aprovada pelo comite tecnico. O certificado SSL do ambiente de staging foi renovado sem incidentes. O certificado SSL do ambiente de staging foi renovado sem incidentes. O time de QA reportou zero bugs criticos na ultima rodada de testes. O servico notifications-service e' mantido pela equipe de Iris Bonfim. Houve uma pausa para cafe as 15h durante a sessao de planejamento. Um novo membro se juntou ao time de infraestrutura este mes. Foi feita uma limpeza de branches antigas no repositorio principal. O pipeline de CI levou em media 8 minutos para concluir os testes. O time de QA reportou zero bugs criticos na ultima rodada de testes. A equipe de design entregou os novos mockups da tela de login. O certificado SSL do ambiente de staging foi renovado sem incidentes. O pipeline de CI levou em media 8 minutos para concluir os testes. Um novo membro se juntou ao time de infraestrutura este mes. O pipeline de CI levou em media 8 minutos para concluir os testes. Foi feita uma limpeza de branches antigas no repositorio principal. A equipe de design entregou os novos mockups da tela de login. Houve uma pausa para cafe as 15h durante a sessao de planejamento. A politica de backup foi revisada e aprovada pelo comite tecnico. Houve uma pausa para cafe as 15h durante a sessao de planejamento. Foi feita uma limpeza de branches antigas no repositorio principal. A sala de reunioes B foi reservada para o workshop de arquitetura. A politica de backup foi revisada e aprovada pelo comite tecnico. Houve uma pausa para cafe as 15h durante a sessao de planejamento. O time revisou o backlog do sprint na reuniao de quinta-feira. Foi feita uma limpeza de branches antigas no repositorio principal. O certificado SSL do ambiente de staging foi renovado sem incidentes. A equipe de design entregou os novos mockups da tela de login.",
+    "question": "Quem mantem o servico notifications-service?",
+    "expected_answer": "Iris Bonfim",
+    "relevant_information": [
+      "O servico notifications-service e' mantido pela equipe de Iris Bonfim."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico notifications-service e' mantido pela equipe de Iris Bonfim.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "irrelevant_context_00",
+    "category": "irrelevant_context",
+    "difficulty": "hard",
+    "context": "O servico catalog-service e' mantido pela equipe de Hugo Marchetti. O servico auth-service e' mantido pela equipe de Luis Amorim. O servico shipping-service e' mantido pela equipe de Gabriela Tavares. O servico payments-service e' mantido pela equipe de Joao Peixoto. O servico notifications-service e' mantido pela equipe de Diego Prado.",
+    "question": "Quem mantem o servico auth-service?",
+    "expected_answer": "Luis Amorim",
+    "relevant_information": [
+      "O servico auth-service e' mantido pela equipe de Luis Amorim."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico catalog-service e' mantido pela equipe de Hugo Marchetti.",
+        "subject": "service:catalog-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico payments-service e' mantido pela equipe de Joao Peixoto.",
+        "subject": "service:payments-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico notifications-service e' mantido pela equipe de Diego Prado.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico shipping-service e' mantido pela equipe de Gabriela Tavares.",
+        "subject": "service:shipping-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico auth-service e' mantido pela equipe de Luis Amorim.",
+        "subject": "service:auth-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "irrelevant_context_01",
+    "category": "irrelevant_context",
+    "difficulty": "hard",
+    "context": "O servico search-service e' mantido pela equipe de Hugo Marchetti. O servico billing-service e' mantido pela equipe de Karina Estevez. O servico catalog-service e' mantido pela equipe de Carla Nunes. O servico payments-service e' mantido pela equipe de Bruno Salles. O servico reporting-service e' mantido pela equipe de Elena Cardoso.",
+    "question": "Quem mantem o servico catalog-service?",
+    "expected_answer": "Carla Nunes",
+    "relevant_information": [
+      "O servico catalog-service e' mantido pela equipe de Carla Nunes."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico payments-service e' mantido pela equipe de Bruno Salles.",
+        "subject": "service:payments-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico reporting-service e' mantido pela equipe de Elena Cardoso.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico search-service e' mantido pela equipe de Hugo Marchetti.",
+        "subject": "service:search-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico billing-service e' mantido pela equipe de Karina Estevez.",
+        "subject": "service:billing-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico catalog-service e' mantido pela equipe de Carla Nunes.",
+        "subject": "service:catalog-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "irrelevant_context_02",
+    "category": "irrelevant_context",
+    "difficulty": "hard",
+    "context": "O servico search-service e' mantido pela equipe de Elena Cardoso. O servico payments-service e' mantido pela equipe de Iris Bonfim. O servico reporting-service e' mantido pela equipe de Diego Prado. O servico catalog-service e' mantido pela equipe de Fabio Lacerda. O servico notifications-service e' mantido pela equipe de Bruno Salles.",
+    "question": "Quem mantem o servico search-service?",
+    "expected_answer": "Elena Cardoso",
+    "relevant_information": [
+      "O servico search-service e' mantido pela equipe de Elena Cardoso."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico payments-service e' mantido pela equipe de Iris Bonfim.",
+        "subject": "service:payments-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico notifications-service e' mantido pela equipe de Bruno Salles.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico catalog-service e' mantido pela equipe de Fabio Lacerda.",
+        "subject": "service:catalog-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico reporting-service e' mantido pela equipe de Diego Prado.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico search-service e' mantido pela equipe de Elena Cardoso.",
+        "subject": "service:search-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "irrelevant_context_03",
+    "category": "irrelevant_context",
+    "difficulty": "hard",
+    "context": "O servico catalog-service e' mantido pela equipe de Elena Cardoso. O servico billing-service e' mantido pela equipe de Fabio Lacerda. O servico notifications-service e' mantido pela equipe de Hugo Marchetti. O servico shipping-service e' mantido pela equipe de Diego Prado. O servico search-service e' mantido pela equipe de Iris Bonfim.",
+    "question": "Quem mantem o servico search-service?",
+    "expected_answer": "Iris Bonfim",
+    "relevant_information": [
+      "O servico search-service e' mantido pela equipe de Iris Bonfim."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico catalog-service e' mantido pela equipe de Elena Cardoso.",
+        "subject": "service:catalog-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico billing-service e' mantido pela equipe de Fabio Lacerda.",
+        "subject": "service:billing-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico shipping-service e' mantido pela equipe de Diego Prado.",
+        "subject": "service:shipping-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico notifications-service e' mantido pela equipe de Hugo Marchetti.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico search-service e' mantido pela equipe de Iris Bonfim.",
+        "subject": "service:search-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "irrelevant_context_04",
+    "category": "irrelevant_context",
+    "difficulty": "hard",
+    "context": "O servico payments-service e' mantido pela equipe de Karina Estevez. O servico notifications-service e' mantido pela equipe de Carla Nunes. O servico search-service e' mantido pela equipe de Joao Peixoto. O servico billing-service e' mantido pela equipe de Ana Ferreira. O servico catalog-service e' mantido pela equipe de Fabio Lacerda.",
+    "question": "Quem mantem o servico search-service?",
+    "expected_answer": "Joao Peixoto",
+    "relevant_information": [
+      "O servico search-service e' mantido pela equipe de Joao Peixoto."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico catalog-service e' mantido pela equipe de Fabio Lacerda.",
+        "subject": "service:catalog-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico notifications-service e' mantido pela equipe de Carla Nunes.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico billing-service e' mantido pela equipe de Ana Ferreira.",
+        "subject": "service:billing-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico payments-service e' mantido pela equipe de Karina Estevez.",
+        "subject": "service:payments-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico search-service e' mantido pela equipe de Joao Peixoto.",
+        "subject": "service:search-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "irrelevant_context_05",
+    "category": "irrelevant_context",
+    "difficulty": "hard",
+    "context": "O servico catalog-service e' mantido pela equipe de Joao Peixoto. O servico shipping-service e' mantido pela equipe de Fabio Lacerda. O servico reporting-service e' mantido pela equipe de Iris Bonfim. O servico auth-service e' mantido pela equipe de Elena Cardoso. O servico billing-service e' mantido pela equipe de Hugo Marchetti.",
+    "question": "Quem mantem o servico billing-service?",
+    "expected_answer": "Hugo Marchetti",
+    "relevant_information": [
+      "O servico billing-service e' mantido pela equipe de Hugo Marchetti."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico catalog-service e' mantido pela equipe de Joao Peixoto.",
+        "subject": "service:catalog-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico reporting-service e' mantido pela equipe de Iris Bonfim.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico shipping-service e' mantido pela equipe de Fabio Lacerda.",
+        "subject": "service:shipping-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico auth-service e' mantido pela equipe de Elena Cardoso.",
+        "subject": "service:auth-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico billing-service e' mantido pela equipe de Hugo Marchetti.",
+        "subject": "service:billing-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "irrelevant_context_06",
+    "category": "irrelevant_context",
+    "difficulty": "hard",
+    "context": "O servico catalog-service e' mantido pela equipe de Luis Amorim. O servico reporting-service e' mantido pela equipe de Elena Cardoso. O servico search-service e' mantido pela equipe de Bruno Salles. O servico auth-service e' mantido pela equipe de Ana Ferreira. O servico shipping-service e' mantido pela equipe de Karina Estevez.",
+    "question": "Quem mantem o servico reporting-service?",
+    "expected_answer": "Elena Cardoso",
+    "relevant_information": [
+      "O servico reporting-service e' mantido pela equipe de Elena Cardoso."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico catalog-service e' mantido pela equipe de Luis Amorim.",
+        "subject": "service:catalog-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico auth-service e' mantido pela equipe de Ana Ferreira.",
+        "subject": "service:auth-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico search-service e' mantido pela equipe de Bruno Salles.",
+        "subject": "service:search-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico shipping-service e' mantido pela equipe de Karina Estevez.",
+        "subject": "service:shipping-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico reporting-service e' mantido pela equipe de Elena Cardoso.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "irrelevant_context_07",
+    "category": "irrelevant_context",
+    "difficulty": "hard",
+    "context": "O servico auth-service e' mantido pela equipe de Hugo Marchetti. O servico search-service e' mantido pela equipe de Ana Ferreira. O servico shipping-service e' mantido pela equipe de Fabio Lacerda. O servico catalog-service e' mantido pela equipe de Iris Bonfim. O servico payments-service e' mantido pela equipe de Elena Cardoso.",
+    "question": "Quem mantem o servico auth-service?",
+    "expected_answer": "Hugo Marchetti",
+    "relevant_information": [
+      "O servico auth-service e' mantido pela equipe de Hugo Marchetti."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico shipping-service e' mantido pela equipe de Fabio Lacerda.",
+        "subject": "service:shipping-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico payments-service e' mantido pela equipe de Elena Cardoso.",
+        "subject": "service:payments-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico search-service e' mantido pela equipe de Ana Ferreira.",
+        "subject": "service:search-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico catalog-service e' mantido pela equipe de Iris Bonfim.",
+        "subject": "service:catalog-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico auth-service e' mantido pela equipe de Hugo Marchetti.",
+        "subject": "service:auth-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "repeated_information_00",
+    "category": "repeated_information",
+    "difficulty": "medium",
+    "context": "A documentacao do modulo de logging foi atualizada recentemente. Como ja' mencionado, Ana Ferreira e' quem cuida do auth-service. O servico auth-service e' mantido pela equipe de Ana Ferreira. O time de QA reportou zero bugs criticos na ultima rodada de testes. Um novo membro se juntou ao time de infraestrutura este mes. Como ja' mencionado, Ana Ferreira e' quem cuida do auth-service. Reforcando: a manutencao do auth-service e' responsabilidade de Ana Ferreira. O servico auth-service e' mantido pela equipe de Ana Ferreira.",
+    "question": "Quem mantem o servico auth-service?",
+    "expected_answer": "Ana Ferreira",
+    "relevant_information": [
+      "O servico auth-service e' mantido pela equipe de Ana Ferreira.",
+      "Como ja' mencionado, Ana Ferreira e' quem cuida do auth-service.",
+      "Reforcando: a manutencao do auth-service e' responsabilidade de Ana Ferreira.",
+      "O servico auth-service e' mantido pela equipe de Ana Ferreira.",
+      "Como ja' mencionado, Ana Ferreira e' quem cuida do auth-service."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico auth-service e' mantido pela equipe de Ana Ferreira.",
+        "subject": "service:auth-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Como ja' mencionado, Ana Ferreira e' quem cuida do auth-service.",
+        "subject": "service:auth-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Reforcando: a manutencao do auth-service e' responsabilidade de Ana Ferreira.",
+        "subject": "service:auth-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico auth-service e' mantido pela equipe de Ana Ferreira.",
+        "subject": "service:auth-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Como ja' mencionado, Ana Ferreira e' quem cuida do auth-service.",
+        "subject": "service:auth-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "repeated_information_01",
+    "category": "repeated_information",
+    "difficulty": "medium",
+    "context": "O time revisou o backlog do sprint na reuniao de terca-feira. O servico reporting-service e' mantido pela equipe de Iris Bonfim. O servico reporting-service e' mantido pela equipe de Iris Bonfim. Como ja' mencionado, Iris Bonfim e' quem cuida do reporting-service. Reforcando: a manutencao do reporting-service e' responsabilidade de Iris Bonfim. O time revisou o backlog do sprint na reuniao de segunda-feira.",
+    "question": "Quem mantem o servico reporting-service?",
+    "expected_answer": "Iris Bonfim",
+    "relevant_information": [
+      "O servico reporting-service e' mantido pela equipe de Iris Bonfim.",
+      "Como ja' mencionado, Iris Bonfim e' quem cuida do reporting-service.",
+      "Reforcando: a manutencao do reporting-service e' responsabilidade de Iris Bonfim.",
+      "O servico reporting-service e' mantido pela equipe de Iris Bonfim."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico reporting-service e' mantido pela equipe de Iris Bonfim.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Como ja' mencionado, Iris Bonfim e' quem cuida do reporting-service.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Reforcando: a manutencao do reporting-service e' responsabilidade de Iris Bonfim.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico reporting-service e' mantido pela equipe de Iris Bonfim.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "repeated_information_02",
+    "category": "repeated_information",
+    "difficulty": "medium",
+    "context": "Reforcando: a manutencao do billing-service e' responsabilidade de Fabio Lacerda. A politica de backup foi revisada e aprovada pelo comite tecnico. Foi feita uma limpeza de branches antigas no repositorio principal. Como ja' mencionado, Fabio Lacerda e' quem cuida do billing-service. O servico billing-service e' mantido pela equipe de Fabio Lacerda. O servico billing-service e' mantido pela equipe de Fabio Lacerda. O certificado SSL do ambiente de staging foi renovado sem incidentes.",
+    "question": "Quem mantem o servico billing-service?",
+    "expected_answer": "Fabio Lacerda",
+    "relevant_information": [
+      "O servico billing-service e' mantido pela equipe de Fabio Lacerda.",
+      "Como ja' mencionado, Fabio Lacerda e' quem cuida do billing-service.",
+      "Reforcando: a manutencao do billing-service e' responsabilidade de Fabio Lacerda.",
+      "O servico billing-service e' mantido pela equipe de Fabio Lacerda."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico billing-service e' mantido pela equipe de Fabio Lacerda.",
+        "subject": "service:billing-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Como ja' mencionado, Fabio Lacerda e' quem cuida do billing-service.",
+        "subject": "service:billing-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Reforcando: a manutencao do billing-service e' responsabilidade de Fabio Lacerda.",
+        "subject": "service:billing-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico billing-service e' mantido pela equipe de Fabio Lacerda.",
+        "subject": "service:billing-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "repeated_information_03",
+    "category": "repeated_information",
+    "difficulty": "medium",
+    "context": "Reforcando: a manutencao do reporting-service e' responsabilidade de Fabio Lacerda. O servico reporting-service e' mantido pela equipe de Fabio Lacerda. O servico reporting-service e' mantido pela equipe de Fabio Lacerda. Como ja' mencionado, Fabio Lacerda e' quem cuida do reporting-service. Como ja' mencionado, Fabio Lacerda e' quem cuida do reporting-service. O pipeline de CI levou em media 8 minutos para concluir os testes. O time revisou o backlog do sprint na reuniao de segunda-feira. O pipeline de CI levou em media 8 minutos para concluir os testes.",
+    "question": "Quem mantem o servico reporting-service?",
+    "expected_answer": "Fabio Lacerda",
+    "relevant_information": [
+      "O servico reporting-service e' mantido pela equipe de Fabio Lacerda.",
+      "Como ja' mencionado, Fabio Lacerda e' quem cuida do reporting-service.",
+      "Reforcando: a manutencao do reporting-service e' responsabilidade de Fabio Lacerda.",
+      "O servico reporting-service e' mantido pela equipe de Fabio Lacerda.",
+      "Como ja' mencionado, Fabio Lacerda e' quem cuida do reporting-service."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico reporting-service e' mantido pela equipe de Fabio Lacerda.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Como ja' mencionado, Fabio Lacerda e' quem cuida do reporting-service.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Reforcando: a manutencao do reporting-service e' responsabilidade de Fabio Lacerda.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico reporting-service e' mantido pela equipe de Fabio Lacerda.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Como ja' mencionado, Fabio Lacerda e' quem cuida do reporting-service.",
+        "subject": "service:reporting-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "repeated_information_04",
+    "category": "repeated_information",
+    "difficulty": "medium",
+    "context": "O servico notifications-service e' mantido pela equipe de Ana Ferreira. Como ja' mencionado, Ana Ferreira e' quem cuida do notifications-service. A politica de backup foi revisada e aprovada pelo comite tecnico. Como ja' mencionado, Ana Ferreira e' quem cuida do notifications-service. O servico notifications-service e' mantido pela equipe de Ana Ferreira. Houve uma pausa para cafe as 15h durante a sessao de planejamento. Reforcando: a manutencao do notifications-service e' responsabilidade de Ana Ferreira. A politica de backup foi revisada e aprovada pelo comite tecnico. A documentacao do modulo de logging foi atualizada recentemente.",
+    "question": "Quem mantem o servico notifications-service?",
+    "expected_answer": "Ana Ferreira",
+    "relevant_information": [
+      "O servico notifications-service e' mantido pela equipe de Ana Ferreira.",
+      "Como ja' mencionado, Ana Ferreira e' quem cuida do notifications-service.",
+      "Reforcando: a manutencao do notifications-service e' responsabilidade de Ana Ferreira.",
+      "O servico notifications-service e' mantido pela equipe de Ana Ferreira.",
+      "Como ja' mencionado, Ana Ferreira e' quem cuida do notifications-service."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico notifications-service e' mantido pela equipe de Ana Ferreira.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Como ja' mencionado, Ana Ferreira e' quem cuida do notifications-service.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Reforcando: a manutencao do notifications-service e' responsabilidade de Ana Ferreira.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico notifications-service e' mantido pela equipe de Ana Ferreira.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Como ja' mencionado, Ana Ferreira e' quem cuida do notifications-service.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "repeated_information_05",
+    "category": "repeated_information",
+    "difficulty": "medium",
+    "context": "A sala de reunioes B foi reservada para o workshop de arquitetura. Como ja' mencionado, Elena Cardoso e' quem cuida do notifications-service. O servico notifications-service e' mantido pela equipe de Elena Cardoso. Como ja' mencionado, Elena Cardoso e' quem cuida do notifications-service. O relatorio mensal de metricas foi enviado para a lideranca. O servico notifications-service e' mantido pela equipe de Elena Cardoso. O relatorio mensal de metricas foi enviado para a lideranca. Reforcando: a manutencao do notifications-service e' responsabilidade de Elena Cardoso.",
+    "question": "Quem mantem o servico notifications-service?",
+    "expected_answer": "Elena Cardoso",
+    "relevant_information": [
+      "O servico notifications-service e' mantido pela equipe de Elena Cardoso.",
+      "Como ja' mencionado, Elena Cardoso e' quem cuida do notifications-service.",
+      "Reforcando: a manutencao do notifications-service e' responsabilidade de Elena Cardoso.",
+      "O servico notifications-service e' mantido pela equipe de Elena Cardoso.",
+      "Como ja' mencionado, Elena Cardoso e' quem cuida do notifications-service."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico notifications-service e' mantido pela equipe de Elena Cardoso.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Como ja' mencionado, Elena Cardoso e' quem cuida do notifications-service.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Reforcando: a manutencao do notifications-service e' responsabilidade de Elena Cardoso.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico notifications-service e' mantido pela equipe de Elena Cardoso.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Como ja' mencionado, Elena Cardoso e' quem cuida do notifications-service.",
+        "subject": "service:notifications-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "repeated_information_06",
+    "category": "repeated_information",
+    "difficulty": "medium",
+    "context": "O certificado SSL do ambiente de staging foi renovado sem incidentes. A politica de backup foi revisada e aprovada pelo comite tecnico. Reforcando: a manutencao do catalog-service e' responsabilidade de Luis Amorim. Como ja' mencionado, Luis Amorim e' quem cuida do catalog-service. O servico catalog-service e' mantido pela equipe de Luis Amorim. O servico catalog-service e' mantido pela equipe de Luis Amorim. O pipeline de CI levou em media 8 minutos para concluir os testes.",
+    "question": "Quem mantem o servico catalog-service?",
+    "expected_answer": "Luis Amorim",
+    "relevant_information": [
+      "O servico catalog-service e' mantido pela equipe de Luis Amorim.",
+      "Como ja' mencionado, Luis Amorim e' quem cuida do catalog-service.",
+      "Reforcando: a manutencao do catalog-service e' responsabilidade de Luis Amorim.",
+      "O servico catalog-service e' mantido pela equipe de Luis Amorim."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico catalog-service e' mantido pela equipe de Luis Amorim.",
+        "subject": "service:catalog-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Como ja' mencionado, Luis Amorim e' quem cuida do catalog-service.",
+        "subject": "service:catalog-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Reforcando: a manutencao do catalog-service e' responsabilidade de Luis Amorim.",
+        "subject": "service:catalog-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "O servico catalog-service e' mantido pela equipe de Luis Amorim.",
+        "subject": "service:catalog-service",
+        "predicate": "maintainer"
+      }
+    ]
+  },
+  {
+    "id": "repeated_information_07",
+    "category": "repeated_information",
+    "difficulty": "medium",
+    "context": "A documentacao do modulo de logging foi atualizada recentemente. O servico payments-service e' mantido pela equipe de Luis Amorim. Como ja' mencionado, Luis Amorim e' quem cuida do payments-service. Foi feita uma limpeza de branches antigas no repositorio principal. Houve uma pausa para cafe as 15h durante a sessao de planejamento. Reforcando: a manutencao do payments-service e' responsabilidade de Luis Amorim.",
+    "question": "Quem mantem o servico payments-service?",
+    "expected_answer": "Luis Amorim",
+    "relevant_information": [
+      "O servico payments-service e' mantido pela equipe de Luis Amorim.",
+      "Como ja' mencionado, Luis Amorim e' quem cuida do payments-service.",
+      "Reforcando: a manutencao do payments-service e' responsabilidade de Luis Amorim."
+    ],
+    "sentence_keys": [
+      {
+        "text": "O servico payments-service e' mantido pela equipe de Luis Amorim.",
+        "subject": "service:payments-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Como ja' mencionado, Luis Amorim e' quem cuida do payments-service.",
+        "subject": "service:payments-service",
+        "predicate": "maintainer"
+      },
+      {
+        "text": "Reforcando: a manutencao do payments-service e' responsabilidade de Luis Amorim.",
+        "subject": "service:payments-service",
+        "predicate": "maintainer"
+      }
+    ]
+  }
+]

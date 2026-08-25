@@ -1,0 +1,684 @@
+{
+  "full_context": {
+    "factual_simple": {
+      "n": 8,
+      "accuracy_mean": 0.625,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 160.375,
+      "final_input_tokens_mean": 160.375,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 9508.919837502617,
+      "total_latency_ms_stdev": 5632.8304578051175
+    },
+    "multi_hop": {
+      "n": 8,
+      "accuracy_mean": 0.5,
+      "accuracy_stdev": 0.5345224838248488,
+      "original_input_tokens_mean": 185.875,
+      "final_input_tokens_mean": 185.875,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 7353.033837498515,
+      "total_latency_ms_stdev": 546.565671432351
+    },
+    "recency_conflict": {
+      "n": 8,
+      "accuracy_mean": 0.125,
+      "accuracy_stdev": 0.3535533905932738,
+      "original_input_tokens_mean": 178.75,
+      "final_input_tokens_mean": 178.75,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 7010.179599998082,
+      "total_latency_ms_stdev": 441.5273460107386
+    },
+    "long_distance": {
+      "n": 8,
+      "accuracy_mean": 0.375,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 988.5,
+      "final_input_tokens_mean": 988.5,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 14881.842900002084,
+      "total_latency_ms_stdev": 1309.5038119220992
+    },
+    "irrelevant_context": {
+      "n": 8,
+      "accuracy_mean": 0.5,
+      "accuracy_stdev": 0.5345224838248488,
+      "original_input_tokens_mean": 182.625,
+      "final_input_tokens_mean": 182.625,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 6990.4259125014505,
+      "total_latency_ms_stdev": 1018.51168340867
+    },
+    "repeated_information": {
+      "n": 8,
+      "accuracy_mean": 0.875,
+      "accuracy_stdev": 0.3535533905932738,
+      "original_input_tokens_mean": 241.125,
+      "final_input_tokens_mean": 241.125,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 8647.191149999344,
+      "total_latency_ms_stdev": 690.580366717584
+    }
+  },
+  "truncation_200": {
+    "factual_simple": {
+      "n": 8,
+      "accuracy_mean": 0.625,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 160.375,
+      "final_input_tokens_mean": 143.25,
+      "reduction_percent_mean": 0.0995526312045605,
+      "total_latency_ms_mean": 7233.507349996216,
+      "total_latency_ms_stdev": 565.2758568724789
+    },
+    "multi_hop": {
+      "n": 8,
+      "accuracy_mean": 0.125,
+      "accuracy_stdev": 0.3535533905932738,
+      "original_input_tokens_mean": 185.875,
+      "final_input_tokens_mean": 154.75,
+      "reduction_percent_mean": 0.15872133522113127,
+      "total_latency_ms_mean": 6899.79543750087,
+      "total_latency_ms_stdev": 563.3720205819383
+    },
+    "recency_conflict": {
+      "n": 8,
+      "accuracy_mean": 0.125,
+      "accuracy_stdev": 0.3535533905932738,
+      "original_input_tokens_mean": 178.75,
+      "final_input_tokens_mean": 159.375,
+      "reduction_percent_mean": 0.09966947053982213,
+      "total_latency_ms_mean": 6711.323049994462,
+      "total_latency_ms_stdev": 219.48543030944637
+    },
+    "long_distance": {
+      "n": 8,
+      "accuracy_mean": 0.125,
+      "accuracy_stdev": 0.3535533905932738,
+      "original_input_tokens_mean": 988.5,
+      "final_input_tokens_mean": 143.625,
+      "reduction_percent_mean": 0.853100156874752,
+      "total_latency_ms_mean": 6623.319737496786,
+      "total_latency_ms_stdev": 446.2145832113269
+    },
+    "irrelevant_context": {
+      "n": 8,
+      "accuracy_mean": 0.625,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 182.625,
+      "final_input_tokens_mean": 142.375,
+      "reduction_percent_mean": 0.2203838934173596,
+      "total_latency_ms_mean": 6676.71498749587,
+      "total_latency_ms_stdev": 784.515868137602
+    },
+    "repeated_information": {
+      "n": 8,
+      "accuracy_mean": 0.875,
+      "accuracy_stdev": 0.3535533905932738,
+      "original_input_tokens_mean": 241.125,
+      "final_input_tokens_mean": 142.875,
+      "reduction_percent_mean": 0.4017873815507064,
+      "total_latency_ms_mean": 7453.188187504566,
+      "total_latency_ms_stdev": 430.3120596191389
+    }
+  },
+  "truncation_500": {
+    "factual_simple": {
+      "n": 8,
+      "accuracy_mean": 0.625,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 160.375,
+      "final_input_tokens_mean": 160.375,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 7276.516699997956,
+      "total_latency_ms_stdev": 629.363263255968
+    },
+    "multi_hop": {
+      "n": 8,
+      "accuracy_mean": 0.5,
+      "accuracy_stdev": 0.5345224838248488,
+      "original_input_tokens_mean": 185.875,
+      "final_input_tokens_mean": 185.875,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 7097.17001250101,
+      "total_latency_ms_stdev": 381.1216807957413
+    },
+    "recency_conflict": {
+      "n": 8,
+      "accuracy_mean": 0.125,
+      "accuracy_stdev": 0.3535533905932738,
+      "original_input_tokens_mean": 178.75,
+      "final_input_tokens_mean": 178.75,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 6794.6268124960625,
+      "total_latency_ms_stdev": 356.59587032549075
+    },
+    "long_distance": {
+      "n": 8,
+      "accuracy_mean": 0.375,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 988.5,
+      "final_input_tokens_mean": 233,
+      "reduction_percent_mean": 0.7616880612978276,
+      "total_latency_ms_mean": 7452.42429999962,
+      "total_latency_ms_stdev": 296.68164472870853
+    },
+    "irrelevant_context": {
+      "n": 8,
+      "accuracy_mean": 0.5,
+      "accuracy_stdev": 0.5345224838248488,
+      "original_input_tokens_mean": 182.625,
+      "final_input_tokens_mean": 182.625,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 6964.115450000463,
+      "total_latency_ms_stdev": 466.1593521323875
+    },
+    "repeated_information": {
+      "n": 8,
+      "accuracy_mean": 0.875,
+      "accuracy_stdev": 0.3535533905932738,
+      "original_input_tokens_mean": 241.125,
+      "final_input_tokens_mean": 229.875,
+      "reduction_percent_mean": 0.0421150296330728,
+      "total_latency_ms_mean": 8726.302000000942,
+      "total_latency_ms_stdev": 417.94395349427066
+    }
+  },
+  "truncation_1000": {
+    "factual_simple": {
+      "n": 8,
+      "accuracy_mean": 0.625,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 160.375,
+      "final_input_tokens_mean": 160.375,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 7112.84332500145,
+      "total_latency_ms_stdev": 557.1370303382126
+    },
+    "multi_hop": {
+      "n": 8,
+      "accuracy_mean": 0.5,
+      "accuracy_stdev": 0.5345224838248488,
+      "original_input_tokens_mean": 185.875,
+      "final_input_tokens_mean": 185.875,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 7241.788737501338,
+      "total_latency_ms_stdev": 570.1753077234428
+    },
+    "recency_conflict": {
+      "n": 8,
+      "accuracy_mean": 0.125,
+      "accuracy_stdev": 0.3535533905932738,
+      "original_input_tokens_mean": 178.75,
+      "final_input_tokens_mean": 178.75,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 6823.753175001912,
+      "total_latency_ms_stdev": 613.948327084496
+    },
+    "long_distance": {
+      "n": 8,
+      "accuracy_mean": 0.375,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 988.5,
+      "final_input_tokens_mean": 388.75,
+      "reduction_percent_mean": 0.6026871390819368,
+      "total_latency_ms_mean": 9092.415712499132,
+      "total_latency_ms_stdev": 571.0988137735975
+    },
+    "irrelevant_context": {
+      "n": 8,
+      "accuracy_mean": 0.5,
+      "accuracy_stdev": 0.5345224838248488,
+      "original_input_tokens_mean": 182.625,
+      "final_input_tokens_mean": 182.625,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 7008.2033125036105,
+      "total_latency_ms_stdev": 381.39988994852445
+    },
+    "repeated_information": {
+      "n": 8,
+      "accuracy_mean": 0.875,
+      "accuracy_stdev": 0.3535533905932738,
+      "original_input_tokens_mean": 241.125,
+      "final_input_tokens_mean": 241.125,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 8612.163099998725,
+      "total_latency_ms_stdev": 1043.153482398025
+    }
+  },
+  "keyword_retrieval": {
+    "factual_simple": {
+      "n": 8,
+      "accuracy_mean": 1.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 160.375,
+      "final_input_tokens_mean": 129.875,
+      "reduction_percent_mean": 0.18976086150759197,
+      "total_latency_ms_mean": 6987.163037498249,
+      "total_latency_ms_stdev": 639.6338077392628
+    },
+    "multi_hop": {
+      "n": 8,
+      "accuracy_mean": 0.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 185.875,
+      "final_input_tokens_mean": 147,
+      "reduction_percent_mean": 0.20027225342011773,
+      "total_latency_ms_mean": 6901.872899999944,
+      "total_latency_ms_stdev": 519.3095161017968
+    },
+    "recency_conflict": {
+      "n": 8,
+      "accuracy_mean": 0.375,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 178.75,
+      "final_input_tokens_mean": 163.75,
+      "reduction_percent_mean": 0.07647034426925729,
+      "total_latency_ms_mean": 6609.044024997274,
+      "total_latency_ms_stdev": 269.7703255005753
+    },
+    "long_distance": {
+      "n": 8,
+      "accuracy_mean": 0.5,
+      "accuracy_stdev": 0.5345224838248488,
+      "original_input_tokens_mean": 988.5,
+      "final_input_tokens_mean": 140.25,
+      "reduction_percent_mean": 0.8566826239945406,
+      "total_latency_ms_mean": 6979.905549997056,
+      "total_latency_ms_stdev": 581.7678208133175
+    },
+    "irrelevant_context": {
+      "n": 8,
+      "accuracy_mean": 0.625,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 182.625,
+      "final_input_tokens_mean": 142.5,
+      "reduction_percent_mean": 0.21970046545379396,
+      "total_latency_ms_mean": 6764.251637501729,
+      "total_latency_ms_stdev": 416.3125916965091
+    },
+    "repeated_information": {
+      "n": 8,
+      "accuracy_mean": 1.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 241.125,
+      "final_input_tokens_mean": 147.25,
+      "reduction_percent_mean": 0.38343489100216543,
+      "total_latency_ms_mean": 7665.690050000194,
+      "total_latency_ms_stdev": 901.5575657486646
+    }
+  },
+  "air": {
+    "factual_simple": {
+      "n": 8,
+      "accuracy_mean": 0.25,
+      "accuracy_stdev": 0.4629100498862757,
+      "original_input_tokens_mean": 160.375,
+      "final_input_tokens_mean": 356.5,
+      "reduction_percent_mean": -1.2105285502519805,
+      "total_latency_ms_mean": 9661.095750001925,
+      "total_latency_ms_stdev": 1157.365749209414
+    },
+    "multi_hop": {
+      "n": 8,
+      "accuracy_mean": 0.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 185.875,
+      "final_input_tokens_mean": 432.5,
+      "reduction_percent_mean": -1.3161838502834553,
+      "total_latency_ms_mean": 9368.199237498291,
+      "total_latency_ms_stdev": 955.9781812130619
+    },
+    "recency_conflict": {
+      "n": 8,
+      "accuracy_mean": 0.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 178.75,
+      "final_input_tokens_mean": 287.375,
+      "reduction_percent_mean": -0.5918861240757834,
+      "total_latency_ms_mean": 8058.796199998718,
+      "total_latency_ms_stdev": 647.2815782972549
+    },
+    "long_distance": {
+      "n": 8,
+      "accuracy_mean": 0.25,
+      "accuracy_stdev": 0.4629100498862757,
+      "original_input_tokens_mean": 988.5,
+      "final_input_tokens_mean": 1015.625,
+      "reduction_percent_mean": -0.03858433737570842,
+      "total_latency_ms_mean": 15425.132837500252,
+      "total_latency_ms_stdev": 723.0267696050803
+    },
+    "irrelevant_context": {
+      "n": 8,
+      "accuracy_mean": 0.125,
+      "accuracy_stdev": 0.3535533905932738,
+      "original_input_tokens_mean": 182.625,
+      "final_input_tokens_mean": 415.625,
+      "reduction_percent_mean": -1.2759081529652583,
+      "total_latency_ms_mean": 9486.147175000115,
+      "total_latency_ms_stdev": 559.1192755834785
+    },
+    "repeated_information": {
+      "n": 8,
+      "accuracy_mean": 0.25,
+      "accuracy_stdev": 0.4629100498862757,
+      "original_input_tokens_mean": 241.125,
+      "final_input_tokens_mean": 364.5,
+      "reduction_percent_mean": -0.5137276267814411,
+      "total_latency_ms_mean": 10427.602224999815,
+      "total_latency_ms_stdev": 1156.1518012373483
+    }
+  },
+  "air_structural_memory": {
+    "factual_simple": {
+      "n": 8,
+      "accuracy_mean": 0.375,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 160.375,
+      "final_input_tokens_mean": 358,
+      "reduction_percent_mean": -1.2195356316624166,
+      "total_latency_ms_mean": 9679.322675000934,
+      "total_latency_ms_stdev": 781.6934185331709
+    },
+    "multi_hop": {
+      "n": 8,
+      "accuracy_mean": 0.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 185.875,
+      "final_input_tokens_mean": 435.375,
+      "reduction_percent_mean": -1.3322639669520449,
+      "total_latency_ms_mean": 9537.34377500101,
+      "total_latency_ms_stdev": 650.188112160244
+    },
+    "recency_conflict": {
+      "n": 8,
+      "accuracy_mean": 0.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 178.75,
+      "final_input_tokens_mean": 287.875,
+      "reduction_percent_mean": -0.5948746665792326,
+      "total_latency_ms_mean": 8156.670712501415,
+      "total_latency_ms_stdev": 407.5107969267271
+    },
+    "long_distance": {
+      "n": 8,
+      "accuracy_mean": 0.625,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 988.5,
+      "final_input_tokens_mean": 1013,
+      "reduction_percent_mean": -0.034724717604892444,
+      "total_latency_ms_mean": 16096.331249998375,
+      "total_latency_ms_stdev": 3057.7495554737316
+    },
+    "irrelevant_context": {
+      "n": 8,
+      "accuracy_mean": 0.625,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 182.625,
+      "final_input_tokens_mean": 416.5,
+      "reduction_percent_mean": -1.2807008717433497,
+      "total_latency_ms_mean": 9318.475974998355,
+      "total_latency_ms_stdev": 1089.1213621088716
+    },
+    "repeated_information": {
+      "n": 8,
+      "accuracy_mean": 0.625,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 241.125,
+      "final_input_tokens_mean": 368.375,
+      "reduction_percent_mean": -0.530336030243231,
+      "total_latency_ms_mean": 10151.461699999729,
+      "total_latency_ms_stdev": 835.2590077313935
+    }
+  },
+  "semantic_rag": {
+    "factual_simple": {
+      "n": 8,
+      "accuracy_mean": 1.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 160.375,
+      "final_input_tokens_mean": 142.875,
+      "reduction_percent_mean": 0.10129663185367956,
+      "total_latency_ms_mean": 7795.128025003578,
+      "total_latency_ms_stdev": 632.5342369649647
+    },
+    "multi_hop": {
+      "n": 8,
+      "accuracy_mean": 0.625,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 185.875,
+      "final_input_tokens_mean": 144.375,
+      "reduction_percent_mean": 0.2141246115909501,
+      "total_latency_ms_mean": 6685.964450001848,
+      "total_latency_ms_stdev": 596.2015432808463
+    },
+    "recency_conflict": {
+      "n": 8,
+      "accuracy_mean": 0.375,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 178.75,
+      "final_input_tokens_mean": 163.25,
+      "reduction_percent_mean": 0.07909397064288368,
+      "total_latency_ms_mean": 7027.22150000227,
+      "total_latency_ms_stdev": 421.6113527056286
+    },
+    "long_distance": {
+      "n": 8,
+      "accuracy_mean": 0.75,
+      "accuracy_stdev": 0.4629100498862757,
+      "original_input_tokens_mean": 988.5,
+      "final_input_tokens_mean": 141.75,
+      "reduction_percent_mean": 0.8552640831116417,
+      "total_latency_ms_mean": 6967.156149999937,
+      "total_latency_ms_stdev": 642.4718871099745
+    },
+    "irrelevant_context": {
+      "n": 8,
+      "accuracy_mean": 0.5,
+      "accuracy_stdev": 0.5345224838248488,
+      "original_input_tokens_mean": 182.625,
+      "final_input_tokens_mean": 142.125,
+      "reduction_percent_mean": 0.22177212546631078,
+      "total_latency_ms_mean": 6846.505162498943,
+      "total_latency_ms_stdev": 704.3033724595939
+    },
+    "repeated_information": {
+      "n": 8,
+      "accuracy_mean": 1.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 241.125,
+      "final_input_tokens_mean": 147.25,
+      "reduction_percent_mean": 0.38343489100216543,
+      "total_latency_ms_mean": 7974.547999998322,
+      "total_latency_ms_stdev": 947.21125083239
+    }
+  },
+  "llmlingua": {
+    "factual_simple": {
+      "n": 8,
+      "accuracy_mean": 0.375,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 160.375,
+      "final_input_tokens_mean": 157.875,
+      "reduction_percent_mean": 0.007108586750466439,
+      "total_latency_ms_mean": 9019.335112496265,
+      "total_latency_ms_stdev": 1263.9267984141707
+    },
+    "multi_hop": {
+      "n": 8,
+      "accuracy_mean": 0.25,
+      "accuracy_stdev": 0.4629100498862757,
+      "original_input_tokens_mean": 185.875,
+      "final_input_tokens_mean": 196.25,
+      "reduction_percent_mean": -0.05681873077905182,
+      "total_latency_ms_mean": 8441.845512496002,
+      "total_latency_ms_stdev": 688.7168389633209
+    },
+    "recency_conflict": {
+      "n": 8,
+      "accuracy_mean": 0.5,
+      "accuracy_stdev": 0.5345224838248488,
+      "original_input_tokens_mean": 178.75,
+      "final_input_tokens_mean": 188.125,
+      "reduction_percent_mean": -0.05377352510676886,
+      "total_latency_ms_mean": 8453.509262506486,
+      "total_latency_ms_stdev": 1091.4471059787372
+    },
+    "long_distance": {
+      "n": 8,
+      "accuracy_mean": 0.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 988.5,
+      "final_input_tokens_mean": 988.5,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 12054.00869999903,
+      "total_latency_ms_stdev": 1568.9265462932567
+    },
+    "irrelevant_context": {
+      "n": 8,
+      "accuracy_mean": 0.5,
+      "accuracy_stdev": 0.5345224838248488,
+      "original_input_tokens_mean": 182.625,
+      "final_input_tokens_mean": 195.625,
+      "reduction_percent_mean": -0.07118674288427934,
+      "total_latency_ms_mean": 9213.93645000171,
+      "total_latency_ms_stdev": 1227.526048018717
+    },
+    "repeated_information": {
+      "n": 8,
+      "accuracy_mean": 0.875,
+      "accuracy_stdev": 0.3535533905932738,
+      "original_input_tokens_mean": 241.125,
+      "final_input_tokens_mean": 252.75,
+      "reduction_percent_mean": -0.048535554063000086,
+      "total_latency_ms_mean": 11230.519200000344,
+      "total_latency_ms_stdev": 822.5520226863262
+    }
+  },
+  "longllmlingua": {
+    "factual_simple": {
+      "n": 8,
+      "accuracy_mean": 0.625,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 160.375,
+      "final_input_tokens_mean": 164.875,
+      "reduction_percent_mean": -0.030178331954766227,
+      "total_latency_ms_mean": 9851.238887496947,
+      "total_latency_ms_stdev": 886.114481530304
+    },
+    "multi_hop": {
+      "n": 8,
+      "accuracy_mean": 0.25,
+      "accuracy_stdev": 0.4629100498862757,
+      "original_input_tokens_mean": 185.875,
+      "final_input_tokens_mean": 204,
+      "reduction_percent_mean": -0.09666185603425284,
+      "total_latency_ms_mean": 9914.092387500204,
+      "total_latency_ms_stdev": 685.7137927773534
+    },
+    "recency_conflict": {
+      "n": 8,
+      "accuracy_mean": 0.625,
+      "accuracy_stdev": 0.5175491695067657,
+      "original_input_tokens_mean": 178.75,
+      "final_input_tokens_mean": 191.625,
+      "reduction_percent_mean": -0.06961763090136383,
+      "total_latency_ms_mean": 9365.026849998685,
+      "total_latency_ms_stdev": 817.709126213674
+    },
+    "long_distance": {
+      "n": 8,
+      "accuracy_mean": 0.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 988.5,
+      "final_input_tokens_mean": 988.5,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 21782.820799995534,
+      "total_latency_ms_stdev": 3031.4166637087405
+    },
+    "irrelevant_context": {
+      "n": 8,
+      "accuracy_mean": 0.5,
+      "accuracy_stdev": 0.5345224838248488,
+      "original_input_tokens_mean": 182.625,
+      "final_input_tokens_mean": 195.625,
+      "reduction_percent_mean": -0.07118674288427934,
+      "total_latency_ms_mean": 9960.61428750545,
+      "total_latency_ms_stdev": 870.7249268592321
+    },
+    "repeated_information": {
+      "n": 8,
+      "accuracy_mean": 0.75,
+      "accuracy_stdev": 0.4629100498862757,
+      "original_input_tokens_mean": 241.125,
+      "final_input_tokens_mean": 236.875,
+      "reduction_percent_mean": 0.007411298472059194,
+      "total_latency_ms_mean": 13241.122449999239,
+      "total_latency_ms_stdev": 1101.8321813409104
+    }
+  },
+  "llmlingua2": {
+    "factual_simple": {
+      "n": 2,
+      "accuracy_mean": 0.5,
+      "accuracy_stdev": 0.7071067811865476,
+      "original_input_tokens_mean": 160.5,
+      "final_input_tokens_mean": 113,
+      "reduction_percent_mean": 0.29078014184397166,
+      "total_latency_ms_mean": 249570.67385000119,
+      "total_latency_ms_stdev": 332719.4783158683
+    },
+    "multi_hop": {
+      "n": 2,
+      "accuracy_mean": 0.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 176.5,
+      "final_input_tokens_mean": 125.5,
+      "reduction_percent_mean": 0.2875854949025681,
+      "total_latency_ms_mean": 14873.706600010337,
+      "total_latency_ms_stdev": 438.89071391468707
+    },
+    "recency_conflict": {
+      "n": 2,
+      "accuracy_mean": 0.5,
+      "accuracy_stdev": 0.7071067811865476,
+      "original_input_tokens_mean": 185,
+      "final_input_tokens_mean": 137,
+      "reduction_percent_mean": 0.25535698408464474,
+      "total_latency_ms_mean": 14001.822949998314,
+      "total_latency_ms_stdev": 959.0133598382578
+    },
+    "long_distance": {
+      "n": 2,
+      "accuracy_mean": 0.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 994,
+      "final_input_tokens_mean": 482,
+      "reduction_percent_mean": 0.5158769050590972,
+      "total_latency_ms_mean": 20469.369849997747,
+      "total_latency_ms_stdev": 3358.2699433574944
+    },
+    "irrelevant_context": {
+      "n": 2,
+      "accuracy_mean": 0.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 182.5,
+      "final_input_tokens_mean": 126.5,
+      "reduction_percent_mean": 0.3068516183270282,
+      "total_latency_ms_mean": 12901.672600004531,
+      "total_latency_ms_stdev": 232.9993211556371
+    },
+    "repeated_information": {
+      "n": 2,
+      "accuracy_mean": 1.0,
+      "accuracy_stdev": 0.0,
+      "original_input_tokens_mean": 230.5,
+      "final_input_tokens_mean": 143,
+      "reduction_percent_mean": 0.3774303182197919,
+      "total_latency_ms_mean": 11534.158199989179,
+      "total_latency_ms_stdev": 768.6068278099258
+    }
+  }
+}

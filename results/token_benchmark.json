@@ -1,0 +1,29 @@
+{
+  "curto": {
+    "n_turns": 5,
+    "total_tokens_traditional": 24680,
+    "total_tokens_air": 3024,
+    "savings_pct": 0.8774716369529983,
+    "last_turn_tokens_traditional": 8194,
+    "last_turn_tokens_air": 1846,
+    "last_turn_savings_pct": 0.7747132047839883
+  },
+  "medio": {
+    "n_turns": 15,
+    "total_tokens_traditional": 196266,
+    "total_tokens_air": 6337,
+    "savings_pct": 0.9677121865223727,
+    "last_turn_tokens_traditional": 24497,
+    "last_turn_tokens_air": 1857,
+    "last_turn_savings_pct": 0.9241947993631874
+  },
+  "longo": {
+    "n_turns": 30,
+    "total_tokens_traditional": 759441,
+    "total_tokens_air": 11403,
+    "savings_pct": 0.9849850087103541,
+    "last_turn_tokens_traditional": 48962,
+    "last_turn_tokens_air": 1852,
+    "last_turn_savings_pct": 0.9621747477635717
+  }
+}

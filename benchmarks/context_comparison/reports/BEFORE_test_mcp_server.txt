@@ -1,0 +1,48 @@
+2026-08-24 17:35:48,660 INFO air.mcp_server.adapter: store_memory subject=proto predicate=teste content_len=28 superseded=False
+[OK] store_memory: retorna id
+[OK] store_memory: nao supersede nada na primeira vez
+[OK] store_memory: sem predicate explicito, notas nao se sobrepoem
+[OK] store_memory: ambas aparecem em recall
+[OK] store_memory: content vazio retorna erro
+[OK] store_memory: content grande demais retorna erro
+[OK] search_context: encontra fato relevante
+[OK] search_context: metodo declarado honestamente
+[OK] search_context: memoria vazia retorna resultado vazio, nao erro
+[OK] search_context: query vazia retorna erro
+[OK] search_context: query grande demais retorna erro
+[OK] get_context: contexto contem o fato relevante
+[OK] get_context: todas as 3 etapas do planner rodaram e' 'done'
+[OK] get_context: accounting de tokens presente com metodo declarado
+[OK] get_context: usa notacao estrutural por padrao (AIR_ENABLE_STRUCTURAL_MEMORY=true)
+[OK] get_context: sem match nao e' erro
+[OK] get_context: contexto vazio mas planner completou
+[OK] get_context: orcamento pequeno inclui menos referencias que orcamento grande
+[OK] get_context: nunca excede o orcamento pedido (exceto o 1o item obrigatorio)
+[OK] get_context: modo estrutural usa FACT(...)
+[OK] get_context: modo prosa NAO usa FACT(...)
+[OK] get_context: query vazia retorna erro
+[OK] update_memory: cria fato novo, nao sobrescreve
+[OK] update_memory: aponta pro anterior
+[OK] update_memory: so' a versao nova esta' ativa
+[OK] update_memory: id inexistente retorna erro
+[OK] update_memory: nao permite atualizar fato deletado
+[OK] update_memory: nao permite atualizar versao ja' superseded (usa a mais nova)
+[OK] delete_memory: confirma delecao
+[OK] delete_memory: status vira DELETED (soft delete, nao remove linha)
+[OK] delete_memory: id inexistente retorna erro
+[OK] delete_memory: deletar duas vezes retorna erro na segunda
+[OK] conflito: so' a versao mais recente aparece na busca
+[OK] conflito: contexto reconstruido nao vaza a versao antiga
+[OK] desatualizado: aparece antes de deletar
+[OK] desatualizado: some da busca depois de deletar
+[OK] desatualizado: nao aparece em get_context depois de deletar
+[OK] persistencia: nova sessao encontra o que foi armazenado na anterior
+[OK] persistencia: get_context na nova sessao recupera o fato
+[OK] mcp protocol: as 5 tools estao registradas (discovery)
+[OK] mcp protocol: schema de air_search_context tem 'query'
+[OK] mcp protocol: call_tool nao retorna erro
+[OK] mcp protocol: resources expostos (memoria + world state)
+[OK] mcp protocol: prompt de reconstrucao de contexto exposto
+
+Todos os testes do mcp_server passaram.
+test_mcp exit: 0
