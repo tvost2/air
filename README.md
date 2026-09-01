@@ -53,6 +53,7 @@ filesystem/    tools de arquivo (casca fina)
 process/       tool de comando (casca fina)
 sdk/           fachada Agent(), junta tudo
 mcp_server/    servidor MCP (Claude Code fala com o AIR por aqui — ver secão dedicada abaixo)
+adapters/      adota tech madura em vez de reimplementar (semantic_search.py — opcional, desligado por padrão)
 tests/         suites sem dependência externa (`python tests/test_air.py`, `python tests/test_mcp_server.py`)
 benchmarks/    comparação de tokens: agente de histórico completo vs agente sobre o AIR
 examples/      demos reais (`demo_agent.py` = agente completo; `demo_mcp.py` = fluxo MCP store→nova sessão→query)
@@ -64,9 +65,14 @@ examples/      demos reais (`demo_agent.py` = agente completo; `demo_mcp.py` = f
 cd air
 python tests/test_air.py
 python tests/test_mcp_server.py
+python tests/test_kakeya_index.py
 python benchmarks/token_benchmark.py
 python examples/demo_agent.py
 python examples/demo_mcp.py
+
+# opcional e lento (~187s de import na 1a chamada, ver "Busca semântica
+# opcional" acima) -- so' roda de verdade com a env var ligada:
+AIR_ENABLE_SEMANTIC_SEARCH=true python tests/test_semantic_search.py
 ```
 
 ## MCP Server — o AIR como memória externa do Claude Code
@@ -101,7 +107,7 @@ Claude Code. As duas direções são independentes.
 
 | Tool | O que faz | Por baixo |
 |---|---|---|
-| `air_search_context(query, limit=5, project="")` | Busca por palavra-chave (não semântica — ver `method` no retorno) em Memory + World State | `mcp_server/retrieval.py` |
+| `air_search_context(query, limit=5, project="")` | Busca por palavra-chave (mais busca semântica opcional — ver seção "Busca semântica opcional" abaixo e `method` no retorno) em Memory + World State | `mcp_server/retrieval.py` |
 | `air_store_memory(content, metadata={subject,predicate,reason,project})` | Grava um fato; se `subject+predicate` já existir NO MESMO `project`, a versão nova *supersede* a antiga (recência, não sobrescrita) | `MemoryStore.remember` |
 | `air_register_entity(kind, name, attrs={}, project="")` | Registra no World State um artefato já construído (API, frontend, módulo) pra uma tarefa futura achar e *readaptar* em vez de refazer do zero. Idempotente por `name` exato (registrar de novo com mesmo nome não atualiza, só devolve o existente — use `air_update_entity` pra isso). Retorno inclui o custo real em tokens de reusar (`_context_cost_tokens`/`_context_cost_method` nos `attrs`) e `possible_duplicates` (nomes parecidos já registrados — aviso, não bloqueia nem faz merge automático) | `WorldState.entity` |
 | `air_update_entity(id, attrs=None, kind=None, merge_attrs=True)` | Atualiza `kind`/`attrs` de uma entidade existente sem precisar apagar e registrar de novo. `merge_attrs=True` (default) combina com os attrs existentes; `False` substitui inteiro. Não atualiza `name`/`project` de propósito | `WorldState.update_entity` |
@@ -174,7 +180,7 @@ Code** (ou a sessão atual) pra' ele carregar o servidor — registrar o
 arquivo não conecta retroativamente numa sessão já em execução.
 
 Verificar que está funcionando: dentro do Claude Code, `/mcp` deve listar
-`air` como conectado, com as 5 tools acima disponíveis. Sem o Claude
+`air` como conectado, com as 9 tools acima disponíveis. Sem o Claude
 Code, dá pra' testar o servidor isolado com `python -m mcp_server.server`
 (fica esperando entrada stdio — Ctrl+C pra' sair) ou rodar
 `python examples/demo_mcp.py`, que chama a mesma camada de protocolo sem
@@ -191,16 +197,24 @@ precisar de um client MCP de verdade do outro lado.
 | `AIR_MAX_CONTENT_CHARS` | `20000` | Limite de tamanho de `content` em `air_store_memory`/`air_update_memory` |
 | `AIR_MAX_QUERY_CHARS` | `1000` | Limite de tamanho de `query` |
 | `AIR_DEFAULT_SEARCH_LIMIT` | `5` | Resultados default de `air_search_context` |
+| `AIR_ENABLE_SEMANTIC_SEARCH` | `false` | `true` liga a busca semântica opcional (ver seção dedicada abaixo) — desligada por padrão, custo real medido nesta máquina (~187s só de import na 1ª chamada) |
 
 Nenhuma chave de API é lida ou usada por este servidor — ele só fala com
-o AIR local (SQLite), não com nenhum provider de LLM.
+o AIR local (SQLite) e, se `AIR_ENABLE_SEMANTIC_SEARCH=true`, com um
+modelo de embeddings local (`sentence-transformers`, baixado uma vez do
+Hugging Face Hub e cacheado — sem chave, sem provider de LLM).
 
 ### Honestidade metodológica
 
-- **Busca por palavra-chave, não embeddings.** `retrieval.py` pontua por
-  overlap de palavras (substring, case-insensitive) entre a query e o
-  texto serializado de cada fato/entidade/evento. Todo resultado inclui
-  `"method": "keyword_substring_overlap"` — não finge ser busca semântica.
+- **Busca por palavra-chave por padrão, semântica só se pedida e só se
+  disponível.** `retrieval.py` pontua por overlap de palavras (substring,
+  case-insensitive) entre a query e o texto serializado de cada
+  fato/entidade/evento. `"method": "keyword_substring_overlap"` no
+  retorno enquanto for só isso; com `AIR_ENABLE_SEMANTIC_SEARCH=true` e o
+  modelo carregado com sucesso, vira
+  `"hybrid_keyword_substring_and_semantic_embedding:<modelo>"` — o campo
+  sempre diz exatamente qual combinação gerou o resultado, nunca afirma
+  semântica sem ser (nem finge que é só keyword quando não é).
 - **Token accounting real quando possível.** `mcp_server/tokens.py` usa o
   tokenizador do SmolLM2-360M-Instruct (mesmo modelo usado nos
   experimentos desta sessão) via `local_files_only=True` — carrega só do
@@ -230,10 +244,12 @@ o AIR local (SQLite), não com nenhum provider de LLM.
 
 ### Limitações conhecidas do MCP server
 
-- Busca é palavra-chave, não semântica — uma pergunta parafraseada sem
-  nenhuma palavra em comum com o fato armazenado não vai encontrá-lo. Essa
-  ainda é a maior lacuna real de qualidade do projeto (ver "O que ainda
-  falta" abaixo).
+- Busca é palavra-chave por padrão — uma pergunta parafraseada sem
+  nenhuma palavra em comum com o fato armazenado não é encontrada, a
+  menos que `AIR_ENABLE_SEMANTIC_SEARCH=true` esteja ligado (ver seção
+  "Busca semântica opcional" abaixo). Continua desligada por padrão de
+  propósito: o custo de import medido (~187s nesta máquina) é grande
+  demais pra pagar sem o usuário pedir.
 - *Evento* (`Event`) ainda não tem tool MCP de **escrita** — só entidade e
   relação têm (`air_register_entity`, `air_register_relation`). Eventos
   continuam graváveis pela API core (`world.event(...)`, usada
@@ -349,6 +365,87 @@ registros com 6 palavras de busca diferentes (`tests/test_kakeya_index.py`)
 — nenhuma mudança de semântica de busca (substring em qualquer posição,
 igual antes) escondida atrás da otimização.
 
+## Busca semântica opcional (`adapters/semantic_search.py`)
+
+Primeiro conteúdo real de `adapters/` (antes vazio — ver "O que ainda
+falta"). Fecha a lacuna documentada há duas versões deste README como "a
+maior lacuna real de qualidade do projeto": busca por palavra-chave não
+encontra uma pergunta parafraseada sem nenhuma palavra em comum com o
+fato armazenado. Adota `sentence-transformers` (biblioteca madura, não
+reimplementa embeddings do zero — mesma regra de "adotar, não construir"
+de `docs/ECOSYSTEM_RESEARCH.md`, que já listava vector search como peça
+madura).
+
+**Desligada por padrão** — só liga com `AIR_ENABLE_SEMANTIC_SEARCH=true`.
+Motivo medido, não hipotético: nesta máquina, só o
+`from sentence_transformers import SentenceTransformer` levou **187
+segundos** — mesma patologia de I/O de disco já documentada pro
+tokenizer (`mcp_server/tokens.py`, 208s no primeiro load). Se isso
+rodasse por padrão no startup do `mcp_server`, reproduziria (ou
+pioraria — `sentence-transformers` + `torch` é pilha de dependência bem
+maior que só o tokenizer) o mesmo risco de connection timeout que
+motivou `tokens.warm_tokenizer_async()` em primeiro lugar. Por isso:
+
+- O import pesado é **lazy** — só acontece dentro de `_get_model()`,
+  nunca no topo do módulo. Importar `adapters.semantic_search` (o que
+  `mcp_server/retrieval.py` faz sempre) é instantâneo; só chamar
+  `embed()` de verdade paga o custo.
+- **Sem warmup automático em background** — diferente do tokenizer,
+  dado o custo medido (187s só de import), rodar isso numa thread de
+  fundo sem o usuário pedir seria gastar CPU/memória da máquina por uma
+  feature que ele não ligou. Quem liga a env var paga o custo
+  explicitamente, sabendo o número.
+- **Fallback gracioso** — se o pacote não estiver instalado ou o load
+  falhar (sem rede, disco cheio, etc.), a busca cai pra palavra-chave
+  sozinha, sem erro. Uma feature opcional nunca quebra a busca principal.
+
+**Como funciona**: embeddings de cada fato/entidade/evento são
+pré-computados uma vez e cacheados (`SemanticIndex`, mesmo padrão de
+invalidação por versão do índice Kakeya acima — só reconstrói quando
+`WorldState.version()`/`MemoryStore.version()` mudou). Uma busca só
+embeda a *query* (uma chamada) e faz produto escalar contra os vetores
+já prontos — reembedar o corpus inteiro a cada busca seria proibitivo.
+
+**Achado real durante o desenvolvimento, não hipotético**: o texto
+embedado NÃO é o mesmo texto compacto que `_score()` usa pra palavra-
+chave (`"subject predicate = obj"`, formato dict pros attrs de
+entidade). Primeira tentativa usou esse texto direto e o teste de
+paráfrase (ver abaixo) falhou — medido: com o wrapper completo a
+similaridade caiu pra 0.32 (abaixo do threshold), contra 0.37 embedando
+só o conteúdo em linguagem natural (`f.obj`, sem prefixo de
+`subject`/`predicate`, sem "="). Um token tipo `cache-01` e sintaxe de
+dict são ruído pra um encoder treinado em frase natural, não sinal — por
+isso `_fact_semantic_text`/`_entity_semantic_text`/`_event_semantic_text`
+existem separados de `_fact_text`/`_entity_text`/`_event_text`: a busca
+por palavra-chave continua vendo o texto compacto de sempre (nenhuma
+mudança lá), só o que é embedado é diferente.
+
+Resultado final é híbrido: `score = keyword_score + semantic_score`
+(cosine similarity, 0..1) — um match forte por palavra-chave continua
+pesando mais que um match semântico fraco, mas um registro com **zero**
+palavra em comum ainda pode entrar se a similaridade passar de
+`SEMANTIC_MATCH_THRESHOLD` (0.35, calibrado contra um par parafraseado
+real medido, não um número inventado — ver docstring do módulo). Cada
+resultado do modo híbrido inclui `keyword_score`/`semantic_score`
+separados no `metadata`, e o campo `method` do retorno diz exatamente
+`hybrid_keyword_substring_and_semantic_embedding:<modelo>` — nunca
+afirma semântica sem ser (mesma disciplina de honestidade do resto do
+projeto).
+
+**Testado com o caso que motiva a feature**, não só com o mecanismo
+isolado (`tests/test_semantic_search.py` — separado da suite rápida de
+propósito, mesmo motivo do benchmark acima): um fato ("o serviço de
+cache roda sobre redis em produção") e uma pergunta parafraseada
+("qual tecnologia database usada para armazenamento rápido") com
+**overlap de palavra confirmado como zero** (`_score() == 0`, checado no
+próprio teste antes de usar a busca semântica — sem essa garantia, um
+match "achado" podia só ser keyword coincidindo, não provaria nada) —
+keyword puro não encontra (testado explicitamente que dá `[]`), híbrido
+encontra. Suite roda com `AIR_ENABLE_SEMANTIC_SEARCH=true python
+tests/test_semantic_search.py`; sem a env var, os testes que dependem
+do modelo pulam (`[SKIP]`), não falham — rodar sem querer não trava a
+suite rápida nem baixa nada.
+
 ## Benchmark de token — o que ele mostra de verdade
 
 `benchmarks/token_benchmark.py` mede, com tokenizador real
@@ -382,22 +479,30 @@ correta, não que 98.5% é o que qualquer agente real vai obter.
 
 ## O que ainda falta
 
-`adapters/` ainda está vazio: o AIR expõe-se como servidor MCP
-(`mcp_server/`), mas ainda não *consome* nada maduro via adapter próprio
-— Firecracker/E2B (sandbox), Temporal (durabilidade) e Graphiti (grafo de
-memória) continuam na lista de "adotar, não construir" da pesquisa
-original, não implementados; nenhum tem conta/serviço configurado nesta
+`adapters/` ganhou seu primeiro conteúdo real nesta versão
+(`adapters/semantic_search.py`, ver seção dedicada acima) — mas o resto
+da lista de "adotar, não construir" da pesquisa original continua não
+implementado: Firecracker/E2B (sandbox), Temporal (durabilidade) e
+Graphiti (grafo de memória); nenhum tem conta/serviço configurado nesta
 máquina pra testar de verdade sem inventar resultado. `tools/registry.py`
 também continua agnóstico de protocolo — o AIR ainda só é *exposto* via
 MCP, não *consome* tool externa via MCP ele mesmo (as duas direções são
 independentes, ver seção MCP Server acima). O SDK JS/TS também não existe
 ainda (pedido explícito do usuário: Python primeiro).
 
-Desde a versão anterior deste README, ficaram prontos e testados: escrita
-de *relação* em World State (`air_register_relation` — antes só entidade
-era gravável via MCP), atualização de entidade sem apagar
-(`air_update_entity`), aviso de quase-duplicata por nome
-(`possible_duplicates`), e filtro por `project` estendido a eventos (antes
-só fato/entidade). A lacuna de maior impacto que continua real: busca é
-palavra-chave, não semântica/embeddings — nenhuma mudança nesta versão
-tocou nisso, é o item mais valioso pra próxima rodada.
+Desde a versão anterior deste README, ficaram prontos e testados:
+aceleração de busca por índice de bissecção (`mcp_server/kakeya_index.py`
+— ver "Aceleração de busca" acima, com o achado honesto de que a
+primeira versão media pior que o scan linear original até o fetch
+também ser podado, não só a pontuação); e busca semântica opcional via
+embeddings locais (`adapters/semantic_search.py` — ver "Busca semântica
+opcional" acima), a lacuna que este README apontava havia duas versões
+como "a maior lacuna real de qualidade do projeto". Continua desligada
+por padrão (custo de import medido, ~187s nesta máquina) — quem quiser
+ligada paga o custo sabendo o número, não escondido.
+
+A lacuna de maior impacto que continua real agora: os três adapters de
+`docs/ECOSYSTEM_RESEARCH.md` que dependem de infraestrutura externa
+(Firecracker/E2B, Temporal, Graphiti) — nenhum pode ser implementado
+honestamente sem uma conta/serviço real pra testar contra, e nenhum
+existe nesta máquina.

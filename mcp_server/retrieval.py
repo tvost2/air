@@ -12,9 +12,12 @@ consulta que faltavam por cima do que world/state.py e memory/store.py
 ja' expoem.
 
 Honestidade metodologica (mesma disciplina desta sessao inteira,
-struct-reasoning/LongMemEval): a busca aqui e' por PALAVRA-CHAVE/
-substring, nao por embeddings/similaridade semantica. Isso e' dito
-explicitamente em todo resultado devolvido (campo 'method'), pra' quem
+struct-reasoning/LongMemEval): por padrao a busca aqui e' por
+PALAVRA-CHAVE/substring, nao por embeddings/similaridade semantica --
+busca semantica opcional existe (adapters/semantic_search.py) mas fica
+DESLIGADA ate' AIR_ENABLE_SEMANTIC_SEARCH=true (custo de import medido
+~187s nesta maquina, ver README). Em qualquer um dos dois modos, o
+campo 'method' do resultado diz exatamente qual foi usado -- pra' quem
 consome a tool nao presumir mais do que existe.
 """
 from __future__ import annotations
@@ -27,6 +30,8 @@ from core.types import Event, Fact
 from memory.store import MemoryStore
 from world.state import WorldState
 from mcp_server.kakeya_index import KakeyaContextIndex
+from adapters import semantic_search
+from adapters.semantic_search import SemanticIndex
 
 _WORD_RE = re.compile(r"[a-zA-ZÀ-ÿ0-9_]+")
 
@@ -50,6 +55,32 @@ def _entity_text(e) -> str:
 
 def _event_text(ev: Event) -> str:
     return f"evento {ev.kind} em {ev.entity_id} {ev.payload}"
+
+
+# Texto usado SO' pra' embedding semantico (adapters/semantic_search.py),
+# separado de _fact_text/_entity_text/_event_text (que continuam sendo o
+# texto usado por _score() e o que aparece em SearchHit.text -- nao
+# mudou). Medido, nao suposto: embedar o texto compacto orientado a
+# keyword (com "subject predicate =" na frente, formato dict de attrs)
+# deu similaridade PIOR contra uma parafrase real (0.32 com o wrapper
+# completo, 0.31 so' tirando o "=") do que embedar so' o conteudo em
+# linguagem natural (0.37, mesmo texto de _fact_text sem o prefixo
+# id/predicate) -- id-like token e sintaxe de dict sao ruido pra' um
+# encoder treinado em frase natural, nao sinal. Threshold de
+# SEMANTIC_MATCH_THRESHOLD (0.35) foi calibrado contra ESSE formato, nao
+# o compacto -- trocar um sem o outro reintroduz o problema.
+def _fact_semantic_text(f: Fact) -> str:
+    return f.obj + (f" ({f.reason})" if f.reason else "")
+
+
+def _entity_semantic_text(e) -> str:
+    attrs_text = " ".join(str(v) for v in e.attrs.values())
+    return f"{e.kind} {e.name} {attrs_text}".strip()
+
+
+def _event_semantic_text(ev: Event) -> str:
+    payload_text = " ".join(str(v) for v in ev.payload.values())
+    return f"{ev.kind} {ev.entity_id} {payload_text}".strip()
 
 
 @dataclass
@@ -98,6 +129,36 @@ def _get_index(world: WorldState, memory: MemoryStore) -> KakeyaContextIndex:
     return idx
 
 
+# Mesmo padrao de cache de _INDEX_CACHE, pro indice semantico opcional
+# (adapters/semantic_search.py) -- so' e' de fato usado quando
+# AIR_ENABLE_SEMANTIC_SEARCH=true (ver semantic_search.enabled());
+# construir o objeto SemanticIndex aqui nao paga custo nenhum sozinho
+# (o custo real e' em SemanticIndex.ensure_fresh -> embed(), so' chamado
+# se habilitado).
+_SEMANTIC_CACHE: dict[tuple[int, int], SemanticIndex] = {}
+
+
+def _get_semantic_index(world: WorldState, memory: MemoryStore) -> SemanticIndex:
+    key = (id(world), id(memory))
+    idx = _SEMANTIC_CACHE.get(key)
+    if idx is None:
+        idx = SemanticIndex()
+        _SEMANTIC_CACHE[key] = idx
+    # texto SEMANTICO, nao o texto de keyword (_fact_text/etc.) -- ver
+    # nota em _fact_semantic_text acima: medido, o wrapper compacto
+    # orientado a keyword prejudica a similaridade contra frase natural.
+    idx.ensure_fresh(
+        world.version(),
+        memory.version(),
+        {
+            "fact": lambda: [(f.id, _fact_semantic_text(f)) for f in memory.all_active(project=None)],
+            "entity": lambda: [(e.id, _entity_semantic_text(e)) for e in world.all_entities(project=None)],
+            "event": lambda: [(ev.id, _event_semantic_text(ev)) for ev in world.all_events(limit=500, project=None)],
+        },
+    )
+    return idx
+
+
 def _candidate_ids(index: KakeyaContextIndex, kind: str, query_words: list[str]) -> set[str] | None:
     """Uniao dos candidatos de cada palavra da busca, mais overflow_ids()
     (registros longos demais pro trecho indexado -- ver
@@ -115,11 +176,28 @@ def _candidate_ids(index: KakeyaContextIndex, kind: str, query_words: list[str])
     return ids
 
 
-def search_facts(memory: MemoryStore, query_words: list[str], project: str | None = None, index: KakeyaContextIndex | None = None) -> list[SearchHit]:
-    if index is not None:
-        candidate_ids = _candidate_ids(index, "fact", query_words)
-        if candidate_ids is None:
-            return []  # sem palavra de busca -- nada bate, nem vale tocar o banco
+def _semantic_hits_for_kind(semantic: tuple[SemanticIndex, object] | None, kind: str) -> tuple[dict[str, float], set[str]]:
+    """sims: id -> similaridade (todo registro indexado dessa dimensao).
+    above_threshold: so' os ids que passam de SEMANTIC_MATCH_THRESHOLD --
+    esses SIM entram como candidato mesmo com zero palavra em comum (e' o
+    ponto da busca semantica); sims completo fica disponivel pra' quem ja'
+    e' candidato por outro motivo (keyword) tambem ganhar o score
+    semantico no metadata, sem precisar passar do limiar sozinho."""
+    if semantic is None:
+        return {}, set()
+    semantic_index, query_vector = semantic
+    if query_vector is None:
+        return {}, set()
+    sims = semantic_index.similarity_scores(kind, query_vector)
+    above = {rid for rid, s in sims.items() if s >= semantic_search.SEMANTIC_MATCH_THRESHOLD}
+    return sims, above
+
+
+def search_facts(memory: MemoryStore, query_words: list[str], project: str | None = None, index: KakeyaContextIndex | None = None, semantic: tuple[SemanticIndex, object] | None = None) -> list[SearchHit]:
+    keyword_candidates = _candidate_ids(index, "fact", query_words) if index is not None else None
+    sims, semantic_candidates = _semantic_hits_for_kind(semantic, "fact")
+
+    if index is not None or semantic is not None:
         # o ganho real esta' aqui: busca so' os candidatos (IN (...)) em
         # vez de buscar TODO fato ativo e' descartar depois -- o indice so'
         # ajudar a decidir QUEM pontuar (o experimento original desta
@@ -127,49 +205,78 @@ def search_facts(memory: MemoryStore, query_words: list[str], project: str | Non
         # o fetch+construcao de objeto do SQLite, nao o _score() em si
         # (medido: benchmark_index_vs_linear() em
         # tests/test_kakeya_index.py, ver nota no README). Buscar so' os
-        # candidatos corta o fetch tambem, nao so' a pontuacao.
-        records = memory.get_facts_by_ids(candidate_ids, project=project)
+        # candidatos corta o fetch tambem, nao so' a pontuacao. Uniao com
+        # semantic_candidates: um registro sem palavra em comum mas
+        # semanticamente parecido tem que entrar tambem, senao a busca
+        # semantica nunca acharia nada que keyword ja' nao achasse.
+        combined_ids = (keyword_candidates or set()) | semantic_candidates
+        records = memory.get_facts_by_ids(combined_ids, project=project) if combined_ids else []
     else:
-        # sem indice (chamada direta, ex: teste comparando contra o
-        # comportamento original) -- scan completo de sempre.
+        # nem indice nem semantico (chamada direta, ex: teste comparando
+        # contra o comportamento original) -- scan completo de sempre.
         records = memory.all_active(project=project)
 
     hits = []
     for f in records:
         text = _fact_text(f)
-        score = _score(query_words, text)
-        if score > 0:
-            hits.append(SearchHit(
-                kind="fact", id=f.id, text=text, score=score,
-                metadata={"subject": f.subject, "predicate": f.predicate, "obj": f.obj, "reason": f.reason, "project": f.project, "created_at": f.created_at},
-            ))
+        keyword_score = _score(query_words, text)
+        # so' vira float quando a busca semantica de verdade contribuiu
+        # (sims nao vazio) -- com semantica desligada (caso default),
+        # `score` continua int, byte-identico ao valor de antes desta
+        # mudanca (2 == 2.0 e' verdade em Python, mas o tipo no dict de
+        # retorno da tool nao devia mudar por uma feature que nem esta'
+        # ligada).
+        semantic_score = sims.get(f.id, 0.0) if sims else 0
+        total = keyword_score + semantic_score
+        if total > 0:
+            metadata = {"subject": f.subject, "predicate": f.predicate, "obj": f.obj, "reason": f.reason, "project": f.project, "created_at": f.created_at}
+            if sims:
+                metadata["keyword_score"] = keyword_score
+                metadata["semantic_score"] = round(semantic_score, 4)
+            hits.append(SearchHit(kind="fact", id=f.id, text=text, score=total, metadata=metadata))
     return hits
 
 
-def search_world(world: WorldState, query_words: list[str], project: str | None = None, index: KakeyaContextIndex | None = None) -> list[SearchHit]:
+def search_world(world: WorldState, query_words: list[str], project: str | None = None, index: KakeyaContextIndex | None = None, semantic: tuple[SemanticIndex, object] | None = None) -> list[SearchHit]:
     hits = []
 
-    if index is not None:
-        entity_candidates = _candidate_ids(index, "entity", query_words)
-        entities = world.get_entities_by_ids(entity_candidates, project=project) if entity_candidates else []
+    entity_keyword_candidates = _candidate_ids(index, "entity", query_words) if index is not None else None
+    entity_sims, entity_semantic_candidates = _semantic_hits_for_kind(semantic, "entity")
+    if index is not None or semantic is not None:
+        combined = (entity_keyword_candidates or set()) | entity_semantic_candidates
+        entities = world.get_entities_by_ids(combined, project=project) if combined else []
     else:
         entities = world.all_entities(project=project)
     for e in entities:
         text = _entity_text(e)
-        score = _score(query_words, text)
-        if score > 0:
-            hits.append(SearchHit(kind="entity", id=e.id, text=text, score=score, metadata={"name": e.name, "entity_kind": e.kind, "attrs": e.attrs, "project": e.project}))
+        keyword_score = _score(query_words, text)
+        semantic_score = entity_sims.get(e.id, 0.0) if entity_sims else 0
+        total = keyword_score + semantic_score
+        if total > 0:
+            metadata = {"name": e.name, "entity_kind": e.kind, "attrs": e.attrs, "project": e.project}
+            if entity_sims:
+                metadata["keyword_score"] = keyword_score
+                metadata["semantic_score"] = round(semantic_score, 4)
+            hits.append(SearchHit(kind="entity", id=e.id, text=text, score=total, metadata=metadata))
 
-    if index is not None:
-        event_candidates = _candidate_ids(index, "event", query_words)
-        events = world.get_events_by_ids(event_candidates, project=project) if event_candidates else []
+    event_keyword_candidates = _candidate_ids(index, "event", query_words) if index is not None else None
+    event_sims, event_semantic_candidates = _semantic_hits_for_kind(semantic, "event")
+    if index is not None or semantic is not None:
+        combined = (event_keyword_candidates or set()) | event_semantic_candidates
+        events = world.get_events_by_ids(combined, project=project) if combined else []
     else:
         events = world.all_events(limit=500, project=project)
     for ev in events:
         text = _event_text(ev)
-        score = _score(query_words, text)
-        if score > 0:
-            hits.append(SearchHit(kind="event", id=ev.id, text=text, score=score, metadata={"entity_id": ev.entity_id, "event_kind": ev.kind, "payload": ev.payload, "created_at": ev.created_at}))
+        keyword_score = _score(query_words, text)
+        semantic_score = event_sims.get(ev.id, 0.0) if event_sims else 0
+        total = keyword_score + semantic_score
+        if total > 0:
+            metadata = {"entity_id": ev.entity_id, "event_kind": ev.kind, "payload": ev.payload, "created_at": ev.created_at}
+            if event_sims:
+                metadata["keyword_score"] = keyword_score
+                metadata["semantic_score"] = round(semantic_score, 4)
+            hits.append(SearchHit(kind="event", id=ev.id, text=text, score=total, metadata=metadata))
     return hits
 
 
@@ -193,13 +300,36 @@ def search(world: WorldState, memory: MemoryStore, query: str, limit: int = 5, p
     registro visivel, busca primeiro (via bisect, O(log n) por palavra)
     quais ids sao candidatos possiveis, e so' pontua esses -- resultado
     IDENTICO ao scan completo (mesma funcao _score, mesmo texto), so'
-    mais rapido quando ha' muitos registros e poucos batem a busca."""
+    mais rapido quando ha' muitos registros e poucos batem a busca.
+
+    Busca semantica (adapters/semantic_search.py): DESLIGADA por padrao,
+    so' entra em jogo com AIR_ENABLE_SEMANTIC_SEARCH=true -- e mesmo
+    assim, so' se o modelo carregar com sucesso (fallback gracioso pra
+    keyword puro se o pacote faltar ou o load falhar). Quando ativa,
+    contribui pontuacao adicional pra registros que uma parafrase sem
+    palavra em comum encontraria mas keyword sozinho nao acharia -- ver
+    README "Aceleracao de busca" pro numero medido e a justificativa de
+    ficar desligada por padrao (import sozinho mediu 187s nesta
+    maquina)."""
     t0 = time.perf_counter()
     query_words = _tokenize(query)
     index = _get_index(world, memory)
 
-    fact_hits = search_facts(memory, query_words, project=project, index=index)
-    world_hits = search_world(world, query_words, project=project, index=index)
+    semantic = None
+    semantic_used = False
+    if semantic_search.enabled():
+        query_vector_arr = semantic_search.embed([query])
+        if query_vector_arr is not None:
+            semantic_index = _get_semantic_index(world, memory)
+            semantic = (semantic_index, query_vector_arr[0])
+            semantic_used = True
+        # se embed() devolveu None (pacote ausente ou load falhou),
+        # `semantic` continua None -- cai pro keyword puro sem erro,
+        # exatamente o fallback gracioso documentado em
+        # adapters/semantic_search.py.
+
+    fact_hits = search_facts(memory, query_words, project=project, index=index, semantic=semantic)
+    world_hits = search_world(world, query_words, project=project, index=index, semantic=semantic)
     all_hits = fact_hits + world_hits
     all_hits.sort(key=lambda h: h.score, reverse=True)
 
@@ -211,9 +341,13 @@ def search(world: WorldState, memory: MemoryStore, query: str, limit: int = 5, p
     top = all_hits[:limit]
     elapsed_ms = (time.perf_counter() - t0) * 1000
 
+    method = "keyword_substring_overlap"
+    if semantic_used:
+        method = f"hybrid_keyword_substring_and_semantic_embedding:{semantic_search.model_name()}"
+
     return {
         "query": query,
-        "method": "keyword_substring_overlap",  # honesto: nao e' busca semantica/embeddings
+        "method": method,  # honesto: diz exatamente qual combinacao gerou o resultado, nunca afirma semantica sem ser
         "project": project,
         "results": [
             {"kind": h.kind, "id": h.id, "text": h.text, "score": h.score, "metadata": h.metadata}
