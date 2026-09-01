@@ -54,22 +54,37 @@ process/       tool de comando (casca fina)
 sdk/           fachada Agent(), junta tudo
 mcp_server/    servidor MCP (Claude Code fala com o AIR por aqui — ver secão dedicada abaixo)
 adapters/      adota tech madura em vez de reimplementar (semantic_search.py — opcional, desligado por padrão)
-tests/         suites sem dependência externa (`python tests/test_air.py`, `python tests/test_mcp_server.py`)
+tests/         suites (`test_air.py`/`test_mcp_server.py`/`test_kakeya_index.py`/`test_tokens.py` só dependem de requirements.txt; `test_semantic_search.py` precisa de requirements-optional.txt + AIR_ENABLE_SEMANTIC_SEARCH=true)
 benchmarks/    comparação de tokens: agente de histórico completo vs agente sobre o AIR
 examples/      demos reais (`demo_agent.py` = agente completo; `demo_mcp.py` = fluxo MCP store→nova sessão→query)
 ```
+
+`requirements.txt` (mínimo pro servidor MCP) e `requirements-optional.txt`
+(cada bloco liga uma feature opcional específica — tokenizador real,
+busca semântica, provider LiteLLM) documentam as dependências reais do
+projeto, versão testada nesta máquina (não suposta) — ver comentários em
+cada arquivo.
 
 ## Rodar
 
 ```
 cd air
+pip install -r requirements.txt   # minimo pro servidor MCP + tests/test_air.py,
+                                    # test_mcp_server.py, test_kakeya_index.py, test_tokens.py
+
 python tests/test_air.py
 python tests/test_mcp_server.py
 python tests/test_kakeya_index.py
 python tests/test_tokens.py
-python benchmarks/token_benchmark.py
-python examples/demo_agent.py
 python examples/demo_mcp.py
+
+# tudo abaixo precisa de requirements-optional.txt (ver esse arquivo pra'
+# instalar so' o bloco que voce for usar -- cada um liga uma feature
+# diferente, nenhum e' necessario pro servidor MCP em si):
+pip install -r requirements-optional.txt
+
+python benchmarks/token_benchmark.py   # precisa de transformers/torch
+python examples/demo_agent.py           # idem (HFLocalProvider)
 
 # opcional e lento (~187s de import na 1a chamada, ver "Busca semântica
 # opcional" acima) -- so' roda de verdade com a env var ligada:

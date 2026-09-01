@@ -1,0 +1,37 @@
+# AIR -- dependencias OPCIONAIS. Cada bloco liga UMA feature especifica;
+# nenhuma delas e' necessaria pro servidor MCP rodar (ver requirements.txt) --
+# cada uma tem fallback gracioso, documentado no codigo e no README,
+# quando o pacote correspondente nao esta' instalado. Instale so' o
+# bloco que voce vai usar de verdade, comentando/apagando o resto.
+
+# --- Tokenizador real (mcp_server/tokens.py:count_tokens) + provider
+# local de LLM sem chave de API (models/provider.py:HFLocalProvider,
+# usado por examples/demo_agent.py e benchmarks/token_benchmark.py).
+# Sem isso: contagem de token cai pra' heuristica len(texto)//4
+# (honestamente reportada no campo 'method' de toda tool que conta
+# token), e HFLocalProvider nao pode ser instanciado.
+# ACHADO REAL medido nesta maquina, nao universal: mesmo com
+# local_files_only=True, o primeiro load do tokenizer mediu ~208s (I/O
+# de disco, nao rede) -- ver README "Limitacoes conhecidas do MCP
+# server". mcp_server/server.py ja' mitiga isso com warmup em
+# background + fallback nao-bloqueante (ver mcp_server/tokens.py).
+transformers==5.15.1
+torch==2.13.0
+
+# --- Busca semantica opcional (adapters/semantic_search.py,
+# AIR_ENABLE_SEMANTIC_SEARCH=true). DESLIGADA por padrao mesmo com isso
+# instalado -- so' liga com a env var. ACHADO REAL medido nesta maquina:
+# so' o import de sentence_transformers levou ~187s (mesma patologia de
+# disco do tokenizer) -- ver README "Busca semantica opcional" antes de
+# instalar/ligar em produção.
+sentence-transformers==6.0.0
+numpy==2.4.6
+
+# --- Provider remoto via LiteLLM (models/provider.py:LiteLLMProvider,
+# 100+ providers incl. Ollama/vLLM local -- ver docs/ECOSYSTEM_RESEARCH.md).
+# NAO instalado nem testado nesta maquina -- import e' tardio de
+# proposito por causa de um ataque de supply-chain em pacotes PyPI do
+# LiteLLM registrado na pesquisa (mar/2026). Versao abaixo e' um piso
+# razoavel, NAO uma versao verificada rodando aqui (honesto sobre a
+# diferenca, mesma disciplina do resto deste arquivo).
+litellm>=1.50

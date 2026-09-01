@@ -1,0 +1,9 @@
+# AIR -- dependencia MINIMA pra' rodar o servidor MCP (mcp_server/server.py)
+# com busca por palavra-chave (+ indice de bissecao, mcp_server/kakeya_index.py)
+# e contagem de token heuristica. Tudo que precisa de mais que isso e'
+# opcional, deliberadamente separado -- ver requirements-optional.txt.
+#
+# Versao pinada e' a que foi testada de verdade nesta maquina (nao
+# suposta -- `pip show mcp` rodado antes de escrever este arquivo, mesma
+# disciplina do resto do projeto: medido, nao afirmado).
+mcp==2.1.0
