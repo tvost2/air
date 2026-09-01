@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS relations (
     source_id TEXT NOT NULL,
     kind TEXT NOT NULL,
     target_id TEXT NOT NULL,
+    project TEXT NOT NULL DEFAULT '',
     created_at REAL NOT NULL,
     FOREIGN KEY (source_id) REFERENCES entities(id),
     FOREIGN KEY (target_id) REFERENCES entities(id)
@@ -41,6 +42,7 @@ CREATE TABLE IF NOT EXISTS events (
     entity_id TEXT NOT NULL,
     kind TEXT NOT NULL,
     payload TEXT NOT NULL,
+    project TEXT NOT NULL DEFAULT '',
     created_at REAL NOT NULL,
     FOREIGN KEY (entity_id) REFERENCES entities(id)
 );
@@ -75,10 +77,14 @@ class WorldState:
         # desta mudanca). ALTER TABLE ADD COLUMN e' idempotente aqui porque
         # so' roda quando a coluna ainda nao existe -- nao apaga/recria
         # nada, dados existentes ganham project='' (mesmo default de
-        # entidade/fato novo sem escopo).
-        cols = {row[1] for row in self.conn.execute("PRAGMA table_info(entities)").fetchall()}
-        if "project" not in cols:
-            self.conn.execute("ALTER TABLE entities ADD COLUMN project TEXT NOT NULL DEFAULT ''")
+        # entidade/fato novo sem escopo). entities ganhou a coluna numa
+        # rodada anterior; relations/events ganham agora, mesmo padrao --
+        # storage de producao criado antes desta mudanca tambem migra sem
+        # perder linha nenhuma.
+        for table in ("entities", "relations", "events"):
+            cols = {row[1] for row in self.conn.execute(f"PRAGMA table_info({table})").fetchall()}
+            if "project" not in cols:
+                self.conn.execute(f"ALTER TABLE {table} ADD COLUMN project TEXT NOT NULL DEFAULT ''")
 
     def entity(self, name: str, kind: str, attrs: dict | None = None, id: str | None = None, project: str = "") -> Entity:
         e = Entity(id=id or new_id("ent"), kind=kind, name=name, attrs=attrs or {}, project=project)
@@ -89,20 +95,20 @@ class WorldState:
         self.conn.commit()
         return e
 
-    def relation(self, source_id: str, kind: str, target_id: str) -> Relation:
-        r = Relation(id=new_id("rel"), source_id=source_id, kind=kind, target_id=target_id)
+    def relation(self, source_id: str, kind: str, target_id: str, project: str = "") -> Relation:
+        r = Relation(id=new_id("rel"), source_id=source_id, kind=kind, target_id=target_id, project=project)
         self.conn.execute(
-            "INSERT INTO relations (id, source_id, kind, target_id, created_at) VALUES (?, ?, ?, ?, ?)",
-            (r.id, r.source_id, r.kind, r.target_id, r.created_at),
+            "INSERT INTO relations (id, source_id, kind, target_id, project, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+            (r.id, r.source_id, r.kind, r.target_id, r.project, r.created_at),
         )
         self.conn.commit()
         return r
 
-    def event(self, entity_id: str, kind: str, payload: dict | None = None) -> Event:
-        ev = Event(id=new_id("evt"), entity_id=entity_id, kind=kind, payload=payload or {})
+    def event(self, entity_id: str, kind: str, payload: dict | None = None, project: str = "") -> Event:
+        ev = Event(id=new_id("evt"), entity_id=entity_id, kind=kind, payload=payload or {}, project=project)
         self.conn.execute(
-            "INSERT INTO events (id, entity_id, kind, payload, created_at) VALUES (?, ?, ?, ?, ?)",
-            (ev.id, ev.entity_id, ev.kind, json.dumps(ev.payload), ev.created_at),
+            "INSERT INTO events (id, entity_id, kind, payload, project, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+            (ev.id, ev.entity_id, ev.kind, json.dumps(ev.payload), ev.project, ev.created_at),
         )
         self.conn.commit()
         return ev
@@ -137,6 +143,35 @@ class WorldState:
         ).fetchall()
         return [Entity(id=r[0], kind=r[1], name=r[2], attrs=json.loads(r[3]), project=r[4], created_at=r[5]) for r in rows]
 
+    def update_entity(self, id: str, attrs: dict | None = None, kind: str | None = None, merge_attrs: bool = True) -> Entity | None:
+        """Atualiza uma entidade existente em vez de exigir delete+registro
+        de novo (limitacao conhecida ate' aqui -- ver README). Preserva id/
+        name/project/created_at (mesma identidade, so' o conteudo muda).
+
+        merge_attrs=True (default): novos attrs se combinam com os
+        existentes (dict.update -- chave repetida usa o valor novo, chaves
+        que so' existiam antes sao preservadas). merge_attrs=False:
+        substitui attrs inteiro pelo que foi passado.
+
+        Devolve None se o id nao existir (idempotente, nao levanta
+        excecao, mesmo padrao de delete_entity)."""
+        existing = self.get_entity(id)
+        if existing is None:
+            return None
+        new_attrs = dict(existing.attrs)
+        if attrs is not None:
+            if merge_attrs:
+                new_attrs.update(attrs)
+            else:
+                new_attrs = dict(attrs)
+        new_kind = kind if kind else existing.kind
+        self.conn.execute(
+            "UPDATE entities SET kind = ?, attrs = ? WHERE id = ?",
+            (new_kind, json.dumps(new_attrs), id),
+        )
+        self.conn.commit()
+        return Entity(id=existing.id, kind=new_kind, name=existing.name, attrs=new_attrs, project=existing.project, created_at=existing.created_at)
+
     def delete_entity(self, id: str) -> bool:
         """Remove uma entidade por id (hard delete -- diferente de
         MemoryStore.forget, Entity nao tem campo status/soft-delete no
@@ -151,10 +186,10 @@ class WorldState:
 
     def relations_of(self, entity_id: str) -> list[Relation]:
         rows = self.conn.execute(
-            "SELECT id, source_id, kind, target_id, created_at FROM relations WHERE source_id = ? OR target_id = ?",
+            "SELECT id, source_id, kind, target_id, project, created_at FROM relations WHERE source_id = ? OR target_id = ?",
             (entity_id, entity_id),
         ).fetchall()
-        return [Relation(id=r[0], source_id=r[1], kind=r[2], target_id=r[3], created_at=r[4]) for r in rows]
+        return [Relation(id=r[0], source_id=r[1], kind=r[2], target_id=r[3], project=r[4], created_at=r[5]) for r in rows]
 
     def all_entities(self, project: str | None = None) -> list[Entity]:
         """Todas as entidades -- usado pela camada de retrieval
@@ -176,17 +211,28 @@ class WorldState:
             ).fetchall()
         return [Entity(id=r[0], kind=r[1], name=r[2], attrs=json.loads(r[3]), project=r[4], created_at=r[5]) for r in rows]
 
-    def all_events(self, limit: int = 200) -> list[Event]:
-        """Todos os eventos recentes, sem filtro de entidade -- mesma
-        motivacao de all_entities()."""
-        rows = self.conn.execute(
-            "SELECT id, entity_id, kind, payload, created_at FROM events ORDER BY created_at DESC LIMIT ?", (limit,)
-        ).fetchall()
-        return [Event(id=r[0], entity_id=r[1], kind=r[2], payload=json.loads(r[3]), created_at=r[4]) for r in rows]
+    def all_events(self, limit: int = 200, project: str | None = None) -> list[Event]:
+        """Todos os eventos recentes -- mesma motivacao de all_entities().
+
+        project=None (default): sem filtro, ve tudo -- comportamento de
+        antes desta mudanca. project="algo": so' eventos desse projeto MAIS
+        os globais (project=='') -- fecha a lacuna que o README documentava
+        ("eventos ainda nao sao filtrados por project"): agora sao, mesmo
+        padrao ja' usado em all_entities/memory.all_active."""
+        if project is None:
+            rows = self.conn.execute(
+                "SELECT id, entity_id, kind, payload, project, created_at FROM events ORDER BY created_at DESC LIMIT ?", (limit,)
+            ).fetchall()
+        else:
+            rows = self.conn.execute(
+                "SELECT id, entity_id, kind, payload, project, created_at FROM events WHERE project = ? OR project = '' ORDER BY created_at DESC LIMIT ?",
+                (project, limit),
+            ).fetchall()
+        return [Event(id=r[0], entity_id=r[1], kind=r[2], payload=json.loads(r[3]), project=r[4], created_at=r[5]) for r in rows]
 
     def events_of(self, entity_id: str, limit: int = 50) -> list[Event]:
         rows = self.conn.execute(
-            "SELECT id, entity_id, kind, payload, created_at FROM events WHERE entity_id = ? ORDER BY created_at DESC LIMIT ?",
+            "SELECT id, entity_id, kind, payload, project, created_at FROM events WHERE entity_id = ? ORDER BY created_at DESC LIMIT ?",
             (entity_id, limit),
         ).fetchall()
-        return [Event(id=r[0], entity_id=r[1], kind=r[2], payload=json.loads(r[3]), created_at=r[4]) for r in rows]
+        return [Event(id=r[0], entity_id=r[1], kind=r[2], payload=json.loads(r[3]), project=r[4], created_at=r[5]) for r in rows]

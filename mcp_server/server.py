@@ -122,6 +122,38 @@ def air_delete_entity(id: str) -> dict:
 
 
 @server.tool()
+def air_update_entity(id: str, attrs: dict | None = None, kind: str | None = None, merge_attrs: bool = True) -> dict:
+    """Atualiza kind e/ou attrs de uma entidade ja' registrada, sem
+    precisar apagar e registrar de novo. Preserva id/name/project/
+    created_at -- so' conteudo muda.
+
+    attrs: merge_attrs=True (default) combina com os attrs existentes
+    (chave repetida usa o valor novo, o resto e' preservado);
+    merge_attrs=False substitui attrs inteiro pelo que foi passado.
+    kind: opcional, so' muda se informado.
+    Nao atualiza name nem project de proposito -- mudar isso e'
+    realisticamente registrar outra entidade (delete_entity +
+    register_entity), nao uma edicao da mesma."""
+    return adapter.update_entity(id, attrs=attrs, kind=kind, merge_attrs=merge_attrs)
+
+
+@server.tool()
+def air_register_relation(source_id: str, kind: str, target_id: str, project: str = "") -> dict:
+    """Registra uma relacao entre duas entidades JA' registradas em World
+    State (ex: source_id="api", kind="depends_on", target_id="database").
+    E' o que faz world.dependents_of() (usado internamente por
+    air_get_context) responder "o que depende de X" por consulta direta.
+
+    source_id/target_id: precisam ser ids de entidades ja' existentes
+    (registradas antes com air_register_entity) -- retorna erro claro se
+    algum dos dois nao existir, em vez de criar uma relacao apontando pro
+    vazio.
+    project: mesmo mecanismo de escopo das outras tools -- "" (default) =
+    relacao global, um nome de projeto restringe."""
+    return adapter.register_relation(source_id, kind, target_id, project=project)
+
+
+@server.tool()
 def air_get_context(query: str, max_tokens: int | None = None, project: str = "") -> dict:
     """Reconstroi o contexto minimo necessario pra' responder a query,
     usando o Planner do AIR (retrieval -> resolucao de recencia/conflito

@@ -43,6 +43,7 @@ class Relation:
     source_id: str      # ex: "server-01"
     kind: str            # ex: "hosts", "depends_on", "owns"
     target_id: str       # ex: "api"
+    project: str = ""   # mesmo mecanismo de isolamento de Entity/Fact
     created_at: float = field(default_factory=now)
 
 
@@ -52,6 +53,7 @@ class Event:
     entity_id: str
     kind: str            # ex: "crashed", "deployed", "updated"
     payload: dict = field(default_factory=dict)
+    project: str = ""   # mesmo mecanismo de isolamento de Entity/Fact
     created_at: float = field(default_factory=now)
 
 

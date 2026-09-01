@@ -103,7 +103,9 @@ Claude Code. As duas direções são independentes.
 |---|---|---|
 | `air_search_context(query, limit=5, project="")` | Busca por palavra-chave (não semântica — ver `method` no retorno) em Memory + World State | `mcp_server/retrieval.py` |
 | `air_store_memory(content, metadata={subject,predicate,reason,project})` | Grava um fato; se `subject+predicate` já existir NO MESMO `project`, a versão nova *supersede* a antiga (recência, não sobrescrita) | `MemoryStore.remember` |
-| `air_register_entity(kind, name, attrs={}, project="")` | Registra no World State um artefato já construído (API, frontend, módulo) pra uma tarefa futura achar e *readaptar* em vez de refazer do zero. Idempotente por `name` exato (registrar de novo com mesmo nome não atualiza, só devolve o existente). Retorno inclui o custo real em tokens de reusar (`_context_cost_tokens`/`_context_cost_method` nos `attrs`) | `WorldState.entity` |
+| `air_register_entity(kind, name, attrs={}, project="")` | Registra no World State um artefato já construído (API, frontend, módulo) pra uma tarefa futura achar e *readaptar* em vez de refazer do zero. Idempotente por `name` exato (registrar de novo com mesmo nome não atualiza, só devolve o existente — use `air_update_entity` pra isso). Retorno inclui o custo real em tokens de reusar (`_context_cost_tokens`/`_context_cost_method` nos `attrs`) e `possible_duplicates` (nomes parecidos já registrados — aviso, não bloqueia nem faz merge automático) | `WorldState.entity` |
+| `air_update_entity(id, attrs=None, kind=None, merge_attrs=True)` | Atualiza `kind`/`attrs` de uma entidade existente sem precisar apagar e registrar de novo. `merge_attrs=True` (default) combina com os attrs existentes; `False` substitui inteiro. Não atualiza `name`/`project` de propósito | `WorldState.update_entity` |
+| `air_register_relation(source_id, kind, target_id, project="")` | Registra uma relação entre duas entidades já existentes (ex: `depends_on`) — é o que `world.dependents_of()` consulta. Erro claro se `source_id`/`target_id` não existirem | `WorldState.relation` |
 | `air_delete_entity(id)` | Remove uma entidade por id (hard delete — `Entity` não tem campo de status pra soft-delete como `Fact`). Serve principalmente pra corrigir duplicata de registro | `WorldState.delete_entity` |
 | `air_get_context(query, max_tokens=2000, project="")` | Fluxo completo: Planner → retrieval → resolução de recência/conflito → montagem final respeitando orçamento de tokens | `Planner` + `ContextEngine` |
 | `air_update_memory(id, content)` | Cria nova versão que supersede a antiga (só em fatos `ACTIVE`) | `MemoryStore.remember` |
@@ -136,10 +138,10 @@ projeto (o que mataria o reuso intencional de artefato entre projetos, que
   (inclui o risco de contaminação cross-projeto se quem grava não usar
   escopo).
 
-**Limitação conhecida**: eventos (`world/state.py all_events`) ainda não
-são filtrados por `project` — só fatos e entidades. Baixo risco prático
-(eventos são histórico auxiliar de mudança de entidade, não fato/decisão),
-mas é um gap real, não escondido aqui.
+Eventos (`world/state.py all_events`) também são filtrados por `project`
+desde esta versão, mesmo mecanismo (era limitação conhecida documentada
+aqui antes, fechada com a mesma migração de schema que `entities` já
+tinha — `relations`/`events` ganharam a coluna `project` do mesmo jeito).
 
 Resources: `air://memory/facts` (snapshot dos fatos ativos), `air://world/state`
 (entidades + eventos recentes). Prompt: `reconstruct_context` (orienta
@@ -224,21 +226,30 @@ o AIR local (SQLite), não com nenhum provider de LLM.
 ### Limitações conhecidas do MCP server
 
 - Busca é palavra-chave, não semântica — uma pergunta parafraseada sem
-  nenhuma palavra em comum com o fato armazenado não vai encontrá-lo.
-- `air_register_entity` grava só *entidade* em World State (`kind`, `name`,
-  `attrs` livre). *Relação* (`Relation` — "X depende de Y") e *evento*
-  ainda não têm tool MCP de escrita — só entidade tinha um mapeamento
-  natural de "isso é um artefato reutilizável" sem inventar formato pra
-  relação/evento também, então essas duas gravações ficaram de fora desta
-  versão. `air_register_entity` também não faz *update*: registrar de novo
-  com o mesmo `name` só devolve a entidade existente sem tocar nos `attrs`
-  — pra corrigir/atualizar, apague com `air_delete_entity` e registre de
-  novo.
-- `air_register_entity` deduplica só por `name` **exato**. Nomes
-  quase-iguais pro mesmo artefato (achado real, não hipotético: `air` vs
-  `air-runtime` registrados em sessões MCP diferentes pro mesmo projeto)
-  viram entidades duplicadas — sem merge automático, só
-  `air_delete_entity` manual.
+  nenhuma palavra em comum com o fato armazenado não vai encontrá-lo. Essa
+  ainda é a maior lacuna real de qualidade do projeto (ver "O que ainda
+  falta" abaixo).
+- *Evento* (`Event`) ainda não tem tool MCP de **escrita** — só entidade e
+  relação têm (`air_register_entity`, `air_register_relation`). Eventos
+  continuam graváveis pela API core (`world.event(...)`, usada
+  internamente) e já são consultáveis/filtráveis por `project` via
+  `air_search_context`/`air_get_context` — só não há um `air_record_event`
+  ainda. Deixado de fora de propósito por ora: evento é histórico auxiliar
+  de mudança de entidade (deploy, crash), tipicamente gerado pelo próprio
+  runtime observando uma ação, não digitado por um agente via tool call —
+  diferente de entidade/relação, que são declaradas deliberadamente.
+- `air_register_entity` deduplica por `name` **exato** só na hora de criar
+  (não duplica, devolve a existente). Nomes quase-iguais pro mesmo artefato
+  (achado real, não hipotético: `air` vs `air-runtime` registrados em
+  sessões MCP diferentes pro mesmo projeto) agora geram um aviso no campo
+  `possible_duplicates` do retorno — mas ainda **não bloqueia o registro
+  nem faz merge automático** (merge errado destrói dado, é pior que viver
+  com duplicata) — quem decide o que fazer com o aviso é quem chamou;
+  `air_delete_entity` continua sendo o jeito de limpar manualmente.
+- ~~`air_register_entity` não faz *update*~~ — resolvido: `air_update_entity`
+  atualiza `attrs`/`kind` de uma entidade existente sem apagar e registrar
+  de novo (não atualiza `name`/`project` de propósito — mudar isso é
+  realisticamente outra entidade, não uma edição da mesma).
 - `max_tokens` em `air_get_context` não impede que um único fato maior
   que o orçamento entre sozinho no contexto (a alternativa seria devolver
   contexto vazio mesmo tendo achado algo, o que é pior).
@@ -304,5 +315,18 @@ correta, não que 98.5% é o que qualquer agente real vai obter.
 (`mcp_server/`), mas ainda não *consome* nada maduro via adapter próprio
 — Firecracker/E2B (sandbox), Temporal (durabilidade) e Graphiti (grafo de
 memória) continuam na lista de "adotar, não construir" da pesquisa
-original, não implementados. O SDK JS/TS também não existe ainda (pedido
-explícito do usuário: Python primeiro).
+original, não implementados; nenhum tem conta/serviço configurado nesta
+máquina pra testar de verdade sem inventar resultado. `tools/registry.py`
+também continua agnóstico de protocolo — o AIR ainda só é *exposto* via
+MCP, não *consome* tool externa via MCP ele mesmo (as duas direções são
+independentes, ver seção MCP Server acima). O SDK JS/TS também não existe
+ainda (pedido explícito do usuário: Python primeiro).
+
+Desde a versão anterior deste README, ficaram prontos e testados: escrita
+de *relação* em World State (`air_register_relation` — antes só entidade
+era gravável via MCP), atualização de entidade sem apagar
+(`air_update_entity`), aviso de quase-duplicata por nome
+(`possible_duplicates`), e filtro por `project` estendido a eventos (antes
+só fato/entidade). A lacuna de maior impacto que continua real: busca é
+palavra-chave, não semântica/embeddings — nenhuma mudança nesta versão
+tocou nisso, é o item mais valioso pra próxima rodada.

@@ -23,6 +23,7 @@ lado do MCP.
 """
 from __future__ import annotations
 
+import difflib
 import logging
 import threading
 import time
@@ -183,10 +184,9 @@ class AirAdapter:
         attrs["_context_cost_method"] = cost["method"]
 
         # idempotente por nome: se ja' existe uma entidade com esse nome,
-        # nao duplica -- devolve a existente. Nao ha' 'update' de entidade
-        # no World State ainda (so' insert), entao registrar de novo com
-        # attrs diferentes NAO atualiza o registro atual -- limitacao
-        # conhecida, documentada no README, nao escondida aqui.
+        # nao duplica -- devolve a existente. Pra' de fato ATUALIZAR uma
+        # entidade existente, use air_update_entity (nao existia ate' esta
+        # versao -- ver metodo update_entity abaixo).
         existing = self.world.find_entity_by_name(name)
         if existing is not None:
             logger.info("register_entity name=%s ja existe (id=%s), nao duplicado", name, existing.id)
@@ -197,13 +197,77 @@ class AirAdapter:
                 "context_cost_method": existing.attrs.get("_context_cost_method"),
             }
 
+        # aviso (nao bloqueia) de quase-duplicata: dedup por nome EXATO
+        # (acima) nao pega "air" vs "air-runtime" pro mesmo artefato,
+        # achado real registrando em sessoes MCP diferentes (ver README).
+        # difflib.SequenceMatcher e' stdlib, sem dependencia nova; 0.82 e'
+        # limiar deliberadamente conservador (poucos falsos positivos) --
+        # isto SO' avisa no retorno, nunca impede o registro nem faz merge
+        # automatico (merge errado destroi dado, e' pior que duplicata).
+        possible_duplicates = self._find_near_duplicates(name, project)
+
         entity = self.world.entity(name, kind=kind, attrs=attrs, project=project)
-        logger.info("register_entity id=%s kind=%s name=%s project=%s tokens=%s", entity.id, kind, name, project, cost["tokens"])
+        logger.info("register_entity id=%s kind=%s name=%s project=%s tokens=%s near_dupes=%d", entity.id, kind, name, project, cost["tokens"], len(possible_duplicates))
         return {
             "id": entity.id, "kind": entity.kind, "name": entity.name,
             "project": entity.project, "already_existed": False,
             "context_cost_tokens": cost["tokens"], "context_cost_method": cost["method"],
+            "possible_duplicates": possible_duplicates,
         }
+
+    def _find_near_duplicates(self, name: str, project: str, threshold: float = 0.82) -> list[dict]:
+        """Dois criterios, nao um so' -- medido com o proprio caso real que
+        motivou isto ("air" vs "air-runtime"): SequenceMatcher.ratio() e'
+        normalizado pelo tamanho TOTAL das duas strings, entao um prefixo
+        exato de um nome bem mais curto dentro de um mais longo ("air"
+        dentro de "air-runtime", 3 vs 11 caracteres) da' ratio baixo
+        (~0.43) mesmo sendo o exemplo canonico de quase-duplicata -- so'
+        ratio>=threshold nao pegava o proprio caso documentado no README.
+        Por isso: OR com "um nome e' substring do outro" (comparacao
+        case-insensitive), com piso de 3 caracteres pro nome mais curto
+        pra' nao disparar em nomes genericos/curtos demais (ex: 'api' seria
+        substring de quase qualquer coisa)."""
+        name_low = name.lower()
+        candidates = self.world.all_entities(project=project or None)
+        hits = []
+        for e in candidates:
+            other_low = e.name.lower()
+            if other_low == name_low:
+                continue
+            ratio = difflib.SequenceMatcher(None, name_low, other_low).ratio()
+            shorter, longer = sorted((name_low, other_low), key=len)
+            is_prefix_or_substring = len(shorter) >= 3 and shorter in longer
+            if ratio >= threshold or is_prefix_or_substring:
+                hits.append({"id": e.id, "name": e.name, "similarity": round(max(ratio, 0.0), 3)})
+        hits.sort(key=lambda h: h["similarity"], reverse=True)
+        return hits
+
+    # ------------------------------------------------------------------
+    # air_update_entity -- atualiza kind/attrs de uma entidade existente
+    # sem precisar delete+register (limitacao conhecida ate' aqui, ver
+    # README). Nao existe update de name/project de proposito: mudar o
+    # identificador ou o escopo de isolamento de uma entidade existente
+    # e' realisticamente "e' outra entidade", nao "a mesma atualizada" --
+    # quem precisar disso usa delete_entity + register_entity de novo.
+    # ------------------------------------------------------------------
+    def update_entity(self, id: str, attrs: dict | None = None, kind: str | None = None, merge_attrs: bool = True) -> dict:
+        with self._lock:
+            return self._update_entity(id, attrs, kind, merge_attrs)
+
+    def _update_entity(self, id: str, attrs: dict | None = None, kind: str | None = None, merge_attrs: bool = True) -> dict:
+        if attrs is None and not kind:
+            return {"error": "informe attrs e/ou kind -- nada pra' atualizar"}
+        if attrs is not None:
+            import json as _json
+            serialized = _json.dumps(attrs, ensure_ascii=False)
+            if len(serialized) > self.config.max_content_chars:
+                return {"error": f"attrs excede o limite de {self.config.max_content_chars} caracteres serializados"}
+
+        updated = self.world.update_entity(id, attrs=attrs, kind=kind or None, merge_attrs=merge_attrs)
+        if updated is None:
+            return {"error": f"entidade '{id}' nao encontrada"}
+        logger.info("update_entity id=%s kind=%s merge_attrs=%s", id, updated.kind, merge_attrs)
+        return {"id": updated.id, "kind": updated.kind, "name": updated.name, "project": updated.project, "attrs": updated.attrs}
 
     # ------------------------------------------------------------------
     # air_delete_entity -- remove entidade por id (hard delete, ver
@@ -224,6 +288,49 @@ class AirAdapter:
         self.world.delete_entity(id)
         logger.info("delete_entity id=%s name=%s", id, existing.name)
         return {"id": id, "name": existing.name, "deleted": True}
+
+    # ------------------------------------------------------------------
+    # air_register_relation -- liga duas entidades ja' registradas ("X
+    # depende de Y", "X hospeda Y"). World State prometia entidade/RELACAO/
+    # evento consultavel desde o inicio (ver docs/ECOSYSTEM_RESEARCH.md
+    # 2.2 e world/state.py:dependents_of, que ja' fazia a CONSULTA) mas so'
+    # entidade tinha tool MCP de escrita ate' esta versao -- limitacao
+    # conhecida documentada no README, fechada aqui.
+    # ------------------------------------------------------------------
+    def register_relation(self, source_id: str, kind: str, target_id: str, project: str = "") -> dict:
+        with self._lock:
+            return self._register_relation(source_id, kind, target_id, project)
+
+    def _register_relation(self, source_id: str, kind: str, target_id: str, project: str = "") -> dict:
+        source_id = (source_id or "").strip()
+        kind = (kind or "").strip()
+        target_id = (target_id or "").strip()
+        if not source_id:
+            return {"error": "source_id vazio"}
+        if not kind:
+            return {"error": "kind vazio"}
+        if not target_id:
+            return {"error": "target_id vazio"}
+
+        # valida que as duas pontas existem -- diferente de delete_entity
+        # (que tolera relation orfa' apontando pra' id ja' apagado, ver
+        # world/state.py), aqui e' registro NOVO: nao ha' motivo legitimo
+        # pra' criar uma relacao que ja' nasce apontando pro vazio, e' quase
+        # sempre id errado por engano de quem chamou.
+        source = self.world.get_entity(source_id)
+        if source is None:
+            return {"error": f"source_id '{source_id}' nao encontrado -- registre a entidade antes com air_register_entity"}
+        target = self.world.get_entity(target_id)
+        if target is None:
+            return {"error": f"target_id '{target_id}' nao encontrado -- registre a entidade antes com air_register_entity"}
+
+        relation = self.world.relation(source_id, kind, target_id, project=project)
+        logger.info("register_relation id=%s %s --%s--> %s project=%s", relation.id, source_id, kind, target_id, project)
+        return {
+            "id": relation.id, "source_id": source_id, "source_name": source.name,
+            "kind": kind, "target_id": target_id, "target_name": target.name,
+            "project": relation.project,
+        }
 
     # ------------------------------------------------------------------
     # air_get_context -- query -> planner -> retrieval -> structural

@@ -162,6 +162,77 @@ def test_register_entity_appears_in_search_context():
     check("register_entity: entidade registrada aparece em air_search_context", any(h["kind"] == "entity" for h in r["results"]))
 
 
+def test_register_entity_warns_near_duplicate_name():
+    a = make_adapter("register_near_dupe")
+    r1 = a.register_entity("api", "air")
+    r2 = a.register_entity("api", "air-runtime")
+    check("register_entity: possible_duplicates vazio pro primeiro registro", r1["possible_duplicates"] == [])
+    check("register_entity: 'air-runtime' aponta 'air' como possivel duplicata", any(d["id"] == r1["id"] for d in r2["possible_duplicates"]))
+    r3 = a.register_entity("api", "totalmente-diferente")
+    check("register_entity: nome bem diferente nao vira falso positivo", r3["possible_duplicates"] == [])
+
+
+# ---------------------------------------------------------------------------
+# air_update_entity
+# ---------------------------------------------------------------------------
+
+def test_update_entity_merges_attrs_by_default():
+    a = make_adapter("update_entity_merge")
+    r = a.register_entity("api", "servico-x", attrs={"path": "/opt/x", "stack": "node"})
+    u = a.update_entity(r["id"], attrs={"stack": "python", "novo_campo": True})
+    check("update_entity: retorna sem erro", "error" not in u)
+    check("update_entity: chave nova sobrescreve", u["attrs"]["stack"] == "python")
+    check("update_entity: chave nao tocada e' preservada (merge, nao substitui)", u["attrs"]["path"] == "/opt/x")
+    check("update_entity: campo genuinamente novo aparece", u["attrs"]["novo_campo"] is True)
+
+
+def test_update_entity_replace_attrs_when_merge_false():
+    a = make_adapter("update_entity_replace")
+    r = a.register_entity("api", "servico-y", attrs={"path": "/opt/y", "stack": "node"})
+    u = a.update_entity(r["id"], attrs={"stack": "python"}, merge_attrs=False)
+    check("update_entity: merge_attrs=False substitui attrs inteiro", u["attrs"] == {"stack": "python"})
+
+
+def test_update_entity_kind_and_identity_preserved():
+    a = make_adapter("update_entity_kind")
+    r = a.register_entity("api", "servico-z")
+    u = a.update_entity(r["id"], kind="frontend")
+    check("update_entity: kind muda quando informado", u["kind"] == "frontend")
+    check("update_entity: name preservado (nao ha' update de name)", u["name"] == "servico-z")
+    check("update_entity: id preservado (mesma entidade, nao um registro novo)", u["id"] == r["id"])
+
+
+def test_update_entity_errors():
+    a = make_adapter("update_entity_errors")
+    r = a.register_entity("api", "servico-w")
+    check("update_entity: id inexistente retorna erro", "error" in a.update_entity("ent_nao_existe", attrs={"x": 1}))
+    check("update_entity: sem attrs nem kind retorna erro", "error" in a.update_entity(r["id"]))
+
+
+# ---------------------------------------------------------------------------
+# air_register_relation
+# ---------------------------------------------------------------------------
+
+def test_register_relation_basic():
+    a = make_adapter("register_relation_basic")
+    api = a.register_entity("api", "billing-api")
+    db = a.register_entity("database", "billing-db")
+    r = a.register_relation(api["id"], "depends_on", db["id"])
+    check("register_relation: retorna id", r["id"].startswith("rel_"))
+    check("register_relation: nomes das duas pontas no retorno", r["source_name"] == "billing-api" and r["target_name"] == "billing-db")
+    dependents = a.world.dependents_of(db["id"])
+    check("register_relation: dependents_of encontra a relacao registrada", any(e.id == api["id"] for e in dependents))
+
+
+def test_register_relation_validates_endpoints_exist():
+    a = make_adapter("register_relation_errors")
+    real = a.register_entity("api", "servico-real")
+    check("register_relation: source_id inexistente retorna erro", "error" in a.register_relation("ent_fake", "depends_on", real["id"]))
+    check("register_relation: target_id inexistente retorna erro", "error" in a.register_relation(real["id"], "depends_on", "ent_fake"))
+    check("register_relation: source_id vazio retorna erro", "error" in a.register_relation("", "depends_on", real["id"]))
+    check("register_relation: kind vazio retorna erro", "error" in a.register_relation(real["id"], "", real["id"]))
+
+
 # ---------------------------------------------------------------------------
 # isolamento por project (facts + entities)
 # ---------------------------------------------------------------------------
@@ -189,6 +260,27 @@ def test_project_scoping_isolates_search_but_keeps_global_visible():
     unscoped = a.search_context("banco de dados engine")
     texts_all = [h["text"] for h in unscoped["results"]]
     check("project scoping: busca SEM project (comportamento antigo) ve tudo", any("Postgres" in t for t in texts_all) and any("SQLite" in t for t in texts_all))
+
+
+def test_project_scoping_applies_to_events():
+    # eventos ainda nao tem tool MCP de escrita (ver README), entao este
+    # teste grava via world.event() (API core, usada internamente por
+    # qualquer consumidor que registre evento fora do MCP) e verifica a
+    # busca via a camada MCP (air_search_context) -- e' exatamente o
+    # caminho que retrieval.py:search_world() percorre de verdade.
+    a = make_adapter("project_events_scope")
+    ent = a.register_entity("api", "servico-com-eventos")
+    a.world.event(ent["id"], "crashed_proj_a", payload={"motivo": "OOM no projeto A"}, project="proj_a")
+    a.world.event(ent["id"], "crashed_proj_b", payload={"motivo": "OOM no projeto B"}, project="proj_b")
+
+    only_a = a.search_context("crashed OOM", project="proj_a")
+    texts_a = [h["text"] for h in only_a["results"]]
+    check("project scoping (eventos): busca em proj_a NAO ve evento de proj_b", not any("projeto B" in t for t in texts_a))
+    check("project scoping (eventos): busca em proj_a VE o proprio evento", any("projeto A" in t for t in texts_a))
+
+    unscoped = a.search_context("crashed OOM")
+    texts_all = [h["text"] for h in unscoped["results"]]
+    check("project scoping (eventos): busca sem project ve os dois", any("projeto A" in t for t in texts_all) and any("projeto B" in t for t in texts_all))
 
 
 def test_project_scoping_applies_to_get_context():
@@ -375,14 +467,40 @@ def test_mcp_protocol_layer():
     async def run():
         tools = await srv_mod.server.list_tools()
         names = {t.name for t in tools}
-        expected = {"air_search_context", "air_store_memory", "air_get_context", "air_update_memory", "air_delete_memory", "air_register_entity", "air_delete_entity"}
-        check("mcp protocol: as 7 tools estao registradas (discovery)", expected.issubset(names))
+        expected = {
+            "air_search_context", "air_store_memory", "air_get_context", "air_update_memory", "air_delete_memory",
+            "air_register_entity", "air_delete_entity", "air_update_entity", "air_register_relation",
+        }
+        check("mcp protocol: as 9 tools estao registradas (discovery), nem mais nem menos", names == expected)
 
         search_tool = next(t for t in tools if t.name == "air_search_context")
         check("mcp protocol: schema de air_search_context tem 'query'", "query" in search_tool.input_schema.get("properties", {}))
 
+        relation_tool = next(t for t in tools if t.name == "air_register_relation")
+        check("mcp protocol: schema de air_register_relation tem source_id/kind/target_id", {"source_id", "kind", "target_id"}.issubset(relation_tool.input_schema.get("properties", {}).keys()))
+
         result = await srv_mod.server.call_tool("air_store_memory", {"content": "teste via protocolo mcp real", "metadata": {"subject": "proto", "predicate": "teste"}})
         check("mcp protocol: call_tool nao retorna erro", not result.is_error)
+
+        # structured_content vem None pra' este tipo de retorno (achado
+        # real, nao documentado no que consultei do SDK) -- o resultado de
+        # verdade vem em content[0].text, como JSON serializado (mesmo
+        # texto que o adapter devolve como dict, so' passou por
+        # json.dumps do lado do SDK).
+        import json as _json
+
+        ent_result = await srv_mod.server.call_tool("air_register_entity", {"kind": "api", "name": "entidade-via-protocolo"})
+        check("mcp protocol: call_tool de air_register_entity nao retorna erro", not ent_result.is_error)
+        ent2_result = await srv_mod.server.call_tool("air_register_entity", {"kind": "api", "name": "alvo-via-protocolo"})
+        check("mcp protocol: segundo air_register_entity nao retorna erro", not ent2_result.is_error)
+        ent_id = _json.loads(ent_result.content[0].text)["id"]
+        target_id = _json.loads(ent2_result.content[0].text)["id"]
+
+        rel_result = await srv_mod.server.call_tool("air_register_relation", {"source_id": ent_id, "kind": "depends_on", "target_id": target_id})
+        check("mcp protocol: call_tool de air_register_relation nao retorna erro", not rel_result.is_error)
+
+        upd_result = await srv_mod.server.call_tool("air_update_entity", {"id": ent_id, "attrs": {"via": "protocolo mcp real"}})
+        check("mcp protocol: call_tool de air_update_entity nao retorna erro", not upd_result.is_error)
 
         resources = await srv_mod.server.list_resources()
         check("mcp protocol: resources expostos (memoria + world state)", {"air://memory/facts", "air://world/state"}.issubset({str(r.uri) for r in resources}))
@@ -410,8 +528,16 @@ def main():
     test_delete_entity_errors()
     test_delete_entity_removes_from_search()
     test_register_entity_appears_in_search_context()
+    test_register_entity_warns_near_duplicate_name()
+    test_update_entity_merges_attrs_by_default()
+    test_update_entity_replace_attrs_when_merge_false()
+    test_update_entity_kind_and_identity_preserved()
+    test_update_entity_errors()
+    test_register_relation_basic()
+    test_register_relation_validates_endpoints_exist()
     test_project_scoping_prevents_cross_project_supersede()
     test_project_scoping_isolates_search_but_keeps_global_visible()
+    test_project_scoping_applies_to_events()
     test_project_scoping_applies_to_get_context()
     test_get_context_basic()
     test_get_context_empty_is_not_a_failure()

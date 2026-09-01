@@ -69,7 +69,7 @@ def search_world(world: WorldState, query_words: list[str], project: str | None 
         if score > 0:
             hits.append(SearchHit(kind="entity", id=e.id, text=text, score=score, metadata={"name": e.name, "entity_kind": e.kind, "attrs": e.attrs, "project": e.project}))
 
-    for ev in world.all_events(limit=500):
+    for ev in world.all_events(limit=500, project=project):
         text = f"evento {ev.kind} em {ev.entity_id} {ev.payload}"
         score = _score(query_words, text)
         if score > 0:
@@ -83,13 +83,13 @@ def search(world: WorldState, memory: MemoryStore, query: str, limit: int = 5, p
     total de registros consultados (pra' accounting honesto -- rule 9).
 
     project=None (default): sem escopo, busca em tudo -- comportamento de
-    antes desta mudanca. project="algo": so' considera fatos/entidades
-    desse projeto MAIS os marcados como globais (project=='') -- isola um
-    mundo do outro sem esconder o que foi marcado de proposito como
-    reutilizavel entre projetos. Eventos NAO sao filtrados por projeto
-    ainda (limitacao conhecida, ver README) -- baixo risco pratico porque
-    eventos sao auxiliares (historico de mudanca de entidade), nao fatos/
-    decisao, mas listados aqui pra' nao esconder o gap."""
+    antes desta mudanca. project="algo": so' considera fatos/entidades/
+    eventos desse projeto MAIS os marcados como globais (project=='') --
+    isola um mundo do outro sem esconder o que foi marcado de proposito
+    como reutilizavel entre projetos. Eventos agora tambem sao filtrados
+    (era limitacao conhecida documentada no README; world.all_events()
+    ganhou o mesmo parametro project que all_entities()/memory.all_active()
+    ja' tinham)."""
     t0 = time.perf_counter()
     query_words = _tokenize(query)
 
@@ -98,7 +98,7 @@ def search(world: WorldState, memory: MemoryStore, query: str, limit: int = 5, p
     all_hits = fact_hits + world_hits
     all_hits.sort(key=lambda h: h.score, reverse=True)
 
-    total_considered = len(memory.all_active(project=project)) + len(world.all_entities(project=project)) + len(world.all_events(limit=500))
+    total_considered = len(memory.all_active(project=project)) + len(world.all_entities(project=project)) + len(world.all_events(limit=500, project=project))
     top = all_hits[:limit]
     elapsed_ms = (time.perf_counter() - t0) * 1000
 

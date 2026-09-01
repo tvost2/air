@@ -48,6 +48,42 @@ def test_world_state():
     check("world.find_entity_by_name acha por nome", w.find_entity_by_name("api").id == "api")
 
 
+def test_world_state_update_entity():
+    w = WorldState()
+    w.entity("cache-01", kind="cache", id="cache-01", attrs={"engine": "redis", "region": "us"})
+
+    updated = w.update_entity("cache-01", attrs={"engine": "valkey"})
+    check("world.update_entity: merge preserva chave nao tocada", updated.attrs["region"] == "us")
+    check("world.update_entity: merge sobrescreve chave repetida", updated.attrs["engine"] == "valkey")
+    check("world.update_entity: id/name preservados (mesma entidade)", updated.id == "cache-01" and updated.name == "cache-01")
+
+    replaced = w.update_entity("cache-01", attrs={"only": "this"}, merge_attrs=False)
+    check("world.update_entity: merge_attrs=False substitui attrs inteiro", replaced.attrs == {"only": "this"})
+
+    reklinded = w.update_entity("cache-01", kind="datastore")
+    check("world.update_entity: kind muda quando informado", reklinded.kind == "datastore")
+
+    check("world.update_entity: id inexistente devolve None (nao levanta excecao)", w.update_entity("nao-existe", attrs={"x": 1}) is None)
+
+
+def test_world_state_relation_and_event_project_scoping():
+    w = WorldState()
+    w.entity("svc-a", kind="service", id="svc-a")
+    w.entity("svc-b", kind="service", id="svc-b")
+    w.relation("svc-a", "depends_on", "svc-b", project="proj_x")
+    w.event("svc-a", "deployed", {"v": 1}, project="proj_x")
+    w.event("svc-a", "deployed", {"v": 2}, project="proj_y")
+
+    rels = w.relations_of("svc-a")
+    check("world.relation: project persiste e volta em relations_of", any(r.project == "proj_x" for r in rels))
+
+    scoped = w.all_events(project="proj_x")
+    check("world.all_events: escopado por project so' ve' o proprio + globais", len(scoped) == 1 and scoped[0].payload["v"] == 1)
+
+    unscoped = w.all_events()
+    check("world.all_events: sem project (comportamento antigo) ve tudo", len(unscoped) == 2)
+
+
 def test_memory_recency():
     m = MemoryStore()
     f1 = m.remember("user:tvost", "prefers_response_tone", "casual", reason="pedido inicial")
@@ -150,6 +186,8 @@ def test_agent_end_to_end():
 
 def main():
     test_world_state()
+    test_world_state_update_entity()
+    test_world_state_relation_and_event_project_scoping()
     test_memory_recency()
     test_context_engine_reference_by_id()
     test_permissions_deny_by_default()
