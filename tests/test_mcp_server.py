@@ -479,6 +479,20 @@ def test_mcp_protocol_layer():
         relation_tool = next(t for t in tools if t.name == "air_register_relation")
         check("mcp protocol: schema de air_register_relation tem source_id/kind/target_id", {"source_id", "kind", "target_id"}.issubset(relation_tool.input_schema.get("properties", {}).keys()))
 
+        # anotacoes MCP (ToolAnnotations) -- honestas sobre o
+        # comportamento real de cada tool (readOnly/destructive/
+        # idempotent/openWorld), pra' o cliente decidir melhor (ex: pedir
+        # confirmacao antes de tool destrutiva). So' checa as tools mais
+        # ilustrativas de cada categoria, nao as 9 -- servidor.py tem o
+        # raciocinio completo por tool em comentario.
+        by_name = {t.name: t for t in tools}
+        check("mcp protocol: air_search_context tem title e e' readOnly", by_name["air_search_context"].title == "Buscar contexto na memória AIR" and by_name["air_search_context"].annotations.read_only_hint is True)
+        check("mcp protocol: air_delete_entity marcada destructive", by_name["air_delete_entity"].annotations.destructive_hint is True)
+        check("mcp protocol: air_delete_memory marcada destructive (mesmo sendo soft-delete -- sem tool de desfazer)", by_name["air_delete_memory"].annotations.destructive_hint is True)
+        check("mcp protocol: air_register_entity marcada idempotent (dedupa por name)", by_name["air_register_entity"].annotations.idempotent_hint is True)
+        check("mcp protocol: air_register_relation NAO marcada idempotent (nao dedupa, cria duplicata)", by_name["air_register_relation"].annotations.idempotent_hint is False)
+        check("mcp protocol: nenhuma tool marcada openWorld (so' fala com SQLite local)", all(t.annotations.open_world_hint is False for t in tools))
+
         result = await srv_mod.server.call_tool("air_store_memory", {"content": "teste via protocolo mcp real", "metadata": {"subject": "proto", "predicate": "teste"}})
         check("mcp protocol: call_tool nao retorna erro", not result.is_error)
 
@@ -507,6 +521,8 @@ def test_mcp_protocol_layer():
 
         prompts = await srv_mod.server.list_prompts()
         check("mcp protocol: prompt de reconstrucao de contexto exposto", any(p.name == "reconstruct_context" for p in prompts))
+
+        check("mcp protocol: servidor declara instructions (guia de uso pro LLM, campo MCP dedicado)", bool(srv_mod.server.instructions) and "air_search_context" in srv_mod.server.instructions)
 
     asyncio.run(run())
     # mesmo motivo do teste de persistencia acima: conexao sqlite fica

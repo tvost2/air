@@ -117,6 +117,35 @@ Claude Code. As duas direções são independentes.
 | `air_update_memory(id, content)` | Cria nova versão que supersede a antiga (só em fatos `ACTIVE`) | `MemoryStore.remember` |
 | `air_delete_memory(id)` | Soft-delete (marca `DELETED`, não apaga a linha) | `MemoryStore.forget` |
 
+### Anotações MCP e `instructions` — o cliente sabe o que cada tool faz sem adivinhar
+
+Cada uma das 9 tools declara `title` e `ToolAnnotations`
+(`read_only_hint`/`destructive_hint`/`idempotent_hint`/`open_world_hint`)
+— campos padrão do protocolo MCP que existiam na SDK instalada mas não
+estavam sendo usados. Não é decoração: um cliente MCP pode usar isso pra
+decidir se pede confirmação antes de uma tool destrutiva, ou se é seguro
+tentar de novo depois de uma falha de rede. Classificação verificada
+contra o comportamento real de cada tool em `mcp_server/adapter.py`, não
+suposta — por exemplo:
+
+- `air_register_entity` é `idempotent_hint=True` porque de fato dedupa
+  por `name` (chamar duas vezes converge pro mesmo estado), mas
+  `air_register_relation` é `idempotent_hint=False` porque **não** faz
+  esse dedup — chamar duas vezes cria duas relações separadas (achado
+  ao verificar o código, não assumido por analogia com a tool anterior).
+- `air_delete_memory` é `destructive_hint=True` mesmo sendo *soft*-delete
+  no storage (a linha continua no SQLite, só marcada `DELETED`) —
+  porque não existe tool de desfazer, o efeito é irreversível do ponto
+  de vista de quem chama, que é o que a anotação realmente comunica.
+
+O servidor também declara `instructions` (campo MCP separado de
+`description`, pensado especificamente pra orientar o LLM sobre como
+usar o servidor como um todo) — sintetiza num só lugar o que antes só
+vivia espalhado nas docstrings de cada tool: buscar antes de reconstruir,
+registrar entidade ao terminar de construir algo reutilizável, sempre
+passar `project=` quando a sessão tiver um projeto identificável, e que
+tools destrutivas não têm desfazer.
+
 ### Isolamento entre projetos/sessões (`project`)
 
 Por padrão, o `AIR_STORAGE` é um único arquivo SQLite compartilhado por

@@ -24,6 +24,7 @@ import logging
 import sys
 
 from mcp.server import MCPServer
+from mcp.types import ToolAnnotations
 
 from mcp_server import tokens
 from mcp_server.adapter import AirAdapter
@@ -49,11 +50,53 @@ server = MCPServer(
         "persistidos entre sessoes, evitando reenviar informacao que ja' "
         "existe de forma consultavel."
     ),
+    # instructions: guia de USO pro LLM (diferente de description, que e'
+    # so' o resumo pra' catalogo/UI) -- campo MCP separado, existe na SDK
+    # mas nao estava sendo usado. Sintetiza o padrao operacional que
+    # antes so' vivia espalhado nas docstrings de cada tool + no prompt
+    # reconstruct_context.
+    instructions=(
+        "Antes de reconstruir contexto do zero ou pedir informacao ja' "
+        "fornecida antes nesta sessao/projeto, chame air_search_context "
+        "(barato, so' consulta) pra' ver se ja' existe. Se existir e' "
+        "so' o que precisa, use o resultado direto; se precisar do fluxo "
+        "completo (recencia/conflito resolvidos + orcamento de tokens), "
+        "chame air_get_context.\n\n"
+        "Depois de CONSTRUIR algo reutilizavel (API, modulo, servico), "
+        "registre com air_register_entity ANTES de encerrar a tarefa -- "
+        "e' o que permite uma sessao futura achar e readaptar em vez de "
+        "reescrever do zero. Ligue entidades relacionadas com "
+        "air_register_relation (ex: 'X depends_on Y') pra' "
+        "air_search_context/dependents_of responder perguntas de "
+        "impacto ('o que quebra se eu mudar Y?').\n\n"
+        "Sempre que a sessao tiver um projeto identificavel, passe "
+        "project=<nome> em toda tool que aceita -- sem isso, todo fato/"
+        "entidade fica GLOBAL (visivel a qualquer projeto) por padrao, "
+        "risco real e ja observado de contaminacao cross-projeto quando "
+        "duas sessoes MCP paralelas compartilham o mesmo storage.\n\n"
+        "Tools marcadas destructive_hint (air_delete_entity, "
+        "air_delete_memory) nao tem desfazer -- confirme antes de "
+        "chamar se a intencao nao for inequivoca. Todo resultado de "
+        "busca declara seu 'method' (keyword_substring_overlap, ou "
+        "hybrid_... se busca semantica estiver ligada) -- nao assuma "
+        "mais precisao do que o metodo realmente entrega."
+    ),
     version="0.1.0",
 )
 
 
-@server.tool()
+@server.tool(
+    title="Buscar contexto na memória AIR",
+    # Anotacoes MCP -- classificacao honesta baseada no comportamento
+    # real de cada tool (verificado em mcp_server/adapter.py, nao
+    # suposto), pra' o cliente MCP tomar decisao melhor (ex: pedir
+    # confirmacao antes de tool destrutiva, saber que e' seguro tentar de
+    # novo). readOnlyHint=True: so' consulta, retrieval.search() nunca
+    # escreve. idempotentHint=True: mesma query com o mesmo storage
+    # devolve o mesmo resultado. openWorldHint=False: so' fala com o
+    # SQLite local (nunca rede -- ver README "Nenhuma chave de API...").
+    annotations=ToolAnnotations(read_only_hint=True, destructive_hint=False, idempotent_hint=True, open_world_hint=False),
+)
 def air_search_context(query: str, limit: int = 5, project: str = "") -> dict:
     """Busca contexto relevante na memoria estruturada e no estado de
     projeto do AIR (busca por palavra-chave, nao semantica -- ver campo
@@ -69,7 +112,17 @@ def air_search_context(query: str, limit: int = 5, project: str = "") -> dict:
     return adapter.search_context(query, limit=limit, project=project or None)
 
 
-@server.tool()
+@server.tool(
+    title="Armazenar fato na memória AIR",
+    # idempotentHint=False verificado: MemoryStore.remember() SEMPRE
+    # insere uma linha nova (mesmo com subject/predicate/content
+    # identicos, a chamada de novo supersede a anterior e cria mais uma
+    # versao no historico) -- chamar duas vezes NAO tem o mesmo efeito de
+    # chamar uma vez, entao seria desonesto marcar idempotente.
+    # destructiveHint=False: a versao anterior nunca e' apagada, so'
+    # marcada SUPERSEDED.
+    annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=False),
+)
 def air_store_memory(content: str, metadata: dict | None = None) -> dict:
     """Armazena uma informacao/fato na memoria estruturada do AIR, com
     recencia automatica: se 'metadata' incluir subject/predicate iguais a
@@ -86,7 +139,14 @@ def air_store_memory(content: str, metadata: dict | None = None) -> dict:
     return adapter.store_memory(content, metadata=metadata)
 
 
-@server.tool()
+@server.tool(
+    title="Registrar entidade no World State",
+    # idempotentHint=True verificado: chamar de novo com o mesmo `name`
+    # NAO cria duplicata, devolve a entidade existente
+    # (already_existed=true no retorno) -- estado final converge, mesmo
+    # que o campo already_existed mude entre a 1a e a 2a chamada.
+    annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=True, open_world_hint=False),
+)
 def air_register_entity(kind: str, name: str, attrs: dict | None = None, project: str = "") -> dict:
     """Registra no World State um artefato JA' CONSTRUIDO (API, frontend,
     modulo, servico) pra' que uma tarefa futura ache via
@@ -109,7 +169,16 @@ def air_register_entity(kind: str, name: str, attrs: dict | None = None, project
     return adapter.register_entity(kind, name, attrs=attrs, project=project)
 
 
-@server.tool()
+@server.tool(
+    title="Remover entidade do World State",
+    # destructiveHint=True: hard delete de verdade (Entity nao tem
+    # soft-delete como Fact -- ver world/state.py:delete_entity), sem
+    # tool de desfazer. idempotentHint=False verificado: chamar de novo
+    # sobre um id ja' deletado devolve {"error": ...} (diferente do
+    # {"deleted": true} da 1a chamada) -- o retorno muda entre chamadas,
+    # entao nao e' seguro pra' quem chama assumir repeticao sem custo.
+    annotations=ToolAnnotations(read_only_hint=False, destructive_hint=True, idempotent_hint=False, open_world_hint=False),
+)
 def air_delete_entity(id: str) -> dict:
     """Remove uma entidade do World State por id (hard delete -- Entity
     nao tem versao/historico como Fact, entao nao ha' o que preservar).
@@ -121,7 +190,17 @@ def air_delete_entity(id: str) -> dict:
     return adapter.delete_entity(id)
 
 
-@server.tool()
+@server.tool(
+    title="Atualizar entidade do World State",
+    # idempotentHint=True: os mesmos argumentos aplicados duas vezes
+    # convergem pro mesmo estado final (merge ou replace do mesmo attrs
+    # duas vezes = igual a uma vez). destructiveHint=True: com
+    # merge_attrs=False, attrs anteriores nao inclusos no novo dict sao
+    # PERDIDOS (substituicao total, nao merge) -- classificado como
+    # destrutivo porque a tool PODE perder dado dependendo do argumento,
+    # nao so' quando os dois lados concordam em nunca usar False.
+    annotations=ToolAnnotations(read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=False),
+)
 def air_update_entity(id: str, attrs: dict | None = None, kind: str | None = None, merge_attrs: bool = True) -> dict:
     """Atualiza kind e/ou attrs de uma entidade ja' registrada, sem
     precisar apagar e registrar de novo. Preserva id/name/project/
@@ -137,7 +216,14 @@ def air_update_entity(id: str, attrs: dict | None = None, kind: str | None = Non
     return adapter.update_entity(id, attrs=attrs, kind=kind, merge_attrs=merge_attrs)
 
 
-@server.tool()
+@server.tool(
+    title="Registrar relação entre entidades",
+    # idempotentHint=False verificado: _register_relation() nao faz
+    # dedup nenhum -- chamar duas vezes com os mesmos source_id/kind/
+    # target_id cria DUAS relacoes separadas (ids diferentes), diferente
+    # de air_register_entity que dedupa por name.
+    annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=False),
+)
 def air_register_relation(source_id: str, kind: str, target_id: str, project: str = "") -> dict:
     """Registra uma relacao entre duas entidades JA' registradas em World
     State (ex: source_id="api", kind="depends_on", target_id="database").
@@ -153,7 +239,14 @@ def air_register_relation(source_id: str, kind: str, target_id: str, project: st
     return adapter.register_relation(source_id, kind, target_id, project=project)
 
 
-@server.tool()
+@server.tool(
+    title="Reconstruir contexto completo",
+    # readOnlyHint=True: _get_context() roda Planner sobre
+    # retrieval.search() + montagem de texto -- nenhuma etapa escreve em
+    # world/memory (verificado lendo adapter.py:_get_context). Mesma
+    # classificacao de air_search_context.
+    annotations=ToolAnnotations(read_only_hint=True, destructive_hint=False, idempotent_hint=True, open_world_hint=False),
+)
 def air_get_context(query: str, max_tokens: int | None = None, project: str = "") -> dict:
     """Reconstroi o contexto minimo necessario pra' responder a query,
     usando o Planner do AIR (retrieval -> resolucao de recencia/conflito
@@ -167,7 +260,13 @@ def air_get_context(query: str, max_tokens: int | None = None, project: str = ""
     return adapter.get_context(query, max_tokens=max_tokens, project=project or None)
 
 
-@server.tool()
+@server.tool(
+    title="Atualizar fato na memória AIR",
+    # idempotentHint=False: mesma logica de air_store_memory --
+    # memory.remember() sempre insere versao nova, chamar duas vezes com
+    # o mesmo content cria duas versoes no historico (nao um no-op).
+    annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=False),
+)
 def air_update_memory(id: str, content: str) -> dict:
     """Atualiza uma memoria existente por id, criando uma nova versao que
     supersede a antiga (preserva o historico, nao sobrescreve em lugar --
@@ -175,7 +274,17 @@ def air_update_memory(id: str, content: str) -> dict:
     return adapter.update_memory(id, content)
 
 
-@server.tool()
+@server.tool(
+    title="Remover fato da memória AIR",
+    # destructiveHint=True: apesar de ser soft-delete no storage (linha
+    # fica, so' marcada DELETED -- ver README/memory/store.py), nao ha'
+    # tool de desfazer, entao do ponto de vista de quem chama o efeito e'
+    # irreversivel -- mesmo criterio conservador de air_delete_entity.
+    # idempotentHint=False verificado: chamar de novo sobre id ja'
+    # deletado devolve {"error": "...ja' estava deletada"}, retorno
+    # diferente da 1a chamada.
+    annotations=ToolAnnotations(read_only_hint=False, destructive_hint=True, idempotent_hint=False, open_world_hint=False),
+)
 def air_delete_memory(id: str) -> dict:
     """Remove (soft-delete) uma memoria especifica por id. A memoria para
     de aparecer em buscas, mas o registro permanece no storage marcado
