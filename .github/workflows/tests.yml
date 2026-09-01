@@ -1,0 +1,52 @@
+name: tests
+
+# So' o que roda de verdade sem custo/tempo escondido: as 4 suites que
+# so' precisam de requirements.txt (mcp puro), cada uma um script simples
+# (sys.exit(1) em falha, sem pytest -- mesma filosofia de nao adicionar
+# framework externo so' pra rodar teste, ver tests/test_air.py). Roda em
+# todo push/PR pra' master.
+#
+# DELIBERADAMENTE de fora: tests/test_semantic_search.py -- precisa de
+# requirements-optional.txt (sentence-transformers, ~187s de import na
+# 1a chamada medido localmente, ver README "Busca semantica opcional")
+# e AIR_ENABLE_SEMANTIC_SEARCH=true. Rodar isso em CI a cada push
+# tornaria o pipeline lento e caro sem ganho real (a suite ja' prova
+# corretude quando alguem rodar de proposito, localmente, sabendo do
+# custo) -- decisao deliberada, nao lacuna esquecida.
+# "on" entre aspas de proposito -- YAML 1.1 (o que a maioria dos
+# parsers, inclusive PyYAML, usa por padrao) interpreta a chave nua `on`
+# como booleano True, nao a string "on" (achado real: validar este
+# arquivo com PyYAML localmente mostrou exatamente isso). O parser do
+# GitHub Actions trata `on` como caso especial e funcionaria sem aspas
+# tambem, mas aspas removem a ambiguidade pra qualquer ferramenta que
+# leia este arquivo, nao so' o GitHub.
+"on":
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencia minima
+        run: pip install -r requirements.txt
+
+      - name: tests/test_air.py (core -- world/memory/context/security/tools/verification/planner/events, sem MCP)
+        run: python tests/test_air.py
+
+      - name: tests/test_mcp_server.py (camada MCP -- adapter + protocolo real via SDK)
+        run: python tests/test_mcp_server.py
+
+      - name: tests/test_kakeya_index.py (indice de busca por bissecao -- diferencial + benchmark medido)
+        run: python tests/test_kakeya_index.py
+
+      - name: tests/test_tokens.py (concorrencia do tokenizer -- nao depende do modelo real carregar)
+        run: python tests/test_tokens.py

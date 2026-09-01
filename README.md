@@ -1,5 +1,7 @@
 # AIR — AI Runtime
 
+[![tests](https://github.com/tvost2/air/actions/workflows/tests.yml/badge.svg)](https://github.com/tvost2/air/actions/workflows/tests.yml)
+
 Camada de infraestrutura de execução para agentes/LLM. **Não é mais um
 agent framework.** O princípio central:
 
