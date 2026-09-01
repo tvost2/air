@@ -48,6 +48,13 @@ class MemoryStore:
         self.conn.executescript(SCHEMA)
         self._migrate_add_project_column()
         self.conn.commit()
+        # mesmo raciocinio de world/state.py: contador de versao pro
+        # cache do indice de busca acelerado invalidar so' quando algo
+        # realmente mudou (mcp_server/kakeya_index.py).
+        self._version = 0
+
+    def version(self) -> int:
+        return self._version
 
     def _migrate_add_project_column(self) -> None:
         # mesmo raciocinio de world/state.py: coluna nova, banco existente
@@ -81,11 +88,13 @@ class MemoryStore:
             (f.id, f.subject, f.predicate, f.obj, f.status.value, f.reason, f.project, f.created_at, f.supersedes),
         )
         self.conn.commit()
+        self._version += 1
         return f
 
     def forget(self, fact_id: str) -> None:
         self.conn.execute("UPDATE facts SET status = ? WHERE id = ?", (FactStatus.DELETED.value, fact_id))
         self.conn.commit()
+        self._version += 1
 
     def get_fact(self, fact_id: str) -> Fact | None:
         """Busca um fato especifico por id -- faltava um jeito de
@@ -150,6 +159,55 @@ class MemoryStore:
             Fact(id=r[0], subject=r[1], predicate=r[2], obj=r[3], status=FactStatus(r[4]), reason=r[5], project=r[6], created_at=r[7], supersedes=r[8])
             for r in rows
         ]
+
+    def count_active(self, project: str | None = None) -> int:
+        """So' a contagem (SELECT COUNT(*), sem buscar/construir Fact
+        nenhum) -- usado pelo accounting de mcp_server/retrieval.py
+        (total_records_considered). Buscar cada linha so' pra' contar
+        seria pagar de novo exatamente o custo que get_facts_by_ids()
+        existe pra' evitar."""
+        if project is None:
+            row = self.conn.execute("SELECT COUNT(*) FROM facts WHERE status = ?", (FactStatus.ACTIVE.value,)).fetchone()
+        else:
+            row = self.conn.execute(
+                "SELECT COUNT(*) FROM facts WHERE status = ? AND (project = ? OR project = '')",
+                (FactStatus.ACTIVE.value, project),
+            ).fetchone()
+        return row[0]
+
+    def get_facts_by_ids(self, ids: set[str], project: str | None = None) -> list[Fact]:
+        """Busca so' os fatos ACTIVE cujo id esta' em `ids` -- usado pela
+        camada de retrieval (mcp_server/retrieval.py) quando o indice de
+        bissecao (mcp_server/kakeya_index.py) ja' reduziu quem PODE bater
+        a busca: em vez de buscar TODO fato ativo (all_active) e' so'
+        descartar depois, evita o fetch/construcao de objeto pra' quem
+        nunca ia pontuar. IN (...) em lotes de ate' 400 ids por vez --
+        SQLITE_MAX_VARIABLE_NUMBER default do sqlite3 e' 999, 400 fica
+        com folga sem impor limite pratico (uma busca que bate em milhares
+        de registros ja' nao e' o caso que este metodo existe pra'
+        otimizar)."""
+        if not ids:
+            return []
+        id_list = list(ids)
+        out: list[Fact] = []
+        for start in range(0, len(id_list), 400):
+            chunk = id_list[start:start + 400]
+            placeholders = ",".join("?" for _ in chunk)
+            clauses = [f"id IN ({placeholders})", "status = ?"]
+            params: list = list(chunk) + [FactStatus.ACTIVE.value]
+            if project is not None:
+                clauses.append("(project = ? OR project = '')")
+                params.append(project)
+            where = " AND ".join(clauses)
+            rows = self.conn.execute(
+                f"SELECT id, subject, predicate, obj, status, reason, project, created_at, supersedes FROM facts WHERE {where}",
+                params,
+            ).fetchall()
+            out.extend(
+                Fact(id=r[0], subject=r[1], predicate=r[2], obj=r[3], status=FactStatus(r[4]), reason=r[5], project=r[6], created_at=r[7], supersedes=r[8])
+                for r in rows
+            )
+        return out
 
     def history(self, subject: str, predicate: str) -> list[Fact]:
         """Todas as versoes (inclusive superseded) -- auditoria/explicabilidade."""

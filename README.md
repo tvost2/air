@@ -215,6 +215,11 @@ o AIR local (SQLite), não com nenhum provider de LLM.
   antigo vira `SUPERSEDED`, nunca é apagado). A busca e a reconstrução de
   contexto só leem fatos `ACTIVE`, então a versão antiga nunca vaza —
   testado explicitamente em `tests/test_mcp_server.py::test_conflicting_context_resolves_to_latest`.
+- **Aceleração de busca não muda o que é encontrado.** O índice de
+  bissecção descrito em "Aceleração de busca" abaixo só decide *quais*
+  registros valem a pena checar — `_score()` continua sendo a única
+  fonte de verdade da pontuação, e há teste diferencial comparando
+  byte-a-byte contra o scan linear original pra garantir isso.
 - **Concorrência**: o SDK MCP despacha cada tool call síncrona num worker
   thread (`anyio.to_thread.run_sync`). Isso quebrava o SQLite (conexões
   são thread-affine por padrão) até ser corrigido com
@@ -277,6 +282,72 @@ o AIR local (SQLite), não com nenhum provider de LLM.
   lock em `_get_tokenizer` garante que espera o MESMO carregamento, não
   dispara um segundo) — não há timeout/fallback pra esse caso específico
   ainda, é uma lacuna real que sobrou, não escondida aqui.
+
+## Aceleração de busca — índice de bissecção ("Kakeya")
+
+`mcp_server/kakeya_index.py` acelera `air_search_context`/`retrieval.py`
+sem mudar o que ela encontra. Nome "Kakeya" é analogia deliberada, dita
+explicitamente no docstring do módulo: o problema da agulha de Kakeya
+(Besicovitch/Perron, geometria/teoria da medida — cobrir toda rotação de
+uma agulha com área mínima) não tem "algoritmo" de busca nenhum; o que é
+reaproveitado de verdade é o princípio por trás da construção de Perron
+tree — convergir por **bissecção repetida** em vez de varrer tudo. A
+estrutura real, padrão e correta que implementa isso é **array de
+sufixos + busca binária** (`bisect`, stdlib): toda substring de um texto
+é prefixo de algum sufixo dele, então sufixos que começam com a palavra
+buscada formam um intervalo contíguo na ordem alfabética — dois `bisect`
+acham esse intervalo em O(log n), sem varrer nada. "3D" mapeia nas três
+dimensões reais de dado buscável do AIR (fato/entidade/evento), não é
+decorativo.
+
+**O que ele muda de verdade**: antes, `search_facts`/`search_world`
+buscavam *todo* fato/entidade/evento visível no SQLite (`all_active`/
+`all_entities`/`all_events`) e só depois descartavam quem não pontuava.
+Agora, o índice acha primeiro os IDs candidatos (via bissecção) e só
+busca no SQLite *esses* IDs (`get_facts_by_ids`/`get_entities_by_ids`/
+`get_events_by_ids`, com `WHERE id IN (...)`) — corta o fetch e a
+construção de objeto pra quem nunca ia pontuar, não só o `_score()` em
+si. `_score()` continua sendo a única fonte de verdade da pontuação:
+o índice nunca decide o resultado, só decide o que vale a pena checar.
+
+**Honesto sobre onde isso ajuda de verdade** (medido, não afirmado —
+`tests/test_kakeya_index.py::benchmark_index_vs_linear`, mesma disciplina
+de `benchmarks/token_benchmark.py`): a primeira versão desta mudança só
+acelerava o laço de pontuação e **media pior** que o scan linear original
+em corpus grande (0.89x em 20.000 registros) — o custo dominante nunca
+foi `_score()` (comparação de substring em C, já barata), foi o fetch +
+construção de `Fact`/`Entity`/`Event` do SQLite pra *todo* registro, que
+o índice não estava evitando. Corrigido fazendo o índice também podar o
+fetch (`WHERE id IN (...)`), não só a pontuação — só então o ganho ficou
+real:
+
+| corpus (facts) | query bate em | índice | linear | speedup |
+|---:|---:|---:|---:|---:|
+| 4.000 | ~28% dos registros | 30,9ms | 84,3ms | 2,7x |
+| 20.000 | ~56% dos registros | 424,5ms | 572,7ms | 1,35x |
+| 20.000 | 1 registro | 0,67ms | 485,9ms | 722x |
+
+Padrão esperado e confirmado: quanto mais **rara** a palavra buscada
+(mais próxima do uso real de busca por palavra-chave), maior o ganho —
+o índice pula quase todo o fetch. Quando a query bate em boa parte do
+corpus (uso mais parecido com "listar tudo"), o ganho encolhe mas nunca
+fica negativo na versão corrigida.
+
+**Trade-off aceito e documentado, não escondido**: cada registro só tem
+os primeiros `KAKEYA_MAX_INDEXED_CHARS` (4.000) caracteres do seu texto
+buscável indexados — cobre com folga o conteúdo típico do AIR (fato/
+entidade curtos), mas um registro mais longo que isso entra em
+`overflow_ids()` e é **sempre** tratado como candidato (sem exceção),
+voltando pro custo O(n) só pra esses poucos registros em vez de arriscar
+um falso negativo — testado explicitamente
+(`test_overflow_records_still_found_beyond_indexed_length`).
+
+Correção verificada por teste diferencial, não só pelo benchmark: todo
+resultado com índice é comparado byte-a-byte contra o resultado do scan
+linear original, em corpus pequeno e em corpus aleatório de 900
+registros com 6 palavras de busca diferentes (`tests/test_kakeya_index.py`)
+— nenhuma mudança de semântica de busca (substring em qualquer posição,
+igual antes) escondida atrás da otimização.
 
 ## Benchmark de token — o que ele mostra de verdade
 

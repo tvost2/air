@@ -69,6 +69,15 @@ class WorldState:
         self.conn.executescript(SCHEMA)
         self._migrate_add_project_column()
         self.conn.commit()
+        # contador de versao -- incrementado em toda escrita (entity/
+        # relation/event/update_entity/delete_entity). Usado so' como
+        # sinal de invalidacao de cache pro indice de busca acelerado
+        # (mcp_server/kakeya_index.py): "mudou desde a ultima vez que
+        # busquei" em vez de reconstruir o indice a cada busca.
+        self._version = 0
+
+    def version(self) -> int:
+        return self._version
 
     def _migrate_add_project_column(self) -> None:
         # 'project' foi adicionado depois da primeira versao do schema --
@@ -93,6 +102,7 @@ class WorldState:
             (e.id, e.kind, e.name, json.dumps(e.attrs), e.project, e.created_at),
         )
         self.conn.commit()
+        self._version += 1
         return e
 
     def relation(self, source_id: str, kind: str, target_id: str, project: str = "") -> Relation:
@@ -102,6 +112,7 @@ class WorldState:
             (r.id, r.source_id, r.kind, r.target_id, r.project, r.created_at),
         )
         self.conn.commit()
+        self._version += 1
         return r
 
     def event(self, entity_id: str, kind: str, payload: dict | None = None, project: str = "") -> Event:
@@ -111,6 +122,7 @@ class WorldState:
             (ev.id, ev.entity_id, ev.kind, json.dumps(ev.payload), ev.project, ev.created_at),
         )
         self.conn.commit()
+        self._version += 1
         return ev
 
     # ---------------- consultas (o que resolve "o que depende da API?") ----------------
@@ -170,6 +182,7 @@ class WorldState:
             (new_kind, json.dumps(new_attrs), id),
         )
         self.conn.commit()
+        self._version += 1
         return Entity(id=existing.id, kind=new_kind, name=existing.name, attrs=new_attrs, project=existing.project, created_at=existing.created_at)
 
     def delete_entity(self, id: str) -> bool:
@@ -182,6 +195,8 @@ class WorldState:
         nao existia (idempotente, nao levanta excecao)."""
         cur = self.conn.execute("DELETE FROM entities WHERE id = ?", (id,))
         self.conn.commit()
+        if cur.rowcount > 0:
+            self._version += 1
         return cur.rowcount > 0
 
     def relations_of(self, entity_id: str) -> list[Relation]:
@@ -229,6 +244,82 @@ class WorldState:
                 (project, limit),
             ).fetchall()
         return [Event(id=r[0], entity_id=r[1], kind=r[2], payload=json.loads(r[3]), project=r[4], created_at=r[5]) for r in rows]
+
+    def count_entities(self, project: str | None = None) -> int:
+        """Mesma motivacao de memory.MemoryStore.count_active: contagem
+        sem buscar/construir Entity nenhuma, pro accounting de
+        mcp_server/retrieval.py."""
+        if project is None:
+            row = self.conn.execute("SELECT COUNT(*) FROM entities").fetchone()
+        else:
+            row = self.conn.execute("SELECT COUNT(*) FROM entities WHERE project = ? OR project = ''", (project,)).fetchone()
+        return row[0]
+
+    def count_events(self, limit: int = 200, project: str | None = None) -> int:
+        """Mesma motivacao, pra' events -- respeita o mesmo `limit` de
+        all_events() pra' o numero continuar comparavel (nao teria sentido
+        contar TODO evento do banco se a busca so' olha os `limit` mais
+        recentes)."""
+        if project is None:
+            row = self.conn.execute("SELECT COUNT(*) FROM (SELECT id FROM events ORDER BY created_at DESC LIMIT ?)", (limit,)).fetchone()
+        else:
+            row = self.conn.execute(
+                "SELECT COUNT(*) FROM (SELECT id FROM events WHERE project = ? OR project = '' ORDER BY created_at DESC LIMIT ?)",
+                (project, limit),
+            ).fetchone()
+        return row[0]
+
+    def get_entities_by_ids(self, ids: set[str], project: str | None = None) -> list[Entity]:
+        """Mesma motivacao de memory.MemoryStore.get_facts_by_ids: busca
+        so' as entidades cujo id ja' foi reduzido pelo indice de bissecao
+        (mcp_server/kakeya_index.py), em vez de all_entities() inteiro
+        seguido de descarte. IN (...) em lotes de ate' 400 -- mesmo limite
+        de sqlite3 (SQLITE_MAX_VARIABLE_NUMBER=999 default)."""
+        if not ids:
+            return []
+        id_list = list(ids)
+        out: list[Entity] = []
+        for start in range(0, len(id_list), 400):
+            chunk = id_list[start:start + 400]
+            placeholders = ",".join("?" for _ in chunk)
+            clauses = [f"id IN ({placeholders})"]
+            params: list = list(chunk)
+            if project is not None:
+                clauses.append("(project = ? OR project = '')")
+                params.append(project)
+            where = " AND ".join(clauses)
+            rows = self.conn.execute(
+                f"SELECT id, kind, name, attrs, project, created_at FROM entities WHERE {where}", params
+            ).fetchall()
+            out.extend(
+                Entity(id=r[0], kind=r[1], name=r[2], attrs=json.loads(r[3]), project=r[4], created_at=r[5])
+                for r in rows
+            )
+        return out
+
+    def get_events_by_ids(self, ids: set[str], project: str | None = None) -> list[Event]:
+        """Mesma motivacao/padrao de get_entities_by_ids, pra' events."""
+        if not ids:
+            return []
+        id_list = list(ids)
+        out: list[Event] = []
+        for start in range(0, len(id_list), 400):
+            chunk = id_list[start:start + 400]
+            placeholders = ",".join("?" for _ in chunk)
+            clauses = [f"id IN ({placeholders})"]
+            params: list = list(chunk)
+            if project is not None:
+                clauses.append("(project = ? OR project = '')")
+                params.append(project)
+            where = " AND ".join(clauses)
+            rows = self.conn.execute(
+                f"SELECT id, entity_id, kind, payload, project, created_at FROM events WHERE {where}", params
+            ).fetchall()
+            out.extend(
+                Event(id=r[0], entity_id=r[1], kind=r[2], payload=json.loads(r[3]), project=r[4], created_at=r[5])
+                for r in rows
+            )
+        return out
 
     def events_of(self, entity_id: str, limit: int = 50) -> list[Event]:
         rows = self.conn.execute(
