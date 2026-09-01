@@ -42,14 +42,26 @@ class ToolRegistry:
         if spec is None:
             return ActionResult(id=new_id("act"), tool_name=tool_name, args=kwargs, output=None, error=f"tool desconhecida: {tool_name}")
 
-        if spec.required_capability is not None:
-            resource = kwargs.get(spec.resource_arg) if spec.resource_arg else None
-            self.permissions.require(principal, spec.required_capability, resource)
-
+        # Bug real, encontrado nao por inspecao mas testando o caminho que
+        # nao tinha teste: permissao negada levantava PermissionDenied SEM
+        # ser capturada, ao contrario de erro de tool (capturado logo
+        # abaixo) -- quebrava o contrato implicito de "call() sempre
+        # devolve ActionResult, nunca explode" bem no meio de
+        # Planner.run_all (que dependia de action_fn NUNCA levantar pra
+        # marcar a tarefa FAILED de forma graciosa) e deixava
+        # Agent.call_tool sem publicar "action.finished" nesse caso
+        # especifico. Capturar aqui NAO afrouxa a seguranca -- a tool
+        # continua nunca sendo chamada quando falta capacidade (require()
+        # ainda levanta ANTES de spec.fn rodar); so' muda como quem chama
+        # fica sabendo disso, de excecao crua pra ActionResult com error
+        # preenchido, igual a qualquer outra falha.
         try:
+            if spec.required_capability is not None:
+                resource = kwargs.get(spec.resource_arg) if spec.resource_arg else None
+                self.permissions.require(principal, spec.required_capability, resource)
             raw_output = spec.fn(**kwargs)
             error = None
-        except Exception as e:
+        except Exception as e:   # PermissionDenied inclusa -- e' subclasse de Exception
             raw_output = None
             error = str(e)
 

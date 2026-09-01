@@ -27,8 +27,16 @@ class EventBus:
         self._subscribers[topic].append(handler)
 
     def unsubscribe(self, topic: str, handler: Callable[[str, dict], None]) -> None:
-        if handler in self._subscribers[topic]:
-            self._subscribers[topic].remove(handler)
+        # .get(), nao self._subscribers[topic] -- _subscribers e'
+        # defaultdict(list), entao o acesso por indice criava uma entrada
+        # vazia permanente pra QUALQUER topic passado aqui, mesmo um que
+        # nunca foi assinado (ex: desinscrever de um topic com nome
+        # errado, ou generico) -- vazamento pequeno mas real, dict cresce
+        # sem necessidade. publish() ja usava .get() corretamente; aqui
+        # nao usava.
+        subscribers = self._subscribers.get(topic)
+        if subscribers and handler in subscribers:
+            subscribers.remove(handler)
 
     def publish(self, topic: str, payload: dict) -> None:
         for handler in list(self._subscribers.get(topic, [])):

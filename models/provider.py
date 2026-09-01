@@ -62,8 +62,16 @@ class HFLocalProvider:
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
         self._torch = torch
-        self.tok = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForCausalLM.from_pretrained(model_name, dtype=torch.float32)
+        # local_files_only=True -- mesma correcao ja aplicada em
+        # mcp_server/tokens.py, faltava aqui: sem essa flag,
+        # from_pretrained() checa o Hugging Face Hub por atualizacao
+        # mesmo com o modelo ja em cache local, e isso foi medido nesta
+        # sessao em ~130s so' pra essa checagem (ver README/tokens.py).
+        # HFLocalProvider carrega EXATAMENTE o mesmo modelo
+        # (SmolLM2-360M-Instruct) que tokens.py ja' tinha essa protecao --
+        # faltava replicar aqui, mesma classe de lentidao, local diferente.
+        self.tok = AutoTokenizer.from_pretrained(model_name, local_files_only=True)
+        self.model = AutoModelForCausalLM.from_pretrained(model_name, dtype=torch.float32, local_files_only=True)
         self.model.eval()
 
     def complete(self, prompt: str, *, model: str = "local", max_tokens: int = 60, **kwargs) -> ModelResponse:

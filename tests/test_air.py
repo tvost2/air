@@ -1,9 +1,9 @@
 """
 AIR tests -- cobre os modulos centrais (world, memory, context, security,
-tools, verification, planner) via a fachada sdk/agent.py e chamadas
-diretas onde faz sentido testar isolado. Roda com `python tests/test_air.py`
-a partir de E:\\x\\air (sem framework externo, pra' nao adicionar
-dependencia so' pra rodar teste no MVP).
+tools, verification, planner, events) via a fachada sdk/agent.py e
+chamadas diretas onde faz sentido testar isolado. Roda com
+`python tests/test_air.py` a partir de E:\\x\\air (sem framework externo,
+pra' nao adicionar dependencia so' pra rodar teste no MVP).
 """
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from context.engine import ContextEngine, INLINE_THRESHOLD_CHARS
 from core.types import ActionResult, Capability, VerificationOutcome
+from events.bus import EventBus
 from memory.store import MemoryStore
 from planner.planner import Planner
 from security.permissions import PermissionDenied, PermissionManager
@@ -139,6 +140,30 @@ def test_tool_registry_large_output_becomes_handle():
     check("tools: conteudo completo ainda acessivel via context.get", len(ctx.get(result.output["handle"])) == INLINE_THRESHOLD_CHARS + 100)
 
 
+def test_tool_registry_permission_denied_returns_action_result():
+    """Bug real encontrado testando, nao por inspecao: permissao negada
+    levantava PermissionDenied SEM ser capturada por registry.call() (so'
+    erro de tool era capturado) -- quebrava o contrato de "call() sempre
+    devolve ActionResult" bem no meio de Planner.run_all (que depende de
+    action_fn nunca levantar pra marcar a tarefa FAILED de forma
+    graciosa) e deixava Agent.call_tool sem publicar 'action.finished'
+    nesse caso. Corrigido movendo permissions.require() pra dentro do
+    try/except que ja existia pro erro de tool."""
+    perms = PermissionManager()
+    ctx = ContextEngine()
+    reg = ToolRegistry(perms, ctx)
+    reg.register("danger", lambda: "boom", required_capability=Capability.NETWORK)
+
+    raised = False
+    try:
+        result = reg.call("agent:x", "danger")
+    except PermissionDenied:
+        raised = True
+    check("tools: permissao negada NAO levanta excecao crua (devolve ActionResult)", raised is False)
+    check("tools: ActionResult de permissao negada tem error preenchido", result.error is not None and "network" in result.error)
+    check("tools: tool NUNCA foi chamada quando faltou permissao (output None, nao 'boom')", result.output is None)
+
+
 def test_verification_default_heuristic():
     v = VerificationEngine()
     ok_result = ActionResult(id="a1", tool_name="x", args={}, output="algo")
@@ -167,6 +192,82 @@ def test_planner_stops_on_failure():
     check("planner: tarefa 2 nunca rodou (dependencia falhou antes)", t2.status.value == "pending")
 
 
+def test_planner_survives_permission_denied_tool_call():
+    """Prova a historia inteira, ponta a ponta: uma action_fn real que
+    chama registry.call() sem ter a permissao necessaria. Antes da
+    correcao em tools/registry.py, isso levantava PermissionDenied de
+    dentro de action_fn e derrubava Planner.run_all inteiro (excecao nao
+    tratada propagando pro chamador do teste) em vez de marcar a tarefa
+    FAILED como qualquer outra falha -- exatamente o cenario que motivou
+    a correcao, nao um caso hipotetico."""
+    perms = PermissionManager()
+    ctx = ContextEngine()
+    reg = ToolRegistry(perms, ctx)
+    reg.register("danger", lambda: "boom", required_capability=Capability.NETWORK)
+    # perms nunca recebe grant -- a chamada tem que ser negada
+
+    v = VerificationEngine()
+    pl = Planner(v)
+    goal = pl.new_goal("goal com tool sem permissao")
+    t1 = pl.add_task(goal, "chamar tool sem permissao")
+
+    def action_fn(task):
+        return reg.call("agent:x", "danger")
+
+    pl.run_all(goal, action_fn)  # nao pode levantar excecao
+    check("planner: tarefa com tool sem permissao termina FAILED (nao crasha run_all)", t1.status.value == "failed")
+    check("planner: resultado da tarefa carrega o motivo da negacao", t1.result is not None and "network" in (t1.result.error or ""))
+
+
+def test_event_bus_publish_subscribe():
+    """EventBus nao tinha teste nenhum ate' aqui, apesar de ser descrito
+    no proprio docstring do modulo como o mecanismo real que Verification
+    Engine/Planner usariam pra reagir a 'action.finished'/'task.failed'
+    em tempo real."""
+    bus = EventBus()
+    received = []
+    bus.subscribe("action.finished", lambda topic, payload: received.append((topic, payload)))
+
+    bus.publish("action.finished", {"tool_name": "x"})
+    check("events: handler assinado recebe o evento publicado", received == [("action.finished", {"tool_name": "x"})])
+
+    bus.publish("outro.topico", {"y": 1})
+    check("events: handler NAO recebe evento de topico diferente", len(received) == 1)
+
+
+def test_event_bus_wildcard_subscriber():
+    bus = EventBus()
+    received_topics = []
+    bus.subscribe("*", lambda topic, payload: received_topics.append(topic))
+
+    bus.publish("a", {})
+    bus.publish("b", {})
+    check("events: assinante '*' recebe TODO topico publicado", received_topics == ["a", "b"])
+
+
+def test_event_bus_unsubscribe():
+    bus = EventBus()
+    calls = []
+    handler = lambda topic, payload: calls.append(topic)
+    bus.subscribe("x", handler)
+    bus.publish("x", {})
+    bus.unsubscribe("x", handler)
+    bus.publish("x", {})
+    check("events: apos unsubscribe, handler nao recebe mais o evento", calls == ["x"])
+
+    # bug real corrigido: unsubscribe() de um topico NUNCA assinado nao
+    # pode levantar excecao nem criar entrada permanente no dict interno
+    # (_subscribers e' defaultdict -- acessar por indice, em vez de
+    # .get(), criava uma entrada vazia pra' qualquer topico passado aqui).
+    raised = False
+    try:
+        bus.unsubscribe("nunca-assinado", handler)
+    except Exception:
+        raised = True
+    check("events: unsubscribe de topico nunca assinado nao levanta excecao", raised is False)
+    check("events: unsubscribe de topico nunca assinado nao cria entrada no dict interno", "nunca-assinado" not in bus._subscribers)
+
+
 def test_agent_end_to_end():
     a = Agent()
     a.world.entity("db", kind="database", id="db")
@@ -192,8 +293,13 @@ def main():
     test_context_engine_reference_by_id()
     test_permissions_deny_by_default()
     test_tool_registry_large_output_becomes_handle()
+    test_tool_registry_permission_denied_returns_action_result()
     test_verification_default_heuristic()
     test_planner_stops_on_failure()
+    test_planner_survives_permission_denied_tool_call()
+    test_event_bus_publish_subscribe()
+    test_event_bus_wildcard_subscriber()
+    test_event_bus_unsubscribe()
     test_agent_end_to_end()
 
     print()
