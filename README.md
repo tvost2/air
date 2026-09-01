@@ -66,6 +66,7 @@ cd air
 python tests/test_air.py
 python tests/test_mcp_server.py
 python tests/test_kakeya_index.py
+python tests/test_tokens.py
 python benchmarks/token_benchmark.py
 python examples/demo_agent.py
 python examples/demo_mcp.py
@@ -321,12 +322,17 @@ Hugging Face Hub e cacheado — sem chave, sem provider de LLM).
   já tinha sido tentado antes e causava exatamente o "connection timed
   out after 30000ms" que motivou remover o warmup em primeiro lugar). A
   carga roda em paralelo desde o startup, então na prática cobre parte ou
-  todo o tempo até a primeira chamada real de verdade acontecer. Ainda
-  não elimina o problema por completo: se a primeira chamada real chegar
-  antes do warmup terminar, ela ainda espera o resto do carregamento (o
-  lock em `_get_tokenizer` garante que espera o MESMO carregamento, não
-  dispara um segundo) — não há timeout/fallback pra esse caso específico
-  ainda, é uma lacuna real que sobrou, não escondida aqui.
+  todo o tempo até a primeira chamada real de verdade acontecer.
+
+  ~~Se a primeira chamada real chegar antes do warmup terminar, ela ainda
+  espera o resto do carregamento~~ — resolvido: `_get_tokenizer` agora
+  aceita `blocking=False` (usado por `count_tokens()`), que tenta pegar a
+  trava sem esperar — se estiver ocupada (warmup em andamento), cai pra'
+  heurística na hora em vez de bloquear até o carregamento terminar
+  (`method` no retorno continua honesto: `heuristic_chars_div_4` nesse
+  caso, nunca finge precisão que não tem). Testado sem depender do
+  tokenizer real carregar (`tests/test_tokens.py` segura a trava
+  manualmente pra' simular contenção, corre em milissegundos).
 
 ## Aceleração de busca — índice de bissecção ("Kakeya")
 

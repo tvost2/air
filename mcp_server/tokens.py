@@ -21,7 +21,7 @@ _tokenizer_load_failed = False
 _tokenizer_lock = threading.Lock()
 
 
-def _get_tokenizer():
+def _get_tokenizer(blocking: bool = True):
     """Carrega SO' do cache local (local_files_only=True) -- um servidor
     MCP tem que responder rapido; medido nesta maquina, deixar o
     transformers checar a Hugging Face Hub por atualizacao (mesmo com o
@@ -32,14 +32,34 @@ def _get_tokenizer():
     que existe exatamente por causa disso. Sem acesso local ao cache,
     falha rapido e cai pra' heuristica em vez de tentar baixar.
 
-    Lock protege contra duas threads carregando ao mesmo tempo (o warmup
-    em background e' uma chamada normal desta funcao, entao uma
-    count_tokens() real concorrente com o warmup so' espera o mesmo
-    carregamento em vez de disparar um segundo)."""
+    blocking=True (default, usado por warm_tokenizer_async() -- quem
+    dispara o carregamento de verdade tem que esperar ate' terminar):
+    trava normal, se outra thread ja' estiver carregando so' espera a
+    MESMA carga terminar, nunca dispara uma segunda.
+
+    blocking=False (usado por count_tokens() -- ver comentario la'):
+    tenta pegar a trava SEM esperar; se estiver ocupada (warmup rodando,
+    ou outra chamada real concorrente ja' carregando), devolve None na
+    hora em vez de bloquear ate' 208s -- quem chamou cai pra' heuristica,
+    honestamente reportada no campo 'method' (regra 9: nunca afirma
+    precisao que nao tem, e' preferivel a resposta RAPIDA e honesta do
+    que a resposta EXATA depois de quase 4 minutos de espera silenciosa).
+    Bug real corrigido, nao hipotetico: antes desta mudanca, uma tool
+    call real que chegasse durante a janela de warmup ficava presa
+    esperando o MESMO lock ate' o carregamento (que ela nao pediu e nao
+    sabia que estava rolando) terminar -- limitacao ja' documentada no
+    README ("nao ha' timeout/fallback pra esse caso especifico ainda")
+    que ficou sem solucao ate' agora."""
     global _tokenizer, _tokenizer_load_failed
     if _tokenizer is not None or _tokenizer_load_failed:
         return _tokenizer
-    with _tokenizer_lock:
+    if blocking:
+        acquired = _tokenizer_lock.acquire()
+    else:
+        acquired = _tokenizer_lock.acquire(blocking=False)
+        if not acquired:
+            return None   # lock ocupado -- cai pra' heuristica em vez de esperar
+    try:
         if _tokenizer is not None or _tokenizer_load_failed:
             return _tokenizer
         try:
@@ -48,6 +68,8 @@ def _get_tokenizer():
         except Exception:
             _tokenizer_load_failed = True
             _tokenizer = None
+    finally:
+        _tokenizer_lock.release()
     return _tokenizer
 
 
@@ -83,10 +105,12 @@ def warm_tokenizer_async() -> threading.Thread:
 
 def count_tokens(text: str) -> dict:
     """Retorna {'tokens': int, 'method': str}. method e' sempre honesto
-    sobre como o numero foi obtido."""
+    sobre como o numero foi obtido -- inclusive quando a resposta e'
+    heuristica so' porque o tokenizer real esta' carregando em segundo
+    plano nesse exato momento (ver _get_tokenizer(blocking=False))."""
     if not text:
         return {"tokens": 0, "method": "empty"}
-    tok = _get_tokenizer()
+    tok = _get_tokenizer(blocking=False)
     if tok is not None:
         try:
             return {"tokens": len(tok(text)["input_ids"]), "method": f"tokenizer:{MODEL_NAME}"}
