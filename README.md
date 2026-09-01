@@ -101,11 +101,45 @@ Claude Code. As duas direções são independentes.
 
 | Tool | O que faz | Por baixo |
 |---|---|---|
-| `air_search_context(query, limit=5)` | Busca por palavra-chave (não semântica — ver `method` no retorno) em Memory + World State | `mcp_server/retrieval.py` |
-| `air_store_memory(content, metadata={subject,predicate,reason})` | Grava um fato; se `subject+predicate` já existir, a versão nova *supersede* a antiga (recência, não sobrescrita) | `MemoryStore.remember` |
-| `air_get_context(query, max_tokens=2000)` | Fluxo completo: Planner → retrieval → resolução de recência/conflito → montagem final respeitando orçamento de tokens | `Planner` + `ContextEngine` |
+| `air_search_context(query, limit=5, project="")` | Busca por palavra-chave (não semântica — ver `method` no retorno) em Memory + World State | `mcp_server/retrieval.py` |
+| `air_store_memory(content, metadata={subject,predicate,reason,project})` | Grava um fato; se `subject+predicate` já existir NO MESMO `project`, a versão nova *supersede* a antiga (recência, não sobrescrita) | `MemoryStore.remember` |
+| `air_register_entity(kind, name, attrs={}, project="")` | Registra no World State um artefato já construído (API, frontend, módulo) pra uma tarefa futura achar e *readaptar* em vez de refazer do zero. Idempotente por `name` exato (registrar de novo com mesmo nome não atualiza, só devolve o existente). Retorno inclui o custo real em tokens de reusar (`_context_cost_tokens`/`_context_cost_method` nos `attrs`) | `WorldState.entity` |
+| `air_delete_entity(id)` | Remove uma entidade por id (hard delete — `Entity` não tem campo de status pra soft-delete como `Fact`). Serve principalmente pra corrigir duplicata de registro | `WorldState.delete_entity` |
+| `air_get_context(query, max_tokens=2000, project="")` | Fluxo completo: Planner → retrieval → resolução de recência/conflito → montagem final respeitando orçamento de tokens | `Planner` + `ContextEngine` |
 | `air_update_memory(id, content)` | Cria nova versão que supersede a antiga (só em fatos `ACTIVE`) | `MemoryStore.remember` |
 | `air_delete_memory(id)` | Soft-delete (marca `DELETED`, não apaga a linha) | `MemoryStore.forget` |
+
+### Isolamento entre projetos/sessões (`project`)
+
+Por padrão, o `AIR_STORAGE` é um único arquivo SQLite compartilhado por
+**qualquer** sessão Claude Code que conecte no MCP `air` (registro global
+em `~/.claude.json`, não por projeto) — descoberta real feita rodando duas
+sessões em paralelo: elas liam/escreviam no mesmo `world`/`memory` sem
+saber uma da outra, incluindo sobrescrita silenciosa de fato por
+coincidência de `subject+predicate`.
+
+O parâmetro `project` (opcional, em `air_store_memory`/`air_register_entity`/
+`air_search_context`/`air_get_context`) resolve isso sem separar banco por
+projeto (o que mataria o reuso intencional de artefato entre projetos, que
+é o objetivo de `air_register_entity`):
+
+- `project=""` (default ao registrar) = **global** — aparece em busca de
+  qualquer projeto. Use pra o que é genuinamente reutilizável (uma API já
+  pronta, um padrão validado).
+- `project="nome"` ao **gravar** = escopa o fato/entidade a esse projeto —
+  não supersede nem é sobrescrito por um fato de outro projeto com a mesma
+  chave.
+- `project="nome"` ao **buscar** = só considera fatos/entidades desse
+  projeto MAIS os globais (`project=""`) — some outro projeto escopado não
+  aparece.
+- Omitir `project` na busca = comportamento antigo, sem filtro, vê tudo
+  (inclui o risco de contaminação cross-projeto se quem grava não usar
+  escopo).
+
+**Limitação conhecida**: eventos (`world/state.py all_events`) ainda não
+são filtrados por `project` — só fatos e entidades. Baixo risco prático
+(eventos são histórico auxiliar de mudança de entidade, não fato/decisão),
+mas é um gap real, não escondido aqui.
 
 Resources: `air://memory/facts` (snapshot dos fatos ativos), `air://world/state`
 (entidades + eventos recentes). Prompt: `reconstruct_context` (orienta
@@ -191,12 +225,20 @@ o AIR local (SQLite), não com nenhum provider de LLM.
 
 - Busca é palavra-chave, não semântica — uma pergunta parafraseada sem
   nenhuma palavra em comum com o fato armazenado não vai encontrá-lo.
-- `air_store_memory` só grava em Memory (fatos `subject/predicate/obj`).
-  World State (entidade/relação/evento) é consultável via
-  `air_search_context`/`air_get_context`, mas não é gravável por nenhuma
-  tool MCP ainda — não havia um mapeamento natural de "content" livre pra'
-  entidade/relação estruturada sem inventar um formato, então essa
-  gravação ficou de fora desta primeira versão.
+- `air_register_entity` grava só *entidade* em World State (`kind`, `name`,
+  `attrs` livre). *Relação* (`Relation` — "X depende de Y") e *evento*
+  ainda não têm tool MCP de escrita — só entidade tinha um mapeamento
+  natural de "isso é um artefato reutilizável" sem inventar formato pra
+  relação/evento também, então essas duas gravações ficaram de fora desta
+  versão. `air_register_entity` também não faz *update*: registrar de novo
+  com o mesmo `name` só devolve a entidade existente sem tocar nos `attrs`
+  — pra corrigir/atualizar, apague com `air_delete_entity` e registre de
+  novo.
+- `air_register_entity` deduplica só por `name` **exato**. Nomes
+  quase-iguais pro mesmo artefato (achado real, não hipotético: `air` vs
+  `air-runtime` registrados em sessões MCP diferentes pro mesmo projeto)
+  viram entidades duplicadas — sem merge automático, só
+  `air_delete_entity` manual.
 - `max_tokens` em `air_get_context` não impede que um único fato maior
   que o orçamento entre sozinho no contexto (a alternativa seria devolver
   contexto vazio mesmo tendo achado algo, o que é pior).
@@ -209,9 +251,21 @@ o AIR local (SQLite), não com nenhum provider de LLM.
   cause provável: I/O pathológico de disco quase cheio (não confirmado
   como universal, só medido nesta máquina) — mas o efeito é real e sério
   o bastante pra parecer travado: um cliente MCP com timeout menor que
-  ~210s vai ver isso como falha, não como lentidão. Ainda não tem
-  fallback/timeout no código pra isso — é uma lacuna real, não só
-  hipotética.
+  ~210s vai ver isso como falha, não como lentidão.
+
+  **Mitigado, não eliminado**: `mcp_server/server.py:main()` agora chama
+  `tokens.warm_tokenizer_async()` antes de `server.run()` — dispara a
+  carga numa thread separada, sem bloquear o handshake MCP (continua
+  respondendo na hora, confirmado: warmup síncrono nessa mesma posição
+  já tinha sido tentado antes e causava exatamente o "connection timed
+  out after 30000ms" que motivou remover o warmup em primeiro lugar). A
+  carga roda em paralelo desde o startup, então na prática cobre parte ou
+  todo o tempo até a primeira chamada real de verdade acontecer. Ainda
+  não elimina o problema por completo: se a primeira chamada real chegar
+  antes do warmup terminar, ela ainda espera o resto do carregamento (o
+  lock em `_get_tokenizer` garante que espera o MESMO carregamento, não
+  dispara um segundo) — não há timeout/fallback pra esse caso específico
+  ainda, é uma lacuna real que sobrou, não escondida aqui.
 
 ## Benchmark de token — o que ele mostra de verdade
 

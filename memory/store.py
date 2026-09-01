@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS facts (
     obj TEXT NOT NULL,
     status TEXT NOT NULL,
     reason TEXT,
+    project TEXT NOT NULL DEFAULT '',
     created_at REAL NOT NULL,
     supersedes TEXT
 );
@@ -45,12 +46,26 @@ class MemoryStore:
         # threads) -- nao afeta uso de thread unica existente.
         self.conn = sqlite3.connect(str(db_path), check_same_thread=False)
         self.conn.executescript(SCHEMA)
+        self._migrate_add_project_column()
         self.conn.commit()
 
-    def remember(self, subject: str, predicate: str, obj: str, reason: str | None = None) -> Fact:
+    def _migrate_add_project_column(self) -> None:
+        # mesmo raciocinio de world/state.py: coluna nova, banco existente
+        # (ex: storage compartilhado de producao) nao ganha ela so' com
+        # CREATE TABLE IF NOT EXISTS. Idempotente -- so' roda se faltar.
+        cols = {row[1] for row in self.conn.execute("PRAGMA table_info(facts)").fetchall()}
+        if "project" not in cols:
+            self.conn.execute("ALTER TABLE facts ADD COLUMN project TEXT NOT NULL DEFAULT ''")
+
+    def remember(self, subject: str, predicate: str, obj: str, reason: str | None = None, project: str = "") -> Fact:
+        # supersede tem que ser filtrado por project tambem -- senao dois
+        # projetos diferentes usando o mesmo subject+predicate por
+        # coincidencia apagariam o fato um do outro silenciosamente (era
+        # exatamente esse o bug de isolamento: nada aqui sabia "de qual
+        # mundo" o fato antigo era).
         prior = self.conn.execute(
-            "SELECT id FROM facts WHERE subject = ? AND predicate = ? AND status = ?",
-            (subject, predicate, FactStatus.ACTIVE.value),
+            "SELECT id FROM facts WHERE subject = ? AND predicate = ? AND status = ? AND project = ?",
+            (subject, predicate, FactStatus.ACTIVE.value, project),
         ).fetchone()
         supersedes = None
         if prior is not None:
@@ -59,11 +74,11 @@ class MemoryStore:
                 "UPDATE facts SET status = ? WHERE id = ?", (FactStatus.SUPERSEDED.value, prior[0])
             )
 
-        f = Fact(id=new_id("fact"), subject=subject, predicate=predicate, obj=obj, reason=reason, supersedes=supersedes)
+        f = Fact(id=new_id("fact"), subject=subject, predicate=predicate, obj=obj, reason=reason, project=project, supersedes=supersedes)
         self.conn.execute(
-            "INSERT INTO facts (id, subject, predicate, obj, status, reason, created_at, supersedes) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (f.id, f.subject, f.predicate, f.obj, f.status.value, f.reason, f.created_at, f.supersedes),
+            "INSERT INTO facts (id, subject, predicate, obj, status, reason, project, created_at, supersedes) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (f.id, f.subject, f.predicate, f.obj, f.status.value, f.reason, f.project, f.created_at, f.supersedes),
         )
         self.conn.commit()
         return f
@@ -77,52 +92,73 @@ class MemoryStore:
         localizar um fato sem saber subject+predicate de antemao (preciso
         pra' update/delete por id vindos de fora, ex: MCP tools)."""
         row = self.conn.execute(
-            "SELECT id, subject, predicate, obj, status, reason, created_at, supersedes FROM facts WHERE id = ?",
+            "SELECT id, subject, predicate, obj, status, reason, project, created_at, supersedes FROM facts WHERE id = ?",
             (fact_id,),
         ).fetchone()
         if row is None:
             return None
-        return Fact(id=row[0], subject=row[1], predicate=row[2], obj=row[3], status=FactStatus(row[4]), reason=row[5], created_at=row[6], supersedes=row[7])
+        return Fact(id=row[0], subject=row[1], predicate=row[2], obj=row[3], status=FactStatus(row[4]), reason=row[5], project=row[6], created_at=row[7], supersedes=row[8])
 
-    def all_active(self) -> list[Fact]:
-        """Todos os fatos ativos, sem filtro de subject -- usado pela
-        camada de retrieval (mcp_server/retrieval.py) pra' buscar por
-        palavra-chave em toda a memoria, nao so' por chave exata."""
-        rows = self.conn.execute(
-            "SELECT id, subject, predicate, obj, status, reason, created_at, supersedes FROM facts WHERE status = ? ORDER BY created_at",
-            (FactStatus.ACTIVE.value,),
-        ).fetchall()
-        return [
-            Fact(id=r[0], subject=r[1], predicate=r[2], obj=r[3], status=FactStatus(r[4]), reason=r[5], created_at=r[6], supersedes=r[7])
-            for r in rows
-        ]
+    def all_active(self, project: str | None = None) -> list[Fact]:
+        """Todos os fatos ativos -- usado pela camada de retrieval
+        (mcp_server/retrieval.py) pra' buscar por palavra-chave em toda a
+        memoria, nao so' por chave exata.
 
-    def recall(self, subject: str, predicate: str | None = None) -> list[Fact]:
-        if predicate is None:
+        project=None (default): sem filtro -- comportamento de antes desta
+        mudanca. project="algo": so' fatos desse projeto MAIS os globais
+        (project==''), mesma regra de world.all_entities()."""
+        if project is None:
             rows = self.conn.execute(
-                "SELECT id, subject, predicate, obj, status, reason, created_at, supersedes "
-                "FROM facts WHERE subject = ? AND status = ? ORDER BY created_at",
-                (subject, FactStatus.ACTIVE.value),
+                "SELECT id, subject, predicate, obj, status, reason, project, created_at, supersedes FROM facts WHERE status = ? ORDER BY created_at",
+                (FactStatus.ACTIVE.value,),
             ).fetchall()
         else:
             rows = self.conn.execute(
-                "SELECT id, subject, predicate, obj, status, reason, created_at, supersedes "
-                "FROM facts WHERE subject = ? AND predicate = ? AND status = ? ORDER BY created_at",
-                (subject, predicate, FactStatus.ACTIVE.value),
+                "SELECT id, subject, predicate, obj, status, reason, project, created_at, supersedes "
+                "FROM facts WHERE status = ? AND (project = ? OR project = '') ORDER BY created_at",
+                (FactStatus.ACTIVE.value, project),
             ).fetchall()
         return [
-            Fact(id=r[0], subject=r[1], predicate=r[2], obj=r[3], status=FactStatus(r[4]), reason=r[5], created_at=r[6], supersedes=r[7])
+            Fact(id=r[0], subject=r[1], predicate=r[2], obj=r[3], status=FactStatus(r[4]), reason=r[5], project=r[6], created_at=r[7], supersedes=r[8])
+            for r in rows
+        ]
+
+    def recall(self, subject: str, predicate: str | None = None, project: str | None = None) -> list[Fact]:
+        # project=None: comportamento antigo, ignora escopo (chave exata
+        # subject+predicate ja' e' especifica o bastante pro uso original
+        # deste metodo). project="": so' fatos globais com essa chave.
+        # project="algo": so' fatos desse projeto (recall e' lookup direto
+        # por chave conhecida, nao busca -- aqui faz sentido ser estrito,
+        # sem OR com global, diferente de all_active/all_entities).
+        clauses = ["status = ?"]
+        params: list = [FactStatus.ACTIVE.value]
+        if project is not None:
+            clauses.append("project = ?")
+            params.append(project)
+        clauses.append("subject = ?")
+        params.append(subject)
+        if predicate is not None:
+            clauses.append("predicate = ?")
+            params.append(predicate)
+        where = " AND ".join(clauses)
+        rows = self.conn.execute(
+            f"SELECT id, subject, predicate, obj, status, reason, project, created_at, supersedes "
+            f"FROM facts WHERE {where} ORDER BY created_at",
+            params,
+        ).fetchall()
+        return [
+            Fact(id=r[0], subject=r[1], predicate=r[2], obj=r[3], status=FactStatus(r[4]), reason=r[5], project=r[6], created_at=r[7], supersedes=r[8])
             for r in rows
         ]
 
     def history(self, subject: str, predicate: str) -> list[Fact]:
         """Todas as versoes (inclusive superseded) -- auditoria/explicabilidade."""
         rows = self.conn.execute(
-            "SELECT id, subject, predicate, obj, status, reason, created_at, supersedes "
+            "SELECT id, subject, predicate, obj, status, reason, project, created_at, supersedes "
             "FROM facts WHERE subject = ? AND predicate = ? ORDER BY created_at",
             (subject, predicate),
         ).fetchall()
         return [
-            Fact(id=r[0], subject=r[1], predicate=r[2], obj=r[3], status=FactStatus(r[4]), reason=r[5], created_at=r[6], supersedes=r[7])
+            Fact(id=r[0], subject=r[1], predicate=r[2], obj=r[3], status=FactStatus(r[4]), reason=r[5], project=r[6], created_at=r[7], supersedes=r[8])
             for r in rows
         ]

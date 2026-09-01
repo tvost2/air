@@ -105,6 +105,103 @@ def test_search_context_validation_errors():
 
 
 # ---------------------------------------------------------------------------
+# air_register_entity
+# ---------------------------------------------------------------------------
+
+def test_register_entity_basic():
+    a = make_adapter("register_basic")
+    r = a.register_entity("api", "asaas-billing-backend", attrs={"path": "/opt/pessoas-em-braile-billing", "stack": "node http nativo + pg"})
+    check("register_entity: retorna id", "id" in r and r["id"].startswith("ent_"))
+    check("register_entity: nao existia antes", r["already_existed"] is False)
+    check("register_entity: inclui custo em tokens (economia mensuravel de reuso)", isinstance(r, dict))
+    ent = a.world.get_entity(r["id"])
+    check("register_entity: attrs ganham _context_cost_tokens", "_context_cost_tokens" in ent.attrs and isinstance(ent.attrs["_context_cost_tokens"], int))
+
+
+def test_register_entity_is_idempotent_by_name():
+    a = make_adapter("register_idempotent")
+    r1 = a.register_entity("api", "dbbridge-core", attrs={"v": 1})
+    r2 = a.register_entity("api", "dbbridge-core", attrs={"v": 2})
+    check("register_entity: segunda chamada com mesmo name nao duplica", r1["id"] == r2["id"])
+    check("register_entity: segunda chamada sinaliza already_existed", r2["already_existed"] is True)
+
+
+def test_register_entity_validation_errors():
+    a = make_adapter("register_errors")
+    check("register_entity: kind vazio retorna erro", "error" in a.register_entity("", "algo"))
+    check("register_entity: name vazio retorna erro", "error" in a.register_entity("api", ""))
+
+
+def test_delete_entity_basic():
+    a = make_adapter("delete_entity_basic")
+    r = a.register_entity("api", "algo-descartavel")
+    d = a.delete_entity(r["id"])
+    check("delete_entity: confirma delecao", d["deleted"] is True and d["name"] == "algo-descartavel")
+    check("delete_entity: entidade some do World State", a.world.get_entity(r["id"]) is None)
+
+
+def test_delete_entity_errors():
+    a = make_adapter("delete_entity_errors")
+    check("delete_entity: id inexistente retorna erro", "error" in a.delete_entity("ent_nao_existe"))
+
+
+def test_delete_entity_removes_from_search():
+    a = make_adapter("delete_entity_search")
+    r = a.register_entity("frontend", "widget-temporario", attrs={"descricao": "so' existe pra este teste"})
+    before = a.search_context("widget temporario")
+    a.delete_entity(r["id"])
+    after = a.search_context("widget temporario")
+    check("delete_entity: aparecia na busca antes de deletar", len(before["results"]) == 1)
+    check("delete_entity: some da busca depois de deletar", len(after["results"]) == 0)
+
+
+def test_register_entity_appears_in_search_context():
+    a = make_adapter("register_search")
+    a.register_entity("frontend", "site-mytheria", attrs={"path": "/opt/sitefactory/deploy/mytheria-site", "descricao": "site institucional com logo dragao hexagonal"})
+    r = a.search_context("mytheria dragao logo")
+    check("register_entity: entidade registrada aparece em air_search_context", any(h["kind"] == "entity" for h in r["results"]))
+
+
+# ---------------------------------------------------------------------------
+# isolamento por project (facts + entities)
+# ---------------------------------------------------------------------------
+
+def test_project_scoping_prevents_cross_project_supersede():
+    a = make_adapter("project_supersede")
+    r1 = a.store_memory("versao do projeto A", metadata={"subject": "status", "predicate": "atual", "project": "proj_a"})
+    r2 = a.store_memory("versao do projeto B", metadata={"subject": "status", "predicate": "atual", "project": "proj_b"})
+    check("project scoping: mesmo subject+predicate em projetos diferentes NAO supersede", r2["superseded_id"] is None)
+    check("project scoping: os dois fatos continuam ACTIVE", a.memory.get_fact(r1["id"]).status.value == "active" and a.memory.get_fact(r2["id"]).status.value == "active")
+
+
+def test_project_scoping_isolates_search_but_keeps_global_visible():
+    a = make_adapter("project_search_scope")
+    a.store_memory("segredo do projeto A: usa Postgres", metadata={"subject": "db", "predicate": "engine", "project": "proj_a"})
+    a.store_memory("segredo do projeto B: usa SQLite", metadata={"subject": "db", "predicate": "engine", "project": "proj_b"})
+    a.store_memory("regra geral: sempre documentar decisao de banco", metadata={"subject": "db", "predicate": "convencao"})  # global, sem project
+
+    only_a = a.search_context("banco de dados engine", project="proj_a")
+    texts_a = [h["text"] for h in only_a["results"]]
+    check("project scoping: busca escopada em proj_a NAO ve segredo de proj_b", not any("SQLite" in t for t in texts_a))
+    check("project scoping: busca escopada em proj_a VE o proprio segredo", any("Postgres" in t for t in texts_a))
+    check("project scoping: busca escopada em proj_a VE fato global (sem project)", any("documentar decisao" in t for t in texts_a))
+
+    unscoped = a.search_context("banco de dados engine")
+    texts_all = [h["text"] for h in unscoped["results"]]
+    check("project scoping: busca SEM project (comportamento antigo) ve tudo", any("Postgres" in t for t in texts_all) and any("SQLite" in t for t in texts_all))
+
+
+def test_project_scoping_applies_to_get_context():
+    a = make_adapter("project_get_context_scope")
+    a.store_memory("proj_a usa Asaas pra pagamento", metadata={"subject": "pagamento", "predicate": "provider", "project": "proj_a"})
+    a.store_memory("proj_b usa Stripe pra pagamento", metadata={"subject": "pagamento", "predicate": "provider", "project": "proj_b"})
+
+    r = a.get_context("qual provider de pagamento", project="proj_a")
+    check("project scoping: get_context escopado nao traz o de outro projeto", "Stripe" not in r["context"])
+    check("project scoping: get_context escopado traz o do proprio projeto", "Asaas" in r["context"])
+
+
+# ---------------------------------------------------------------------------
 # air_get_context (planner -> retrieval -> structural memory -> reconstrucao)
 # ---------------------------------------------------------------------------
 
@@ -278,8 +375,8 @@ def test_mcp_protocol_layer():
     async def run():
         tools = await srv_mod.server.list_tools()
         names = {t.name for t in tools}
-        expected = {"air_search_context", "air_store_memory", "air_get_context", "air_update_memory", "air_delete_memory"}
-        check("mcp protocol: as 5 tools estao registradas (discovery)", expected.issubset(names))
+        expected = {"air_search_context", "air_store_memory", "air_get_context", "air_update_memory", "air_delete_memory", "air_register_entity", "air_delete_entity"}
+        check("mcp protocol: as 7 tools estao registradas (discovery)", expected.issubset(names))
 
         search_tool = next(t for t in tools if t.name == "air_search_context")
         check("mcp protocol: schema de air_search_context tem 'query'", "query" in search_tool.input_schema.get("properties", {}))
@@ -306,6 +403,16 @@ def main():
     test_search_context_basic_hit()
     test_search_context_empty_store_is_not_an_error()
     test_search_context_validation_errors()
+    test_register_entity_basic()
+    test_register_entity_is_idempotent_by_name()
+    test_register_entity_validation_errors()
+    test_delete_entity_basic()
+    test_delete_entity_errors()
+    test_delete_entity_removes_from_search()
+    test_register_entity_appears_in_search_context()
+    test_project_scoping_prevents_cross_project_supersede()
+    test_project_scoping_isolates_search_but_keeps_global_visible()
+    test_project_scoping_applies_to_get_context()
     test_get_context_basic()
     test_get_context_empty_is_not_a_failure()
     test_get_context_respects_token_budget()

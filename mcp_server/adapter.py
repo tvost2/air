@@ -85,11 +85,11 @@ class AirAdapter:
     # ------------------------------------------------------------------
     # air_search_context
     # ------------------------------------------------------------------
-    def search_context(self, query: str, limit: int | None = None) -> dict:
+    def search_context(self, query: str, limit: int | None = None, project: str | None = None) -> dict:
         with self._lock:
-            return self._search_context(query, limit)
+            return self._search_context(query, limit, project)
 
-    def _search_context(self, query: str, limit: int | None = None) -> dict:
+    def _search_context(self, query: str, limit: int | None = None, project: str | None = None) -> dict:
         query = (query or "").strip()
         if not query:
             return {"error": "query vazia"}
@@ -97,8 +97,9 @@ class AirAdapter:
             return {"error": f"query excede o limite de {self.config.max_query_chars} caracteres"}
 
         limit = limit or self.config.default_search_limit
-        result = retrieval.search(self.world, self.memory, query, limit=limit)
-        logger.info("search_context query_len=%d results=%d latency_ms=%.1f", len(query), len(result["results"]), result["latency_ms"])
+        project = project or None  # "" (nao informado) vira None = sem escopo, nao "projeto vazio"
+        result = retrieval.search(self.world, self.memory, query, limit=limit, project=project)
+        logger.info("search_context query_len=%d project=%s results=%d latency_ms=%.1f", len(query), project, len(result["results"]), result["latency_ms"])
         return result
 
     # ------------------------------------------------------------------
@@ -125,26 +126,114 @@ class AirAdapter:
         from core.types import new_id
         predicate = str(metadata.get("predicate") or f"note_{new_id('n')[3:]}")
         reason = metadata.get("reason")
+        # project: "" (default) = fato global, visivel em busca de
+        # qualquer projeto. Passar um nome de projeto escopa o fato pra'
+        # so' aparecer em busca feita com o mesmo project= (mais buscas
+        # sem escopo nenhum, que continuam vendo tudo) -- e' o mecanismo
+        # de isolamento entre "mundos" (ver retrieval.py / README).
+        project = str(metadata.get("project") or "")
 
-        fact = self.memory.remember(subject, predicate, content, reason=reason)
-        logger.info("store_memory subject=%s predicate=%s content_len=%d superseded=%s", subject, predicate, len(content), bool(fact.supersedes))
+        fact = self.memory.remember(subject, predicate, content, reason=reason, project=project)
+        logger.info("store_memory subject=%s predicate=%s project=%s content_len=%d superseded=%s", subject, predicate, project, len(content), bool(fact.supersedes))
         return {
             "id": fact.id,
             "subject": fact.subject,
             "predicate": fact.predicate,
+            "project": fact.project,
             "superseded_id": fact.supersedes,
             "created_at": fact.created_at,
         }
 
     # ------------------------------------------------------------------
+    # air_register_entity -- liga um artefato ja' construido (API,
+    # frontend, modulo) ao World State, pra' uma tarefa futura achar via
+    # air_search_context/air_get_context em vez de ser refeita do zero.
+    # Grava em World State (nao Memory): isso e' "coisa que existe", nao
+    # "fato/preferencia" -- mesma distincao de dominio que o resto do AIR
+    # ja' aplica entre world/ e memory/.
+    # ------------------------------------------------------------------
+    def register_entity(self, kind: str, name: str, attrs: dict | None = None, project: str = "") -> dict:
+        with self._lock:
+            return self._register_entity(kind, name, attrs, project)
+
+    def _register_entity(self, kind: str, name: str, attrs: dict | None = None, project: str = "") -> dict:
+        kind = (kind or "").strip()
+        name = (name or "").strip()
+        if not kind:
+            return {"error": "kind vazio"}
+        if not name:
+            return {"error": "name vazio"}
+
+        attrs = dict(attrs or {})
+        import json as _json
+        serialized = _json.dumps(attrs, ensure_ascii=False)
+        if len(serialized) > self.config.max_content_chars:
+            return {"error": f"attrs excede o limite de {self.config.max_content_chars} caracteres serializados"}
+
+        # custo real (tokenizador, nao heuristica quando disponivel -- ver
+        # mcp_server/tokens.py) de trazer esta entidade pro contexto se
+        # alguem reusar em vez de refazer -- e' o numero honesto que
+        # justifica "readaptar em vez de reescrever": nao afirma quantos
+        # tokens FORAM economizados construindo (isso nao e' medivel daqui
+        # pra' tras), so' quanto custa TRAZER de volta, que e' medivel de
+        # verdade.
+        entity_text = f"entidade {kind} {name} {serialized}"
+        cost = tokens.count_tokens(entity_text)
+        attrs["_context_cost_tokens"] = cost["tokens"]
+        attrs["_context_cost_method"] = cost["method"]
+
+        # idempotente por nome: se ja' existe uma entidade com esse nome,
+        # nao duplica -- devolve a existente. Nao ha' 'update' de entidade
+        # no World State ainda (so' insert), entao registrar de novo com
+        # attrs diferentes NAO atualiza o registro atual -- limitacao
+        # conhecida, documentada no README, nao escondida aqui.
+        existing = self.world.find_entity_by_name(name)
+        if existing is not None:
+            logger.info("register_entity name=%s ja existe (id=%s), nao duplicado", name, existing.id)
+            return {
+                "id": existing.id, "kind": existing.kind, "name": existing.name,
+                "project": existing.project, "already_existed": True,
+                "context_cost_tokens": existing.attrs.get("_context_cost_tokens"),
+                "context_cost_method": existing.attrs.get("_context_cost_method"),
+            }
+
+        entity = self.world.entity(name, kind=kind, attrs=attrs, project=project)
+        logger.info("register_entity id=%s kind=%s name=%s project=%s tokens=%s", entity.id, kind, name, project, cost["tokens"])
+        return {
+            "id": entity.id, "kind": entity.kind, "name": entity.name,
+            "project": entity.project, "already_existed": False,
+            "context_cost_tokens": cost["tokens"], "context_cost_method": cost["method"],
+        }
+
+    # ------------------------------------------------------------------
+    # air_delete_entity -- remove entidade por id (hard delete, ver
+    # world/state.py; Entity nao tem status pra' soft-delete como Fact).
+    # Existe principalmente pra' corrigir duplicata/engano de registro --
+    # air_register_entity so' deduplica por NAME exato, nomes quase-iguais
+    # (achado real: "air" vs "air-runtime" pro mesmo projeto, registrados
+    # em sessoes MCP diferentes) passam direto e viram entidade duplicada.
+    # ------------------------------------------------------------------
+    def delete_entity(self, id: str) -> dict:
+        with self._lock:
+            return self._delete_entity(id)
+
+    def _delete_entity(self, id: str) -> dict:
+        existing = self.world.get_entity(id)
+        if existing is None:
+            return {"error": f"entidade '{id}' nao encontrada"}
+        self.world.delete_entity(id)
+        logger.info("delete_entity id=%s name=%s", id, existing.name)
+        return {"id": id, "name": existing.name, "deleted": True}
+
+    # ------------------------------------------------------------------
     # air_get_context -- query -> planner -> retrieval -> structural
     # memory -> context reconstruction -> resultado (fluxo pedido)
     # ------------------------------------------------------------------
-    def get_context(self, query: str, max_tokens: int | None = None) -> dict:
+    def get_context(self, query: str, max_tokens: int | None = None, project: str | None = None) -> dict:
         with self._lock:
-            return self._get_context(query, max_tokens)
+            return self._get_context(query, max_tokens, project)
 
-    def _get_context(self, query: str, max_tokens: int | None = None) -> dict:
+    def _get_context(self, query: str, max_tokens: int | None = None, project: str | None = None) -> dict:
         query = (query or "").strip()
         if not query:
             return {"error": "query vazia"}
@@ -152,6 +241,7 @@ class AirAdapter:
             return {"error": f"query excede o limite de {self.config.max_query_chars} caracteres"}
 
         max_tokens = max_tokens or self.config.max_context_tokens
+        project = project or None  # "" (nao informado) vira None = sem escopo
         t0 = time.perf_counter()
         shared: dict = {}
 
@@ -164,7 +254,7 @@ class AirAdapter:
 
         def action_fn(task):
             if task.id == t_retrieval.id:
-                raw = retrieval.search(self.world, self.memory, query, limit=max(20, self.config.default_search_limit * 4))
+                raw = retrieval.search(self.world, self.memory, query, limit=max(20, self.config.default_search_limit * 4), project=project)
                 shared["hits"] = raw["results"]
                 shared["total_considered"] = raw["total_records_considered"]
                 return ActionResult(id=new_id("act"), tool_name="mcp_retrieval", args={"query": query}, output=raw["results"])
@@ -221,6 +311,7 @@ class AirAdapter:
 
         result = {
             "query": query,
+            "project": project,
             "context": rendered_context,
             "references": shared.get("references", []),
             "reference_count": len(shared.get("references", [])),

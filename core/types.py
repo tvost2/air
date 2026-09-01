@@ -33,6 +33,7 @@ class Entity:
     kind: str          # ex: "server", "api", "file", "task"
     name: str
     attrs: dict = field(default_factory=dict)
+    project: str = ""   # "" = global/cross-projeto (aparece em busca de qualquer projeto); senao, so' aparece pra' quem busca no mesmo projeto
     created_at: float = field(default_factory=now)
 
 
@@ -74,6 +75,7 @@ class Fact:
     obj: str                # ex: "formal", "user:leonardo"
     status: FactStatus = FactStatus.ACTIVE
     reason: str | None = None    # o "porque" -- mesma disciplina do sistema de memoria real usado nesta sessao
+    project: str = ""   # "" = global/cross-projeto; senao, escopo de isolamento (ver memory/store.py)
     created_at: float = field(default_factory=now)
     supersedes: str | None = None   # id do fato anterior, se houver
 

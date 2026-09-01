@@ -25,6 +25,7 @@ import sys
 
 from mcp.server import MCPServer
 
+from mcp_server import tokens
 from mcp_server.adapter import AirAdapter
 from mcp_server.config import config
 
@@ -53,32 +54,85 @@ server = MCPServer(
 
 
 @server.tool()
-def air_search_context(query: str, limit: int = 5) -> dict:
+def air_search_context(query: str, limit: int = 5, project: str = "") -> dict:
     """Busca contexto relevante na memoria estruturada e no estado de
     projeto do AIR (busca por palavra-chave, nao semantica -- ver campo
     'method' no retorno). Use pra' descobrir SE existe informacao
-    relevante antes de pedir reconstrucao completa com air_get_context."""
-    return adapter.search_context(query, limit=limit)
+    relevante antes de pedir reconstrucao completa com air_get_context.
+
+    project: opcional. Sem informar, busca em TODOS os projetos (inclui
+    risco de contaminacao cross-projeto -- ver README, secao Isolamento).
+    Informando (ex: project="fractionengine"), a busca so' considera
+    fatos/entidades desse projeto MAIS os marcados como globais
+    (registrados sem project) -- e' o mecanismo de isolamento entre
+    "mundos"/sessoes diferentes."""
+    return adapter.search_context(query, limit=limit, project=project or None)
 
 
 @server.tool()
 def air_store_memory(content: str, metadata: dict | None = None) -> dict:
     """Armazena uma informacao/fato na memoria estruturada do AIR, com
     recencia automatica: se 'metadata' incluir subject/predicate iguais a
-    um fato ja' existente, a nova versao SUPERSEDE a antiga (a antiga
-    fica no historico, nao e' apagada). Sem subject/predicate explicitos,
-    cria uma nota nova e independente a cada chamada."""
+    um fato ja' existente NO MESMO project, a nova versao SUPERSEDE a
+    antiga (a antiga fica no historico, nao e' apagada). Sem subject/
+    predicate explicitos, cria uma nota nova e independente a cada
+    chamada.
+
+    metadata aceita: subject, predicate, reason, e project (opcional --
+    "" ou omitido = fato global, visivel em busca de qualquer projeto;
+    um nome de projeto escopa o fato pra' so' aparecer em busca feita com
+    o mesmo project=, protegendo contra contaminacao/sobrescrita
+    silenciosa entre projetos diferentes)."""
     return adapter.store_memory(content, metadata=metadata)
 
 
 @server.tool()
-def air_get_context(query: str, max_tokens: int | None = None) -> dict:
+def air_register_entity(kind: str, name: str, attrs: dict | None = None, project: str = "") -> dict:
+    """Registra no World State um artefato JA' CONSTRUIDO (API, frontend,
+    modulo, servico) pra' que uma tarefa futura ache via
+    air_search_context/air_get_context e READAPTE em vez de reescrever do
+    zero -- e' o mecanismo pensado pra' evitar retrabalho entre sessoes/
+    projetos.
+
+    kind: categoria livre (ex: "api", "frontend", "modulo", "servico").
+    name: identificador unico -- registrar de novo com o mesmo name NAO
+    atualiza attrs, so' devolve a entidade existente (already_existed=true
+    no retorno); nao ha' tool de update de entidade ainda.
+    attrs: metadados livres (recomendado: path, description, stack,
+    expose/capabilities) -- o retorno ja' inclui o custo real em tokens
+    (tokenizador real quando disponivel, ver campo _context_cost_method)
+    de trazer esta entidade de volta ao contexto se for reusada.
+    project: "" (default) = entidade global, aparece em busca de
+    QUALQUER projeto -- use isso pra' artefatos genuinamente reutilizaveis
+    entre projetos. Um nome de projeto restringe a entidade a busca feita
+    com esse mesmo project=."""
+    return adapter.register_entity(kind, name, attrs=attrs, project=project)
+
+
+@server.tool()
+def air_delete_entity(id: str) -> dict:
+    """Remove uma entidade do World State por id (hard delete -- Entity
+    nao tem versao/historico como Fact, entao nao ha' o que preservar).
+    Use pra' corrigir registro enganado ou duplicata: air_register_entity
+    so' deduplica por 'name' EXATO, entao nomes quase-iguais pro mesmo
+    artefato (ex: 'air' vs 'air-runtime') viram entidades separadas --
+    esta tool e' o jeito de limpar isso manualmente ate' existir merge
+    automatico (nao existe ainda)."""
+    return adapter.delete_entity(id)
+
+
+@server.tool()
+def air_get_context(query: str, max_tokens: int | None = None, project: str = "") -> dict:
     """Reconstroi o contexto minimo necessario pra' responder a query,
     usando o Planner do AIR (retrieval -> resolucao de recencia/conflito
     -> montagem final respeitando o orcamento de tokens). Retorna o texto
     de contexto pronto pra' uso, as referencias usadas, e accounting real
-    de tokens (metodo do tokenizador informado no retorno)."""
-    return adapter.get_context(query, max_tokens=max_tokens)
+    de tokens (metodo do tokenizador informado no retorno).
+
+    project: mesmo mecanismo de escopo de air_search_context -- "" busca
+    tudo, um nome de projeto restringe a esse projeto + entidades/fatos
+    globais."""
+    return adapter.get_context(query, max_tokens=max_tokens, project=project or None)
 
 
 @server.tool()
@@ -141,16 +195,25 @@ def reconstruct_context(query: str) -> str:
 
 def main():
     logger.info("AIR MCP server iniciando -- storage=%s", config.storage_path)
-    # SEM warmup sincrono aqui de proposito: rodar tokens.count_tokens()
-    # (~20-30s medido nesta maquina, so' carregando do cache local) ANTES
-    # de server.run() bloqueava o handshake inicial MCP -- o cliente
-    # (Claude Code) tem timeout de conexao de 30s, e o processo nao
-    # respondia nada nesse intervalo porque ainda nao tinha comecado a
-    # ouvir stdio. Resultado real observado: "connection timed out after
-    # 30000ms". Sem o warmup, o servidor responde o handshake
-    # imediatamente; o custo do primeiro tokenizador real so' e' pago na
-    # primeira chamada de air_get_context/air_search_context (tool call
-    # tem timeout proprio, tipicamente mais generoso que o de conexao).
+    # SEM warmup SINCRONO aqui de proposito: rodar tokens.count_tokens()
+    # (~208s medido nesta maquina na carga fria, so' carregando do cache
+    # local) ANTES de server.run() bloqueava o handshake inicial MCP -- o
+    # cliente (Claude Code) tem timeout de conexao de 30s, e o processo
+    # nao respondia nada nesse intervalo porque ainda nao tinha comecado
+    # a ouvir stdio. Resultado real observado: "connection timed out
+    # after 30000ms".
+    #
+    # Mas SEM warmup nenhum, quem paga os ~208s e' a primeira chamada
+    # REAL de air_get_context/air_search_context, de forma sincrona e sem
+    # aviso -- ainda pode estourar o timeout de tool call de quem estiver
+    # chamando. warm_tokenizer_async() dispara a carga numa thread
+    # separada agora, ANTES de server.run(): a resposta ao handshake nao
+    # espera essa thread (continua imediata), mas a carga ja' esta'
+    # rodando em paralelo desde o startup em vez de so' comecar quando o
+    # primeiro tool call real chegar -- na pratica cobre grande parte (ou
+    # todo) o tempo entre "servidor conectado" e "agente faz a primeira
+    # chamada de verdade".
+    tokens.warm_tokenizer_async()
     server.run(transport="stdio")
 
 

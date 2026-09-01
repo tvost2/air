@@ -48,26 +48,26 @@ class SearchHit:
     metadata: dict = field(default_factory=dict)
 
 
-def search_facts(memory: MemoryStore, query_words: list[str]) -> list[SearchHit]:
+def search_facts(memory: MemoryStore, query_words: list[str], project: str | None = None) -> list[SearchHit]:
     hits = []
-    for f in memory.all_active():
+    for f in memory.all_active(project=project):
         text = f"{f.subject} {f.predicate} = {f.obj}" + (f" ({f.reason})" if f.reason else "")
         score = _score(query_words, text)
         if score > 0:
             hits.append(SearchHit(
                 kind="fact", id=f.id, text=text, score=score,
-                metadata={"subject": f.subject, "predicate": f.predicate, "obj": f.obj, "reason": f.reason, "created_at": f.created_at},
+                metadata={"subject": f.subject, "predicate": f.predicate, "obj": f.obj, "reason": f.reason, "project": f.project, "created_at": f.created_at},
             ))
     return hits
 
 
-def search_world(world: WorldState, query_words: list[str]) -> list[SearchHit]:
+def search_world(world: WorldState, query_words: list[str], project: str | None = None) -> list[SearchHit]:
     hits = []
-    for e in world.all_entities():
+    for e in world.all_entities(project=project):
         text = f"entidade {e.kind} {e.name} {e.attrs}"
         score = _score(query_words, text)
         if score > 0:
-            hits.append(SearchHit(kind="entity", id=e.id, text=text, score=score, metadata={"name": e.name, "entity_kind": e.kind, "attrs": e.attrs}))
+            hits.append(SearchHit(kind="entity", id=e.id, text=text, score=score, metadata={"name": e.name, "entity_kind": e.kind, "attrs": e.attrs, "project": e.project}))
 
     for ev in world.all_events(limit=500):
         text = f"evento {ev.kind} em {ev.entity_id} {ev.payload}"
@@ -77,25 +77,35 @@ def search_world(world: WorldState, query_words: list[str]) -> list[SearchHit]:
     return hits
 
 
-def search(world: WorldState, memory: MemoryStore, query: str, limit: int = 5) -> dict:
+def search(world: WorldState, memory: MemoryStore, query: str, limit: int = 5, project: str | None = None) -> dict:
     """Busca por palavra-chave em Memory (fatos) + World State (entidades
     e eventos). Retorna os `limit` melhores resultados por score, e o
-    total de registros consultados (pra' accounting honesto -- rule 9)."""
+    total de registros consultados (pra' accounting honesto -- rule 9).
+
+    project=None (default): sem escopo, busca em tudo -- comportamento de
+    antes desta mudanca. project="algo": so' considera fatos/entidades
+    desse projeto MAIS os marcados como globais (project=='') -- isola um
+    mundo do outro sem esconder o que foi marcado de proposito como
+    reutilizavel entre projetos. Eventos NAO sao filtrados por projeto
+    ainda (limitacao conhecida, ver README) -- baixo risco pratico porque
+    eventos sao auxiliares (historico de mudanca de entidade), nao fatos/
+    decisao, mas listados aqui pra' nao esconder o gap."""
     t0 = time.perf_counter()
     query_words = _tokenize(query)
 
-    fact_hits = search_facts(memory, query_words)
-    world_hits = search_world(world, query_words)
+    fact_hits = search_facts(memory, query_words, project=project)
+    world_hits = search_world(world, query_words, project=project)
     all_hits = fact_hits + world_hits
     all_hits.sort(key=lambda h: h.score, reverse=True)
 
-    total_considered = len(memory.all_active()) + len(world.all_entities()) + len(world.all_events(limit=500))
+    total_considered = len(memory.all_active(project=project)) + len(world.all_entities(project=project)) + len(world.all_events(limit=500))
     top = all_hits[:limit]
     elapsed_ms = (time.perf_counter() - t0) * 1000
 
     return {
         "query": query,
         "method": "keyword_substring_overlap",  # honesto: nao e' busca semantica/embeddings
+        "project": project,
         "results": [
             {"kind": h.kind, "id": h.id, "text": h.text, "score": h.score, "metadata": h.metadata}
             for h in top

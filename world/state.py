@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS entities (
     kind TEXT NOT NULL,
     name TEXT NOT NULL,
     attrs TEXT NOT NULL,
+    project TEXT NOT NULL DEFAULT '',
     created_at REAL NOT NULL
 );
 CREATE TABLE IF NOT EXISTS relations (
@@ -64,13 +65,26 @@ class WorldState:
         # legitimamente precisa de outra thread.
         self.conn = sqlite3.connect(str(db_path), check_same_thread=False)
         self.conn.executescript(SCHEMA)
+        self._migrate_add_project_column()
         self.conn.commit()
 
-    def entity(self, name: str, kind: str, attrs: dict | None = None, id: str | None = None) -> Entity:
-        e = Entity(id=id or new_id("ent"), kind=kind, name=name, attrs=attrs or {})
+    def _migrate_add_project_column(self) -> None:
+        # 'project' foi adicionado depois da primeira versao do schema --
+        # CREATE TABLE IF NOT EXISTS nao adiciona coluna em tabela que ja'
+        # existe (ex: o storage compartilhado de producao, criado antes
+        # desta mudanca). ALTER TABLE ADD COLUMN e' idempotente aqui porque
+        # so' roda quando a coluna ainda nao existe -- nao apaga/recria
+        # nada, dados existentes ganham project='' (mesmo default de
+        # entidade/fato novo sem escopo).
+        cols = {row[1] for row in self.conn.execute("PRAGMA table_info(entities)").fetchall()}
+        if "project" not in cols:
+            self.conn.execute("ALTER TABLE entities ADD COLUMN project TEXT NOT NULL DEFAULT ''")
+
+    def entity(self, name: str, kind: str, attrs: dict | None = None, id: str | None = None, project: str = "") -> Entity:
+        e = Entity(id=id or new_id("ent"), kind=kind, name=name, attrs=attrs or {}, project=project)
         self.conn.execute(
-            "INSERT INTO entities (id, kind, name, attrs, created_at) VALUES (?, ?, ?, ?, ?)",
-            (e.id, e.kind, e.name, json.dumps(e.attrs), e.created_at),
+            "INSERT INTO entities (id, kind, name, attrs, project, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+            (e.id, e.kind, e.name, json.dumps(e.attrs), e.project, e.created_at),
         )
         self.conn.commit()
         return e
@@ -97,31 +111,43 @@ class WorldState:
 
     def get_entity(self, id: str) -> Entity | None:
         row = self.conn.execute(
-            "SELECT id, kind, name, attrs, created_at FROM entities WHERE id = ?", (id,)
+            "SELECT id, kind, name, attrs, project, created_at FROM entities WHERE id = ?", (id,)
         ).fetchone()
         if row is None:
             return None
-        return Entity(id=row[0], kind=row[1], name=row[2], attrs=json.loads(row[3]), created_at=row[4])
+        return Entity(id=row[0], kind=row[1], name=row[2], attrs=json.loads(row[3]), project=row[4], created_at=row[5])
 
     def find_entity_by_name(self, name: str) -> Entity | None:
         row = self.conn.execute(
-            "SELECT id, kind, name, attrs, created_at FROM entities WHERE name = ?", (name,)
+            "SELECT id, kind, name, attrs, project, created_at FROM entities WHERE name = ?", (name,)
         ).fetchone()
         if row is None:
             return None
-        return Entity(id=row[0], kind=row[1], name=row[2], attrs=json.loads(row[3]), created_at=row[4])
+        return Entity(id=row[0], kind=row[1], name=row[2], attrs=json.loads(row[3]), project=row[4], created_at=row[5])
 
     def dependents_of(self, entity_id: str, relation_kind: str = "depends_on") -> list[Entity]:
         """Responde 'o que depende de X' -- consulta direta, sem
         reconstruir nada a partir de conversa, exatamente o requisito
         original."""
         rows = self.conn.execute(
-            """SELECT e.id, e.kind, e.name, e.attrs, e.created_at
+            """SELECT e.id, e.kind, e.name, e.attrs, e.project, e.created_at
                FROM relations r JOIN entities e ON e.id = r.source_id
                WHERE r.target_id = ? AND r.kind = ?""",
             (entity_id, relation_kind),
         ).fetchall()
-        return [Entity(id=r[0], kind=r[1], name=r[2], attrs=json.loads(r[3]), created_at=r[4]) for r in rows]
+        return [Entity(id=r[0], kind=r[1], name=r[2], attrs=json.loads(r[3]), project=r[4], created_at=r[5]) for r in rows]
+
+    def delete_entity(self, id: str) -> bool:
+        """Remove uma entidade por id (hard delete -- diferente de
+        MemoryStore.forget, Entity nao tem campo status/soft-delete no
+        schema atual, entao nao ha' o que marcar). Relations/events que
+        apontam pra' este id ficam orfaos (FK nao e' enforced por padrao
+        no sqlite3 sem PRAGMA foreign_keys=ON, que este projeto nao liga
+        de proposito -- ver historico de decisao). Devolve False se o id
+        nao existia (idempotente, nao levanta excecao)."""
+        cur = self.conn.execute("DELETE FROM entities WHERE id = ?", (id,))
+        self.conn.commit()
+        return cur.rowcount > 0
 
     def relations_of(self, entity_id: str) -> list[Relation]:
         rows = self.conn.execute(
@@ -130,12 +156,25 @@ class WorldState:
         ).fetchall()
         return [Relation(id=r[0], source_id=r[1], kind=r[2], target_id=r[3], created_at=r[4]) for r in rows]
 
-    def all_entities(self) -> list[Entity]:
+    def all_entities(self, project: str | None = None) -> list[Entity]:
         """Todas as entidades -- usado pela camada de retrieval
         (mcp_server/retrieval.py) pra' buscar por palavra-chave sem saber
-        o id de antemao."""
-        rows = self.conn.execute("SELECT id, kind, name, attrs, created_at FROM entities").fetchall()
-        return [Entity(id=r[0], kind=r[1], name=r[2], attrs=json.loads(r[3]), created_at=r[4]) for r in rows]
+        o id de antemao.
+
+        project=None (default): sem filtro, devolve tudo -- comportamento
+        de antes desta mudanca, quem chama sem saber de escopo continua
+        funcionando igual. project="algo": devolve so' entidades desse
+        projeto MAIS as globais (project=='') -- e' o que isola um mundo
+        do outro sem esconder o que foi marcado de proposito como
+        reutilizavel entre projetos."""
+        if project is None:
+            rows = self.conn.execute("SELECT id, kind, name, attrs, project, created_at FROM entities").fetchall()
+        else:
+            rows = self.conn.execute(
+                "SELECT id, kind, name, attrs, project, created_at FROM entities WHERE project = ? OR project = ''",
+                (project,),
+            ).fetchall()
+        return [Entity(id=r[0], kind=r[1], name=r[2], attrs=json.loads(r[3]), project=r[4], created_at=r[5]) for r in rows]
 
     def all_events(self, limit: int = 200) -> list[Event]:
         """Todos os eventos recentes, sem filtro de entidade -- mesma
