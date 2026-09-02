@@ -384,9 +384,25 @@ class AirAdapter:
                 return ActionResult(id=new_id("act"), tool_name="mcp_structural_memory", args={}, output=deduped)
 
             # t_reconstruct
+            #
+            # Bug real corrigido, nao hipotetico: a versao anterior deste
+            # laco checava orcamento contando SO' os tokens do texto bruto
+            # de cada fato (`item_tokens`), mas o que de fato entra no
+            # prompt e' `self.context.render(handles)`, que adiciona um
+            # cabecalho `[kind:id] label\n` por item (ver
+            # context/engine.py:render) -- overhead NUNCA contado na
+            # checagem de orcamento. Resultado medido rodando o benchmark
+            # comparativo (benchmarks/context_comparison): com
+            # max_tokens=500, o contexto renderizado de verdade chegava a
+            # ~939 tokens -- quase o DOBRO do orcamento pedido, silencioso
+            # (nenhum erro, nenhum aviso, so' um numero maior que o
+            # prometido). Corrigido medindo o tamanho REAL apos cada
+            # adicao especulativa (self.context.render(trial_handles)),
+            # nao uma estimativa que ignora o formato de renderizacao --
+            # se nao coube, remove o item especulativo (context.delete(),
+            # ver context/engine.py) em vez de deixa-lo orfao.
             handles = []
             references = []
-            budget_used = 0
             structural = self.config.enable_structural_memory
             for h in shared.get("hits", []):
                 if h["kind"] == "fact":
@@ -396,13 +412,14 @@ class AirAdapter:
                 else:
                     text = h["text"]
 
-                item_tokens = tokens.count_tokens(text)["tokens"]
-                if budget_used + item_tokens > max_tokens and handles:
-                    break  # respeita o orcamento -- para de incluir, nao trunca texto no meio
                 handle_id = self.context.put(text, kind=h["kind"], label=f"{h['kind']}:{h['id']}", pinned=True)
-                handles.append(handle_id)
+                trial_handles = handles + [handle_id]
+                trial_tokens = tokens.count_tokens(self.context.render(trial_handles))["tokens"]
+                if trial_tokens > max_tokens and handles:
+                    self.context.delete(handle_id)  # nao coube -- nao deixa item orfao no ContextEngine
+                    break  # respeita o orcamento -- para de incluir, nao trunca texto no meio
+                handles = trial_handles
                 references.append({"kind": h["kind"], "id": h["id"], "score": h["score"]})
-                budget_used += item_tokens
 
             rendered = self.context.render(handles)
             output = {"context": rendered, "reference_count": len(handles)}

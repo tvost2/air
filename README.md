@@ -335,7 +335,18 @@ Hugging Face Hub e cacheado — sem chave, sem provider de LLM).
   realisticamente outra entidade, não uma edição da mesma).
 - `max_tokens` em `air_get_context` não impede que um único fato maior
   que o orçamento entre sozinho no contexto (a alternativa seria devolver
-  contexto vazio mesmo tendo achado algo, o que é pior).
+  contexto vazio mesmo tendo achado algo, o que é pior) — essa parte
+  continua deliberada. ~~Mas a checagem de orçamento pra os itens
+  seguintes contava só o texto bruto do fato, não o que
+  `context.render()` de fato produz~~ — bug real corrigido, achado
+  rodando `benchmarks/context_comparison` com dados de verdade (não
+  hipotético): o cabeçalho `[kind:id] label` que cada item ganha ao
+  renderizar nunca entrava na conta, e com muitos fatos batendo a busca
+  o overhead se acumulava até o contexto final passar bem além do
+  orçamento pedido — medido: ~939 tokens entregues pra um pedido de 500.
+  Corrigido medindo o tamanho *real* renderizado antes de decidir se um
+  item cabe (`ContextEngine.delete()`, novo, remove o item especulativo
+  se não coube) — ver `tests/test_mcp_server.py::test_get_context_budget_accounts_for_render_overhead_with_many_matches`.
 - **Cold-start do tokenizer pode ser MUITO mais lento que o esperado.**
   `mcp_server/tokens.py` carrega `AutoTokenizer.from_pretrained(...,
   local_files_only=True)` já com essa flag pra nunca bater na rede — mas

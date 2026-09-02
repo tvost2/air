@@ -113,6 +113,24 @@ def test_context_engine_reference_by_id():
     check("context: render do item grande e' bem menor que o conteudo original", len(rendered) < len(big))
 
 
+def test_context_engine_delete():
+    """delete() e' novo -- adicionado pra' mcp_server/adapter.py:_get_context
+    poder criar um item ESPECULATIVAMENTE (pra' medir o custo real de
+    renderizar, cabecalho incluido, antes de decidir se cabe no
+    orcamento) e remove-lo sem deixar orfao se nao coube."""
+    ctx = ContextEngine()
+    handle = ctx.put("conteudo qualquer", kind="tool_output", label="teste")
+    check("context.delete: remove item existente, devolve True", ctx.delete(handle) is True)
+    check("context.delete: item removido nao aparece mais no render", handle not in ctx.render([handle]))
+    raised = False
+    try:
+        ctx.get(handle)
+    except KeyError:
+        raised = True
+    check("context.delete: get() no handle removido levanta KeyError de verdade", raised)
+    check("context.delete: chamar de novo (handle ja' removido) devolve False, nao levanta excecao", ctx.delete(handle) is False)
+
+
 def test_permissions_deny_by_default():
     p = PermissionManager()
     check("permissions: nega por padrao (sem grant)", p.check("agent:x", Capability.FILESYSTEM, "/etc/passwd") is False)
@@ -291,6 +309,7 @@ def main():
     test_world_state_relation_and_event_project_scoping()
     test_memory_recency()
     test_context_engine_reference_by_id()
+    test_context_engine_delete()
     test_permissions_deny_by_default()
     test_tool_registry_large_output_becomes_handle()
     test_tool_registry_permission_denied_returns_action_result()

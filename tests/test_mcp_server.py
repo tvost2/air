@@ -324,6 +324,29 @@ def test_get_context_respects_token_budget():
     check("get_context: nunca excede o orcamento pedido (exceto o 1o item obrigatorio)", r_small["tokens"]["tokens"] <= 30 or r_small["reference_count"] <= 1)
 
 
+def test_get_context_budget_accounts_for_render_overhead_with_many_matches():
+    """Bug real encontrado rodando benchmarks/context_comparison com
+    dados reais (nao hipotetico): a checagem de orcamento antiga contava
+    so' os tokens do texto BRUTO de cada fato, nao o que
+    context.render() de fato produz (que adiciona um cabecalho
+    `[kind:id] label` por item -- ver context/engine.py). Com muitos
+    fatos batendo a busca (caso realista: query generica, 20 candidatos
+    com score>0), o overhead se acumulava e o contexto final passava do
+    orcamento pedido MUITO alem do "so' o 1o item obrigatorio" que a
+    excecao documentada permite -- medido no benchmark: ~939 tokens
+    entregues pra' um pedido de 500. Este teste usa orcamento grande o
+    bastante pra' MULTIPLOS itens entrarem (nao so' o 1o), justamente o
+    caso que a asserção antiga (fraca, com fallback "ou reference_count
+    <= 1") nunca exercitava."""
+    a = make_adapter("get_context_budget_overhead")
+    for i in range(20):
+        a.store_memory(f"fato numero {i} sobre o projeto air com bastante texto de enchimento", metadata={"subject": f"item{i}", "predicate": "descricao"})
+    max_tokens = 300
+    result = a.get_context("fato sobre o projeto air", max_tokens=max_tokens)
+    check("get_context: com orcamento medio, MULTIPLOS itens sao incluidos (exercita o caso que tinha o bug)", result["reference_count"] > 1)
+    check("get_context: tamanho real do contexto renderizado respeita o orcamento de verdade", result["tokens"]["tokens"] <= max_tokens)
+
+
 def test_get_context_prose_vs_structural_toggle():
     a = make_adapter("get_context_toggle")
     a.store_memory("valor de teste", metadata={"subject": "x", "predicate": "y"})
@@ -586,6 +609,7 @@ def main():
     test_get_context_basic()
     test_get_context_empty_is_not_a_failure()
     test_get_context_respects_token_budget()
+    test_get_context_budget_accounts_for_render_overhead_with_many_matches()
     test_get_context_prose_vs_structural_toggle()
     test_get_context_validation_errors()
     test_update_memory_creates_new_version()

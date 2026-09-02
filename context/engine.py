@@ -65,6 +65,17 @@ class ContextEngine:
     def item(self, handle_id: str) -> ContextItem | None:
         return self._items.get(handle_id)
 
+    def delete(self, handle_id: str) -> bool:
+        """Remove um item -- pra' quem cria um handle ESPECULATIVAMENTE
+        (ex: mcp_server/adapter.py:_get_context precisa saber o custo real
+        de RENDERIZAR um item, incluindo o cabecalho `[kind:id] label`,
+        antes de decidir se cabe no orcamento de tokens -- so' da' pra'
+        medir isso depois de put(), que ja' exige um id) e o item acaba
+        nao entrando no resultado final. Idempotente: True se removeu,
+        False se o handle nao existia (nao levanta excecao, mesmo padrao
+        de world.delete_entity/memory.forget)."""
+        return self._items.pop(handle_id, None) is not None
+
     def _summarize(self, item: ContextItem) -> str:
         if item.size_chars <= DEFAULT_SUMMARY_CHARS:
             return item.content
