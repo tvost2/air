@@ -113,6 +113,36 @@ def test_context_engine_reference_by_id():
     check("context: render do item grande e' bem menor que o conteudo original", len(rendered) < len(big))
 
 
+def test_context_engine_include_headers_false():
+    """include_headers=False -- achado real, nao hipotetico, rodando
+    benchmarks/context_comparison com o modelo local pequeno
+    (SmolLM2-360M-Instruct): o cabecalho `[kind:id] label` (que
+    mcp_server/adapter.py:_get_context montava com um label que so'
+    duplicava kind+id de novo -- dois ids sem sentido nenhum pro modelo)
+    fazia o modelo ECOAR o padrao de colchete em vez de responder a
+    pergunta -- inspecionado no output bruto do benchmark, respostas tipo
+    "[fact:ctx_1bef5e6163af] fact:fact" em vez do nome esperado. Medido
+    antes/depois no mesmo conjunto de casos: 5/6 corretas com
+    include_headers=False vs quase todas erradas antes."""
+    ctx = ContextEngine()
+    handle = ctx.put("FACT(service:x,maintainer,Diego Prado)", kind="fact", label="fact:fact_abc123", pinned=True)
+
+    with_headers = ctx.render([handle])
+    check("context: include_headers=True (default) preserva o cabecalho [kind:id] label", with_headers.startswith("[fact:"))
+
+    without_headers = ctx.render([handle], include_headers=False)
+    check("context: include_headers=False remove o cabecalho, so' o conteudo", without_headers == "FACT(service:x,maintainer,Diego Prado)")
+    check("context: include_headers=False produz texto menor (menos ruido, menos token)", len(without_headers) < len(with_headers))
+
+    # item resumido (nao pinned, grande) continua mostrando o cabecalho
+    # MESMO com include_headers=False -- ali o cabecalho e' funcional
+    # (diz "tem mais, use get(id)"), nao decorativo, entao nao deve sumir.
+    big = "y" * (INLINE_THRESHOLD_CHARS + 500)
+    big_handle = ctx.put(big, kind="tool_output", label="grande", pinned=False)
+    summarized = ctx.render([big_handle], include_headers=False)
+    check("context: item resumido mantem cabecalho mesmo com include_headers=False (e' funcional ali, nao decorativo)", summarized.startswith("[tool_output:"))
+
+
 def test_context_engine_delete():
     """delete() e' novo -- adicionado pra' mcp_server/adapter.py:_get_context
     poder criar um item ESPECULATIVAMENTE (pra' medir o custo real de
@@ -310,6 +340,7 @@ def main():
     test_memory_recency()
     test_context_engine_reference_by_id()
     test_context_engine_delete()
+    test_context_engine_include_headers_false()
     test_permissions_deny_by_default()
     test_tool_registry_large_output_becomes_handle()
     test_tool_registry_permission_denied_returns_action_result()

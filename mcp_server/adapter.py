@@ -412,16 +412,25 @@ class AirAdapter:
                 else:
                     text = h["text"]
 
+                # include_headers=False: achado real rodando o benchmark
+                # comparativo com o modelo local (ver docstring de
+                # context/engine.py:render) -- o cabecalho `[kind:id]
+                # label` duplicava dois ids sem sentido nenhum pro
+                # modelo responder a pergunta, e media respostas
+                # degeneradas (o modelo ecoando o padrao de colchete em
+                # vez de responder). `references` (abaixo) ja' carrega
+                # kind/id/score estruturado pra' quem precisa de
+                # proveniencia -- o texto nao precisa duplicar isso.
                 handle_id = self.context.put(text, kind=h["kind"], label=f"{h['kind']}:{h['id']}", pinned=True)
                 trial_handles = handles + [handle_id]
-                trial_tokens = tokens.count_tokens(self.context.render(trial_handles))["tokens"]
+                trial_tokens = tokens.count_tokens(self.context.render(trial_handles, include_headers=False))["tokens"]
                 if trial_tokens > max_tokens and handles:
                     self.context.delete(handle_id)  # nao coube -- nao deixa item orfao no ContextEngine
                     break  # respeita o orcamento -- para de incluir, nao trunca texto no meio
                 handles = trial_handles
                 references.append({"kind": h["kind"], "id": h["id"], "score": h["score"]})
 
-            rendered = self.context.render(handles)
+            rendered = self.context.render(handles, include_headers=False)
             output = {"context": rendered, "reference_count": len(handles)}
             shared["rendered"] = rendered
             shared["references"] = references

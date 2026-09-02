@@ -88,10 +88,35 @@ class ContextEngine:
         item = self._items.get(handle_id)
         return self._summarize(item) if item else ""
 
-    def render(self, handle_ids: list[str] | None = None) -> str:
+    def render(self, handle_ids: list[str] | None = None, include_headers: bool = True) -> str:
         """Monta o texto que vai de fato pro prompt: itens pequenos ou
         pinned inteiros, itens grandes so' como referencia+resumo. Isto
-        e' o que substitui reenviar tudo toda vez."""
+        e' o que substitui reenviar tudo toda vez.
+
+        include_headers=True (default, preserva o comportamento de
+        sempre): item pinned/pequeno ganha um cabecalho `[kind:id]
+        label` antes do conteudo -- faz sentido quando quem le' e' capaz
+        de tratar isso como metadado e ignorar (a maioria dos modelos
+        grandes) e quando saber o id/label tem valor de verdade (ex:
+        sdk/agent.py:ask() com handles nomeados por quem chamou).
+
+        include_headers=False: pinned/pequeno vira SO' o conteudo, sem
+        cabecalho nenhum. Existe pra' mcp_server/adapter.py:_get_context
+        -- achado real, nao hipotetico, rodando
+        benchmarks/context_comparison com o modelo local pequeno
+        (SmolLM2-360M-Instruct): o cabecalho (que nesse caso duplicava
+        DOIS ids sem sentido nenhum pro modelo -- o id interno do
+        ContextEngine E o id do fato, nenhum dos dois e' informacao que
+        ajuda a responder) fazia o modelo simplesmente ECOAR o padrao de
+        colchete em vez de responder -- inspecionado no output bruto:
+        respostas tipo `'[fact:ctx_1bef5e6163af] fact:fact'` em vez do
+        nome esperado. get_context() ja' devolve `references` separado
+        (kind/id/score estruturado) pra' quem precisa de proveniencia,
+        entao o cabecalho no TEXTO nao carrega informacao que nao exista
+        em outro lugar -- so' custa token e, pra' um modelo fraco,
+        atrapalha de verdade. Item resumido (branch de baixo) SEMPRE
+        mostra o cabecalho, com ou sem essa flag -- ali ele e' o que diz
+        "tem mais, use get(id)", nao decorativo."""
         ids = handle_ids if handle_ids is not None else list(self._items.keys())
         lines = []
         for hid in ids:
@@ -99,7 +124,10 @@ class ContextEngine:
             if item is None:
                 continue
             if item.pinned or item.size_chars <= INLINE_THRESHOLD_CHARS:
-                lines.append(f"[{item.kind}:{item.id}] {item.label}\n{item.content}")
+                if include_headers:
+                    lines.append(f"[{item.kind}:{item.id}] {item.label}\n{item.content}")
+                else:
+                    lines.append(item.content)
             else:
                 lines.append(f"[{item.kind}:{item.id}] {item.label} -- {self._summarize(item)}")
         return "\n\n".join(lines)

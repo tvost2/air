@@ -307,6 +307,26 @@ def test_get_context_basic():
     check("get_context: usa notacao estrutural por padrao (AIR_ENABLE_STRUCTURAL_MEMORY=true)", "FACT(" in r["context"])
 
 
+def test_get_context_rendered_text_has_no_id_header_noise():
+    """Bug real corrigido, encontrado rodando benchmarks/context_comparison
+    com o modelo local pequeno (nao hipotetico): o texto de `context`
+    costumava vir com um cabecalho `[fact:ctx_xxxxxxxxxxxx] fact:fact_yyy`
+    antes de CADA fato -- dois ids sem nenhum valor pra' quem le' o
+    contexto (nem o `references` do proprio retorno, que ja' tem
+    kind/id/score estruturado, precisa disso duplicado no texto). Medido:
+    um modelo pequeno confundido pelo padrao de colchete respondia
+    ecoando o cabecalho em vez da pergunta. `_get_context` agora usa
+    context.render(handles, include_headers=False) -- este teste garante
+    que a regressao nao volta."""
+    a = make_adapter("get_context_no_header_noise")
+    a.store_memory("Leonardo prefere tom formal", metadata={"subject": "leonardo", "predicate": "tom"})
+    r = a.get_context("qual o tom preferido do leonardo?")
+    check("get_context: texto renderizado NAO contem cabecalho [kind:id]", "[fact:" not in r["context"])
+    check("get_context: texto renderizado comeca direto no conteudo (FACT(...))", r["context"].strip().startswith("FACT("))
+    # references (estruturado, separado do texto) continua tendo kind/id/score -- a informacao nao sumiu, so' nao duplica no texto
+    check("get_context: references estruturado continua com kind/id/score", all({"kind", "id", "score"}.issubset(ref.keys()) for ref in r["references"]))
+
+
 def test_get_context_empty_is_not_a_failure():
     a = make_adapter("get_context_empty")
     r = a.get_context("nada armazenado sobre isso")
@@ -607,6 +627,7 @@ def main():
     test_project_scoping_applies_to_events()
     test_project_scoping_applies_to_get_context()
     test_get_context_basic()
+    test_get_context_rendered_text_has_no_id_header_noise()
     test_get_context_empty_is_not_a_failure()
     test_get_context_respects_token_budget()
     test_get_context_budget_accounts_for_render_overhead_with_many_matches()

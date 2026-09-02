@@ -347,6 +347,26 @@ Hugging Face Hub e cacheado — sem chave, sem provider de LLM).
   Corrigido medindo o tamanho *real* renderizado antes de decidir se um
   item cabe (`ContextEngine.delete()`, novo, remove o item especulativo
   se não coube) — ver `tests/test_mcp_server.py::test_get_context_budget_accounts_for_render_overhead_with_many_matches`.
+- **Achado mais significativo de todos, rodando o mesmo benchmark**: o
+  texto que `air_get_context` monta pra cada fato vinha precedido de um
+  cabeçalho `[kind:id] label` (`context/engine.py:render`) — e o `label`
+  que `_get_context` passava era literalmente `f"{kind}:{id}"`, ou seja,
+  o cabeçalho duplicava DOIS ids sem nenhum valor informativo (nem pra
+  quem lê o texto, já que `references` no retorno já carrega
+  kind/id/score estruturado). Pro modelo pequeno usado no benchmark
+  (SmolLM2-360M-Instruct, único local viável nesta máquina), esse padrão
+  de colchetes+ids bagunçava a geração de verdade — medido inspecionando
+  as respostas brutas: em vez de responder, o modelo ECOAVA o cabeçalho
+  (`"[fact:ctx_1bef5e6163af] fact:fact"`), classificado como resposta
+  errada porque genuinamente era. Corrigido com um modo novo de
+  `ContextEngine.render(handle_ids, include_headers=False)` (item
+  resumido/truncado continua com cabeçalho — ali ele é funcional, diz
+  "tem mais, use get(id)" — só o item *pinned*/totalmente incluído perde
+  o cabeçalho, que ali nunca teve função nenhuma). Efeito medido, não só
+  teorizado: nas mesmas 6 perguntas mais simples do dataset (categoria
+  `factual_simple`), a correção sozinha levou de quase todas erradas pra
+  5/6 corretas com o modelo real rodando de verdade — maior salto de
+  qualidade medido nesta sessão de trabalho no AIR.
 - **Cold-start do tokenizer pode ser MUITO mais lento que o esperado.**
   `mcp_server/tokens.py` carrega `AutoTokenizer.from_pretrained(...,
   local_files_only=True)` já com essa flag pra nunca bater na rede — mas
