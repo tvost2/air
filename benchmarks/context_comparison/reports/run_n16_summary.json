@@ -1,0 +1,237 @@
+{
+  "baseline": {
+    "approach": "full_context",
+    "n": 96,
+    "accuracy_mean": 0.5729166666666666,
+    "accuracy_stdev": 0.4972512161169891,
+    "original_input_tokens_mean": 318.6666666666667,
+    "final_input_tokens_mean": 318.6666666666667,
+    "reduction_percent_mean": 0.0,
+    "total_latency_ms_mean": 7373.969752083212,
+    "total_latency_ms_stdev": 2892.741991300967
+  },
+  "approaches": {
+    "full_context": {
+      "n": 96,
+      "accuracy_mean": 0.5729166666666666,
+      "accuracy_stdev": 0.4972512161169891,
+      "original_input_tokens_mean": 318.6666666666667,
+      "final_input_tokens_mean": 318.6666666666667,
+      "reduction_percent_mean": 0.0,
+      "total_latency_ms_mean": 7373.969752083212,
+      "total_latency_ms_stdev": 2892.741991300967,
+      "quality_retention": 1.0,
+      "token_reduction": 0.0,
+      "latency_overhead_ms": 0.0,
+      "tokens_saved": 0.0,
+      "tokens_saved_per_ms_overhead": null
+    },
+    "truncation_200": {
+      "n": 96,
+      "accuracy_mean": 0.4166666666666667,
+      "accuracy_stdev": 0.49559462778335206,
+      "original_input_tokens_mean": 318.6666666666667,
+      "final_input_tokens_mean": 147.53125,
+      "reduction_percent_mean": 0.309205052837793,
+      "total_latency_ms_mean": 5646.663431250697,
+      "total_latency_ms_stdev": 160.5082161670603,
+      "quality_retention": 0.7272727272727274,
+      "token_reduction": 0.5370358263598327,
+      "latency_overhead_ms": -1727.3063208325157,
+      "tokens_saved": 171.13541666666669,
+      "tokens_saved_per_ms_overhead": null
+    },
+    "truncation_500": {
+      "n": 96,
+      "accuracy_mean": 0.5729166666666666,
+      "accuracy_stdev": 0.4972512161169891,
+      "original_input_tokens_mean": 318.6666666666667,
+      "final_input_tokens_mean": 196.38541666666666,
+      "reduction_percent_mean": 0.13028457822714584,
+      "total_latency_ms_mean": 6111.8296822922575,
+      "total_latency_ms_stdev": 463.39342268281604,
+      "quality_retention": 1.0,
+      "token_reduction": 0.3837277719665273,
+      "latency_overhead_ms": -1262.1400697909548,
+      "tokens_saved": 122.28125000000003,
+      "tokens_saved_per_ms_overhead": null
+    },
+    "truncation_1000": {
+      "n": 96,
+      "accuracy_mean": 0.5625,
+      "accuracy_stdev": 0.49868247465327653,
+      "original_input_tokens_mean": 318.6666666666667,
+      "final_input_tokens_mean": 222.95833333333334,
+      "reduction_percent_mean": 0.09905460723381489,
+      "total_latency_ms_mean": 6335.469663542426,
+      "total_latency_ms_stdev": 818.9484063620354,
+      "quality_retention": 0.9818181818181819,
+      "token_reduction": 0.30033995815899583,
+      "latency_overhead_ms": -1038.5000885407862,
+      "tokens_saved": 95.70833333333334,
+      "tokens_saved_per_ms_overhead": null
+    },
+    "keyword_retrieval": {
+      "n": 96,
+      "accuracy_mean": 0.5729166666666666,
+      "accuracy_stdev": 0.4972512161169891,
+      "original_input_tokens_mean": 318.6666666666667,
+      "final_input_tokens_mean": 145.66666666666666,
+      "reduction_percent_mean": 0.3206026055145504,
+      "total_latency_ms_mean": 5634.867969790169,
+      "total_latency_ms_stdev": 165.20721868805086,
+      "quality_retention": 1.0,
+      "token_reduction": 0.5428870292887029,
+      "latency_overhead_ms": -1739.1017822930435,
+      "tokens_saved": 173.00000000000003,
+      "tokens_saved_per_ms_overhead": null
+    },
+    "air": {
+      "n": 96,
+      "accuracy_mean": 0.46875,
+      "accuracy_stdev": 0.501642040544954,
+      "original_input_tokens_mean": 318.6666666666667,
+      "final_input_tokens_mean": 292.6041666666667,
+      "reduction_percent_mean": -0.15269889977885087,
+      "total_latency_ms_mean": 6984.629996874998,
+      "total_latency_ms_stdev": 1265.0132425115273,
+      "quality_retention": 0.8181818181818182,
+      "token_reduction": 0.08178608786610875,
+      "latency_overhead_ms": -389.3397552082142,
+      "tokens_saved": 26.0625,
+      "tokens_saved_per_ms_overhead": null
+    },
+    "air_structural_memory": {
+      "n": 96,
+      "accuracy_mean": 0.6041666666666666,
+      "accuracy_stdev": 0.4915960401250875,
+      "original_input_tokens_mean": 318.6666666666667,
+      "final_input_tokens_mean": 291.53125,
+      "reduction_percent_mean": -0.15971060889018174,
+      "total_latency_ms_mean": 7049.723533332592,
+      "total_latency_ms_stdev": 1196.3118920590266,
+      "quality_retention": 1.0545454545454545,
+      "token_reduction": 0.08515298117154813,
+      "latency_overhead_ms": -324.24621875062076,
+      "tokens_saved": 27.135416666666686,
+      "tokens_saved_per_ms_overhead": null
+    },
+    "semantic_rag": {
+      "n": 96,
+      "accuracy_mean": 0.7291666666666666,
+      "accuracy_stdev": 0.4467229605793415,
+      "original_input_tokens_mean": 318.6666666666667,
+      "final_input_tokens_mean": 146.6875,
+      "reduction_percent_mean": 0.3112842529374455,
+      "total_latency_ms_mean": 6353.268996874704,
+      "total_latency_ms_stdev": 3128.2993370502927,
+      "quality_retention": 1.2727272727272727,
+      "token_reduction": 0.5396835774058577,
+      "latency_overhead_ms": -1020.7007552085088,
+      "tokens_saved": 171.97916666666669,
+      "tokens_saved_per_ms_overhead": null
+    },
+    "llmlingua": {
+      "n": 96,
+      "accuracy_mean": 0.3541666666666667,
+      "accuracy_stdev": 0.480770580295002,
+      "original_input_tokens_mean": 318.6666666666667,
+      "final_input_tokens_mean": 325.3541666666667,
+      "reduction_percent_mean": -0.035305601016205355,
+      "total_latency_ms_mean": 8170.948366668502,
+      "total_latency_ms_stdev": 2134.6894133546566,
+      "quality_retention": 0.6181818181818183,
+      "token_reduction": -0.02098587866108792,
+      "latency_overhead_ms": 796.9786145852895,
+      "tokens_saved": -6.6875,
+      "tokens_saved_per_ms_overhead": -0.008391065804795607
+    },
+    "longllmlingua": {
+      "n": 96,
+      "accuracy_mean": 0.34375,
+      "accuracy_stdev": 0.4774521193960599,
+      "original_input_tokens_mean": 318.6666666666667,
+      "final_input_tokens_mean": 325.53125,
+      "reduction_percent_mean": -0.04221768635403201,
+      "total_latency_ms_mean": 10434.840420832794,
+      "total_latency_ms_stdev": 4345.153906687216,
+      "quality_retention": 0.6000000000000001,
+      "token_reduction": -0.021541579497907914,
+      "latency_overhead_ms": 3060.8706687495815,
+      "tokens_saved": -6.864583333333314,
+      "tokens_saved_per_ms_overhead": -0.0022426897690968482
+    },
+    "llmlingua2": {
+      "n": 12,
+      "accuracy_mean": 0.4166666666666667,
+      "accuracy_stdev": 0.5149286505444373,
+      "original_input_tokens_mean": 307.5,
+      "final_input_tokens_mean": 180.83333333333334,
+      "reduction_percent_mean": 0.34519003325719616,
+      "total_latency_ms_mean": 17951.03460000246,
+      "total_latency_ms_stdev": 18788.646048299852,
+      "quality_retention": 0.7272727272727274,
+      "token_reduction": 0.43253138075313813,
+      "latency_overhead_ms": 10577.064847919246,
+      "tokens_saved": 137.83333333333334,
+      "tokens_saved_per_ms_overhead": 0.013031340481990934
+    }
+  },
+  "availability": {
+    "full_context": {
+      "run": true,
+      "reason": "",
+      "n": 96
+    },
+    "truncation_200": {
+      "run": true,
+      "reason": "",
+      "n": 96
+    },
+    "truncation_500": {
+      "run": true,
+      "reason": "",
+      "n": 96
+    },
+    "truncation_1000": {
+      "run": true,
+      "reason": "",
+      "n": 96
+    },
+    "keyword_retrieval": {
+      "run": true,
+      "reason": "",
+      "n": 96
+    },
+    "air": {
+      "run": true,
+      "reason": "",
+      "n": 96
+    },
+    "air_structural_memory": {
+      "run": true,
+      "reason": "",
+      "n": 96
+    },
+    "semantic_rag": {
+      "run": true,
+      "reason": "",
+      "n": 96
+    },
+    "llmlingua": {
+      "run": true,
+      "reason": "",
+      "n": 96
+    },
+    "longllmlingua": {
+      "run": true,
+      "reason": "",
+      "n": 96
+    },
+    "llmlingua2": {
+      "run": true,
+      "reason": "",
+      "n": 12
+    }
+  }
+}

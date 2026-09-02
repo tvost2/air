@@ -57,7 +57,7 @@ sdk/           fachada Agent(), junta tudo
 mcp_server/    servidor MCP (Claude Code fala com o AIR por aqui — ver secão dedicada abaixo)
 adapters/      adota tech madura em vez de reimplementar (semantic_search.py — opcional, desligado por padrão)
 tests/         suites (`test_air.py`/`test_mcp_server.py`/`test_kakeya_index.py`/`test_tokens.py` só dependem de requirements.txt; `test_semantic_search.py` precisa de requirements-optional.txt + AIR_ENABLE_SEMANTIC_SEARCH=true)
-benchmarks/    comparação de tokens: agente de histórico completo vs agente sobre o AIR
+benchmarks/    token_benchmark.py (sessão N turnos) + context_comparison/ (AIR vs. 9 outras abordagens, 96 casos — ver seção dedicada abaixo)
 examples/      demos reais (`demo_agent.py` = agente completo; `demo_mcp.py` = fluxo MCP store→nova sessão→query)
 ```
 
@@ -543,6 +543,73 @@ encontra. Suite roda com `AIR_ENABLE_SEMANTIC_SEARCH=true python
 tests/test_semantic_search.py`; sem a env var, os testes que dependem
 do modelo pulam (`[SKIP]`), não falham — rodar sem querer não trava a
 suite rápida nem baixa nada.
+
+## Benchmark comparativo — AIR vs. truncation/keyword/semantic-RAG/LLMLingua
+
+`benchmarks/context_comparison/` é um harness bem mais rigoroso que o
+benchmark de token acima: compara AIR (prosa e estrutural, via
+`mcp_server/adapter.py` de produção, sem alterar lógica pra favorecer o
+teste) contra full-context (baseline), truncation em 3 limites, keyword
+retrieval (baseline lexical independente, top-3 sentenças), semantic RAG
+(embeddings), LLMLingua/LongLLMLingua/LLMLingua-2 — todas rodando o
+*mesmo* modelo final (SmolLM2-360M-Instruct local, sem chave de API) para
+não misturar "qual abordagem" com "qual modelo". Dataset sintético
+determinístico (seed fixa), 6 categorias que testam capacidades
+diferentes (`factual_simple`, `multi_hop`, `recency_conflict`,
+`long_distance`, `irrelevant_context`, `repeated_information`) — ver
+`benchmarks/context_comparison/datasets/synthetic.py`.
+
+**Rodado a 96 casos** (`n_per_category=16`, dobro do default — "mais do
+mesmo", pedido explícito do usuário), resultado real
+(`benchmarks/context_comparison/reports/run_n16_summary.json`):
+
+| abordagem | acurácia | tokens médios | economia | ganho de qualidade |
+|---|---:|---:|---:|---:|
+| full_context (baseline) | 0,573 | 318,7 | — | 1,000 |
+| keyword_retrieval | 0,573 | 145,7 | 173,0 tok (54,3%) | 1,000 |
+| semantic_rag | **0,729** | 146,7 | 172,0 tok (54,0%) | **1,273** |
+| **air_structural_memory** | 0,604 | 291,5 | 27,1 tok (8,5%) | 1,055 |
+| air (prosa) | 0,469 | 292,6 | 26,1 tok (8,2%) | 0,818 |
+| llmlingua2 (n=12) | 0,417 | 180,8 | 137,8 tok (43,3%) | 0,727 |
+
+**A primeira corrida (n=8/categoria, antes desta versão) mostrava o AIR
+pior que TODAS as alternativas** — economia de token *negativa*
+(usava mais token que o contexto bruto) e acurácia bem abaixo do
+baseline. Investigado a fundo, não aceito como "ruído do modelo pequeno"
+sem checar — dois bugs reais, achados e corrigidos nesta sessão (ver
+"Limitações conhecidas" acima para os dois com todo o raciocínio):
+
+1. Orçamento de token (`max_tokens`) contava errado, entregando quase o
+   dobro do pedido.
+2. O cabeçalho `[kind:id] label` que cada fato ganhava no texto
+   renderizado (dois ids sem sentido nenhum) fazia o modelo pequeno
+   *ecoar o cabeçalho* em vez de responder — a causa real, maior que a
+   do orçamento, confirmada lendo as respostas brutas do modelo, não
+   inferida da métrica agregada.
+
+Com os dois corrigidos, `air_structural_memory` foi de pior-que-tudo pra
+**acurácia acima do baseline (0,604 vs 0,573) usando menos token** —
+uma reversão real, não um ajuste de threshold pra melhorar número.
+
+**Honesto sobre o que ainda não é verdade**: mesmo corrigido, o AIR
+continua *atrás* de `keyword_retrieval`/`semantic_rag` em economia de
+token (27 vs ~173 tokens salvos) e mais ou menos empatado ou levemente
+atrás em acurácia agregada — essas duas abordagens usam um corte fixo
+(top-3 sentenças, ou top-k por similaridade) enquanto o AIR ainda inclui
+*todo* fato com `score > 0` até o orçamento acabar, o que deixa mais
+ruído de baixa relevância no contexto final do que precisaria. Isso é
+uma lacuna real e não corrigida ainda — próximo candidato a melhoria,
+não escondido aqui pra fazer o número parecer melhor. Por categoria
+(`run_n16_by_category.json`), o AIR estrutural *vence* claramente em
+`long_distance` (0,938 — melhor de todos) e é competitivo em
+`irrelevant_context`/`repeated_information`, mas fica atrás em
+`multi_hop` e `recency_conflict` (esta última é, ironicamente, a
+categoria desenhada especificamente pra testar o mecanismo de
+recência/supersede do AIR — resultado real, registrado sem embelezar).
+
+Reprodutível: `python -m benchmarks.context_comparison.runners.run --offline`
+(a partir de `E:\x\air`, com `requirements-optional.txt` instalado —
+custa horas de CPU local nesta máquina, ver docstring do runner).
 
 ## Benchmark de token — o que ele mostra de verdade
 
