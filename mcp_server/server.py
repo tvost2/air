@@ -270,7 +270,10 @@ def air_get_context(query: str, max_tokens: int | None = None, project: str = ""
 def air_update_memory(id: str, content: str) -> dict:
     """Atualiza uma memoria existente por id, criando uma nova versao que
     supersede a antiga (preserva o historico, nao sobrescreve em lugar --
-    mesmo mecanismo de recencia usado no resto do AIR)."""
+    mesmo mecanismo de recencia usado no resto do AIR). O `project` do
+    fato original e' preservado automaticamente na nova versao (nao ha'
+    parametro pra' mudar isso aqui -- mudar o escopo de um fato existente
+    e' feito registrando um fato novo com air_store_memory)."""
     return adapter.update_memory(id, content)
 
 

@@ -354,6 +354,34 @@ def test_update_memory_creates_new_version():
     check("update_memory: so' a versao nova esta' ativa", len(active) == 1 and active[0].obj == "valor novo")
 
 
+def test_update_memory_preserves_project_scope():
+    """Bug real encontrado testando, nao hipotetico: update_memory()
+    chamava memory.remember() sem passar project=fact.project -- o
+    default project="" tinha DOIS efeitos: (1) remember() faz sua PROPRIA
+    busca interna por subject+predicate+project pra' decidir o que
+    supersede, e com project errado nunca achava o fato original (que
+    ficava ACTIVE pra sempre, orfao); (2) o fato NOVO nascia com
+    project="" (global) mesmo quando o original era escopado -- conteudo
+    de um projeto vazava GLOBALMENTE, aparecendo em busca de QUALQUER
+    outro projeto. Exatamente a contaminacao cross-projeto que o
+    mecanismo de `project` existe pra' evitar, so' que dentro da propria
+    tool que deveria preservar o escopo."""
+    a = make_adapter("update_project_scope")
+    r1 = a.store_memory("segredo do projeto A", metadata={"subject": "s", "predicate": "p", "project": "proj_a"})
+    r2 = a.update_memory(r1["id"], "segredo atualizado do projeto A")
+
+    check("update_memory: fato novo preserva o project do original", r2["project"] == "proj_a")
+
+    original = a.memory.get_fact(r1["id"])
+    check("update_memory: fato original vira SUPERSEDED (nao fica ACTIVE orfao)", original.status == FactStatus.SUPERSEDED)
+
+    leak = a.search_context("atualizado", project="proj_b")
+    check("update_memory: conteudo NAO vaza pra busca de outro projeto", leak["total_matches"] == 0)
+
+    own = a.search_context("atualizado", project="proj_a")
+    check("update_memory: continua visivel na busca do proprio projeto", own["total_matches"] == 1)
+
+
 def test_update_memory_errors():
     a = make_adapter("update_errors")
     check("update_memory: id inexistente retorna erro", "error" in a.update_memory("nao-existe", "x"))
@@ -561,6 +589,7 @@ def main():
     test_get_context_prose_vs_structural_toggle()
     test_get_context_validation_errors()
     test_update_memory_creates_new_version()
+    test_update_memory_preserves_project_scope()
     test_update_memory_errors()
     test_delete_memory_basic()
     test_delete_memory_errors()

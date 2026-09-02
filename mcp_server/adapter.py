@@ -455,9 +455,27 @@ class AirAdapter:
         # "atualizar" preserva historico -- cria nova versao que supersede
         # a antiga, mesmo mecanismo de recencia ja' validado, nao
         # sobrescreve a linha antiga em lugar (regra 10 do pedido).
-        new_fact = self.memory.remember(fact.subject, fact.predicate, content, reason=f"atualizado via air_update_memory (versao anterior: {fact.id})")
-        logger.info("update_memory old_id=%s new_id=%s", fact.id, new_fact.id)
-        return {"id": new_fact.id, "previous_id": fact.id, "subject": new_fact.subject, "predicate": new_fact.predicate}
+        #
+        # project=fact.project e' CRITICO aqui, nao cosmetico -- bug real
+        # encontrado testando (nao hipotetico): sem isso, remember() usa
+        # o default project="" pra' DUAS coisas ao mesmo tempo: (1) a
+        # propria busca interna de "qual fato ativo supersede" (subject+
+        # predicate+project), que com project errado nunca acha o `fact`
+        # que acabamos de buscar por id alguns linhas acima -- o fato
+        # original ficava ACTIVE pra sempre, nunca SUPERSEDED; (2) o
+        # project do fato NOVO, que virava "" (global) mesmo quando o
+        # original era escopado -- o conteudo atualizado de um projeto
+        # escopado vazava GLOBALMENTE, aparecendo em busca de QUALQUER
+        # outro projeto. Exatamente o tipo de contaminacao cross-projeto
+        # que o mecanismo de `project` inteiro existe pra' evitar (ver
+        # README "Isolamento entre projetos/sessoes") -- so' que aqui
+        # dentro da propria tool que deveria preservar o escopo.
+        new_fact = self.memory.remember(fact.subject, fact.predicate, content, reason=f"atualizado via air_update_memory (versao anterior: {fact.id})", project=fact.project)
+        logger.info("update_memory old_id=%s new_id=%s project=%s", fact.id, new_fact.id, new_fact.project)
+        # project no retorno -- mesma paridade de store_memory (que ja'
+        # inclui), pra' quem chama confirmar visualmente o escopo sem
+        # precisar adivinhar ou confiar cegamente que foi preservado.
+        return {"id": new_fact.id, "previous_id": fact.id, "subject": new_fact.subject, "predicate": new_fact.predicate, "project": new_fact.project}
 
     # ------------------------------------------------------------------
     # air_delete_memory

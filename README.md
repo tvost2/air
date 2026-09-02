@@ -196,6 +196,21 @@ desde esta versão, mesmo mecanismo (era limitação conhecida documentada
 aqui antes, fechada com a mesma migração de schema que `entities` já
 tinha — `relations`/`events` ganharam a coluna `project` do mesmo jeito).
 
+**Bug real corrigido, não hipotético**: `air_update_memory` chamava
+`memory.remember()` sem passar o `project` do fato original — o default
+(`project=""`) fazia o fato *atualizado* nascer **global**, mesmo quando
+o original era escopado, e o original ficava `ACTIVE` pra sempre (nunca
+virava `SUPERSEDED`, porque a busca interna de "o que supersede" também
+usava o `project` errado). Resultado: atualizar um fato de um projeto
+vazava o conteúdo pra busca de **qualquer outro** projeto — exatamente a
+contaminação cross-projeto que este mecanismo inteiro existe pra evitar,
+só que dentro da própria tool que deveria preservá-lo. Corrigido
+passando `project=fact.project` explicitamente; `air_update_memory`
+agora também devolve `project` no resultado (paridade com
+`air_store_memory`, que já devolvia). Testado com reprodução do
+vazamento antes da correção e confirmação de que fecha depois
+(`tests/test_mcp_server.py::test_update_memory_preserves_project_scope`).
+
 Resources: `air://memory/facts` (snapshot dos fatos ativos), `air://world/state`
 (entidades + eventos recentes). Prompt: `reconstruct_context` (orienta
 uso de `air_get_context` e como recência já resolve conflito).
