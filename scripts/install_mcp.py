@@ -3,9 +3,13 @@
 
 Covers:
   - Claude Code       -- .mcp.json (repo root, "mcpServers" key)
-  - VS Code Copilot Chat -- .vscode/mcp.json (repo, "servers" key, needs
-    "type": "stdio"); also installs the GitHub.copilot / GitHub.copilot-chat
-    extensions if the `code` CLI is available.
+  - VS Code Copilot Chat, this workspace -- .vscode/mcp.json (repo,
+    "servers" key, "type": "stdio"); also installs the GitHub.copilot /
+    GitHub.copilot-chat extensions if the `code` CLI is available.
+  - VS Code Copilot Chat, every workspace -- the *user* mcp.json
+    (%APPDATA%/Code/User on Windows, ~/Library/Application Support/Code/User
+    on Mac, ~/.config/Code/User on Linux), so `air` is available no matter
+    which folder is open, not just this repo. Skip with --skip-global.
   - Codex (CLI + the `openai.chatgpt` VS Code extension, which share
     ~/.codex/config.toml) -- appends/replaces the [mcp_servers.air] table.
 
@@ -17,7 +21,7 @@ of its own, so wiring VS Code Copilot Chat above already covers it.
 Idempotent: re-running only touches the "air" entry in each config; any
 other MCP servers already configured are left untouched.
 
-Usage: python scripts/install_mcp.py [--skip-extensions]
+Usage: python scripts/install_mcp.py [--skip-extensions] [--skip-global]
 """
 from __future__ import annotations
 
@@ -33,13 +37,16 @@ PYTHON = shutil.which("python") or shutil.which("python3") or sys.executable
 
 
 def air_entry(schema: str) -> dict:
-    # cwd/storage: VS Code resolves ${workspaceFolder} itself, so that file
-    # works unmodified for anyone who opens this repo -- no need to have run
-    # this installer first. Claude Code's .mcp.json has no such variable, so
-    # it gets the resolved absolute path (same convention the repo already
-    # used); running this script on another machine recomputes it correctly.
-    root = "${workspaceFolder}" if schema == "vscode" else str(REPO)
-    sep = "/" if schema == "vscode" else "\\"
+    # cwd/storage: VS Code resolves ${workspaceFolder} itself, so the
+    # *workspace* mcp.json works unmodified for anyone who opens this repo --
+    # no need to have run this installer first. Every other target (Claude
+    # Code's .mcp.json, the VS Code *user* mcp.json, Codex) has no such
+    # variable and always applies regardless of which folder is open, so
+    # those get the resolved absolute path; running this script on another
+    # machine recomputes it correctly.
+    workspace_scoped = schema == "vscode"
+    root = "${workspaceFolder}" if workspace_scoped else str(REPO)
+    sep = "/" if workspace_scoped else "\\"
     env = {
         "AIR_STORAGE": f"{root}{sep}storage{sep}air_mcp.db",
         "AIR_LOG_LEVEL": "INFO",
@@ -47,11 +54,26 @@ def air_entry(schema: str) -> dict:
         "AIR_ENABLE_STRUCTURAL_MEMORY": "true",
     }
     entry = {"command": PYTHON, "args": ["-m", "mcp_server.server"], "cwd": root, "env": env}
-    if schema == "vscode":
+    if schema in ("vscode", "vscode_global"):
         # VS Code's mcp.json requires an explicit transport type; Claude
         # Code's .mcp.json infers stdio from the absence of "type"/"url".
         entry = {"type": "stdio", **entry}
     return entry
+
+
+def find_vscode_user_dir() -> Path:
+    """%APPDATA%/Code/User (Win), ~/Library/Application Support/Code/User
+    (Mac), ~/.config/Code/User (Linux) -- where VS Code keeps the *user*
+    (cross-workspace) mcp.json, distinct from a repo's .vscode/mcp.json."""
+    import os
+
+    if sys.platform == "win32":
+        base = Path(os.environ.get("APPDATA", Path.home() / "AppData/Roaming"))
+    elif sys.platform == "darwin":
+        base = Path.home() / "Library/Application Support"
+    else:
+        base = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
+    return base / "Code" / "User"
 
 
 def merge_json(path: Path, top_key: str, schema: str) -> None:
@@ -93,6 +115,13 @@ def install_vscode_copilot(skip_extensions: bool) -> None:
         subprocess.run([code_cli, "--install-extension", ext], check=False)
 
 
+def install_vscode_copilot_global() -> None:
+    """User-level mcp.json: applies to every VS Code window regardless of
+    which folder is open, unlike the workspace .vscode/mcp.json above.
+    Per-machine, not shipped with the repo -- same rationale as Codex."""
+    merge_json(find_vscode_user_dir() / "mcp.json", "servers", "vscode_global")
+
+
 def install_codex() -> None:
     """Appends/replaces [mcp_servers.air] in ~/.codex/config.toml.
 
@@ -122,12 +151,17 @@ def install_codex() -> None:
 
 def main() -> None:
     skip_extensions = "--skip-extensions" in sys.argv
+    skip_global = "--skip-global" in sys.argv
 
     print("Claude Code (.mcp.json):")
     install_claude_code()
 
     print("VS Code Copilot Chat + DeepSeek-for-Copilot (.vscode/mcp.json):")
     install_vscode_copilot(skip_extensions)
+
+    if not skip_global:
+        print("VS Code Copilot Chat, every workspace (user mcp.json):")
+        install_vscode_copilot_global()
 
     print("Codex CLI + openai.chatgpt extension (~/.codex/config.toml):")
     install_codex()

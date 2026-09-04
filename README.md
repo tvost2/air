@@ -251,13 +251,14 @@ precisar de um client MCP de verdade do outro lado.
 ### Configurar em todo client de uma vez (Copilot, Codex, DeepSeek)
 
 `scripts/install_mcp.py` (wrappers `scripts/install-mcp.cmd` /
-`scripts/install-mcp.sh`) escreve a mesma entrada `air` nos três lugares
-que importam:
+`scripts/install-mcp.sh`) escreve a mesma entrada `air` nos lugares que
+importam:
 
 | client | arquivo | escopo |
 |---|---|---|
 | Claude Code | `.mcp.json` (raiz do repo) | por repo |
-| VS Code Copilot Chat | `.vscode/mcp.json` | por repo |
+| VS Code Copilot Chat, esta pasta | `.vscode/mcp.json` | por repo |
+| VS Code Copilot Chat, toda janela | `mcp.json` de usuário (`%APPDATA%\Code\User` no Windows, `~/Library/Application Support/Code/User` no Mac, `~/.config/Code/User` no Linux) | por máquina — `air` fica disponível não importa qual pasta esteja aberta |
 | Codex (CLI + extensão `openai.chatgpt`) | `~/.codex/config.toml`, tabela `[mcp_servers.air]` | por máquina |
 
 O **DeepSeek** (extensão `deepseek-v4-for-copilot`) não tem alvo próprio:
@@ -269,7 +270,9 @@ configurar o VS Code Copilot Chat acima já cobre ele.
 python scripts/install_mcp.py            # também instala GitHub.copilot /
                                           # GitHub.copilot-chat via `code`
                                           # --install-extension, se achar o CLI
-python scripts/install_mcp.py --skip-extensions   # só escreve os arquivos
+python scripts/install_mcp.py --skip-extensions   # não mexe em extensão
+python scripts/install_mcp.py --skip-global       # só a pasta deste repo,
+                                                   # não o mcp.json de usuário
 ```
 
 Idempotente — rodar de novo só substitui a entrada `air`, o resto de cada
