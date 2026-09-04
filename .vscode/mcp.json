@@ -1,14 +1,15 @@
 {
-  "mcpServers": {
+  "servers": {
     "air": {
+      "type": "stdio",
       "command": "C:\\Users\\tvost\\AppData\\Local\\Programs\\Python\\Python311\\python.EXE",
       "args": [
         "-m",
         "mcp_server.server"
       ],
-      "cwd": "E:\\x\\air",
+      "cwd": "${workspaceFolder}",
       "env": {
-        "AIR_STORAGE": "E:\\x\\air\\storage\\air_mcp.db",
+        "AIR_STORAGE": "${workspaceFolder}/storage/air_mcp.db",
         "AIR_LOG_LEVEL": "INFO",
         "AIR_MAX_CONTEXT": "2000",
         "AIR_ENABLE_STRUCTURAL_MEMORY": "true"

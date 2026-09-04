@@ -248,6 +248,35 @@ Code, dá pra' testar o servidor isolado com `python -m mcp_server.server`
 `python examples/demo_mcp.py`, que chama a mesma camada de protocolo sem
 precisar de um client MCP de verdade do outro lado.
 
+### Configurar em todo client de uma vez (Copilot, Codex, DeepSeek)
+
+`scripts/install_mcp.py` (wrappers `scripts/install-mcp.cmd` /
+`scripts/install-mcp.sh`) escreve a mesma entrada `air` nos três lugares
+que importam:
+
+| client | arquivo | escopo |
+|---|---|---|
+| Claude Code | `.mcp.json` (raiz do repo) | por repo |
+| VS Code Copilot Chat | `.vscode/mcp.json` | por repo |
+| Codex (CLI + extensão `openai.chatgpt`) | `~/.codex/config.toml`, tabela `[mcp_servers.air]` | por máquina |
+
+O **DeepSeek** (extensão `deepseek-v4-for-copilot`) não tem alvo próprio:
+ela só registra um modelo no seletor do Copilot Chat
+(`languageModelChatProviders`, sem superfície MCP dela mesma), então
+configurar o VS Code Copilot Chat acima já cobre ele.
+
+```bash
+python scripts/install_mcp.py            # também instala GitHub.copilot /
+                                          # GitHub.copilot-chat via `code`
+                                          # --install-extension, se achar o CLI
+python scripts/install_mcp.py --skip-extensions   # só escreve os arquivos
+```
+
+Idempotente — rodar de novo só substitui a entrada `air`, o resto de cada
+config fica intacto. Cada client precisa reiniciar (ou a sessão atual, no
+caso do Claude Code) pra carregar o servidor — nenhum reconecta
+retroativamente numa sessão já em execução.
+
 ### Configuração (variáveis de ambiente)
 
 | Variável | Default | Efeito |
